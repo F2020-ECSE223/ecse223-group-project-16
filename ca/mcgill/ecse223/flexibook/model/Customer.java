@@ -2,11 +2,10 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse223.flexibook.model;
-
 import java.util.*;
 
-// line 13 "model.ump"
-// line 101 "model.ump"
+// line 16 "../../../../../../model.ump"
+// line 104 "../../../../../../model.ump"
 public class Customer extends User
 {
 

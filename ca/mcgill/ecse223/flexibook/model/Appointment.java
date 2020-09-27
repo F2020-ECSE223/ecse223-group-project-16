@@ -2,11 +2,10 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse223.flexibook.model;
-
 import java.util.*;
 
-// line 52 "model.ump"
-// line 116 "model.ump"
+// line 55 "../../../../../../model.ump"
+// line 119 "../../../../../../model.ump"
 public class Appointment extends ScheduledEvent
 {
 

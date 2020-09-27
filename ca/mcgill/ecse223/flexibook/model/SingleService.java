@@ -3,8 +3,8 @@
 
 package ca.mcgill.ecse223.flexibook.model;
 
-// line 24 "model.ump"
-// line 174 "model.ump"
+// line 27 "../../../../../../model.ump"
+// line 177 "../../../../../../model.ump"
 public class SingleService extends Service
 {
 

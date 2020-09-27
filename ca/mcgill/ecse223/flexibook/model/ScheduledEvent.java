@@ -3,8 +3,8 @@
 
 package ca.mcgill.ecse223.flexibook.model;
 
-// line 46 "model.ump"
-// line 184 "model.ump"
+// line 49 "../../../../../../model.ump"
+// line 187 "../../../../../../model.ump"
 public abstract class ScheduledEvent
 {
 

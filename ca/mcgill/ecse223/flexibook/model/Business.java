@@ -2,12 +2,11 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse223.flexibook.model;
-
 import java.util.*;
 import java.sql.Time;
 
-// line 72 "model.ump"
-// line 129 "model.ump"
+// line 75 "../../../../../../model.ump"
+// line 132 "../../../../../../model.ump"
 public class Business
 {
 

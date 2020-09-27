@@ -3,8 +3,8 @@
 
 package ca.mcgill.ecse223.flexibook.model;
 
-// line 7 "model.ump"
-// line 91 "model.ump"
+// line 10 "../../../../../../model.ump"
+// line 94 "../../../../../../model.ump"
 public class Owner extends User
 {
 

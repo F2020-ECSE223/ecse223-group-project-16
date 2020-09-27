@@ -3,8 +3,8 @@
 
 package ca.mcgill.ecse223.flexibook.model;
 
-// line 19 "model.ump"
-// line 109 "model.ump"
+// line 22 "../../../../../../model.ump"
+// line 112 "../../../../../../model.ump"
 public abstract class Service
 {
 

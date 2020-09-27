@@ -2,11 +2,10 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse223.flexibook.model;
-
 import java.sql.Time;
 
-// line 65 "model.ump"
-// line 169 "model.ump"
+// line 68 "../../../../../../model.ump"
+// line 172 "../../../../../../model.ump"
 public class OpeningHours
 {
 

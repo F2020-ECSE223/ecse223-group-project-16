@@ -3,8 +3,8 @@
 
 package ca.mcgill.ecse223.flexibook.model;
 
-// line 59 "model.ump"
-// line 179 "model.ump"
+// line 62 "../../../../../../model.ump"
+// line 182 "../../../../../../model.ump"
 public class LeaveOfAbsence extends ScheduledEvent
 {
 

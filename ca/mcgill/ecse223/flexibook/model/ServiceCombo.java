@@ -2,11 +2,10 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse223.flexibook.model;
-
 import java.util.*;
 
-// line 34 "model.ump"
-// line 152 "model.ump"
+// line 37 "../../../../../../model.ump"
+// line 155 "../../../../../../model.ump"
 public class ServiceCombo extends Service
 {
 

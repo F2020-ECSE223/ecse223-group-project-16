@@ -3,8 +3,8 @@
 
 package ca.mcgill.ecse223.flexibook.model;
 
-// line 2 "model.ump"
-// line 86 "model.ump"
+// line 5 "../../../../../../model.ump"
+// line 89 "../../../../../../model.ump"
 public abstract class User
 {
 

@@ -1,0 +1,197 @@
+namespace ca.mcgill.ecse223.flexibook.model;
+
+class User {
+  abstract;
+  unique String username;
+  String password;
+}
+
+class Owner {
+  isA User;
+  String username = "owner";
+  String password = "owner";
+}
+
+class Customer {
+  isA User;
+  1 bookedCustomer -- * Appointment appointments;
+}
+
+class Service {
+  abstract;
+  String name;
+}
+
+class SingleService {
+  isA Service;
+  int totalDuration;
+  int downtimeDuration;
+  int downtimeOffsetIntoService;
+}
+
+class ServiceCombo {
+  isA Service;
+  0..1 -> 1 ComboItem mainSingleService; // subset, must be mandatory constraint
+  1 <@>- 2..* ComboItem singleServiceCombination; // there must be at least 2 services to be a combo
+}
+
+class ComboItem {
+  boolean required;
+  * -> 1 SingleService combinedSingleService;
+}
+
+class ScheduledEvent {
+  abstract;
+  DateTime startDateTime;
+  DateTime endDateTime;
+}
+
+class Appointment {
+  isA ScheduledEvent;
+  * appointmentsOfService -- 1 Service selectedService;
+  * -> * SingleService selectedServiceComboOptions;
+}
+
+class LeaveOfAbsence {
+  isA ScheduledEvent;
+  enum LeaveType { HOLIDAY, VACATION }
+  LeaveType leaveType;
+}
+
+class OpeningHours {
+  enum DayOfWeek { MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY } // https://docs.oracle.com/javase/8/docs/api/java/time/DayOfWeek.html
+  DayOfWeek dayOfWeek;
+  Time startTime;
+  Time endTime;
+}
+
+class Business {
+  String name;
+  String address;
+  String phoneNumber;
+  String emailAddress;
+  0..1 -> * OpeningHours weeklyOpeningHours;
+  0..1 -> * LeaveOfAbsence leavesOfAbsence;
+  0..1 -> * Appointment appointments;
+}
+  //$?[End_of_model]$?
+
+namespace -;
+
+
+class User
+{
+  position 620 6 142 93;
+}
+
+class Owner
+{
+  position 724 153 142 76;
+  position.association Appointment__Owner 30,42 62,0;
+  position.association Appointment__Owner:employee 140,56 0,32;
+  position.association Business:ownedBusinesses__Owner 62,60 40,0;
+  position.association Appointment:appointments__Owner:employee 140,44 0,10;
+  position.association Business:ownedBusiness__Owner:businessOwner 0,27 171,58;
+}
+
+class Customer
+{
+  position 536 153 109 40;
+  position.association Appointment__Customer 110,42 0,0;
+  position.association Appointment:appointments__Customer 75,42 120,0;
+  position.association Appointment:bookedAppointments__Customer 0,10 102,0;
+  position.association Appointment:bookedAppointments__Customer:customer 0,10 108,0;
+  position.association Appointment:appointments__Customer:bookedCustomer 0,10 75,0;
+  position.association Appointment:bookedAppointments__Customer:bookedCustomer 0,10 70,0;
+}
+
+class Service
+{
+  position 871 389 188 75;
+  position.association Downtime__Service 0,48 122,2;
+  position.association Downtime:downtime__Service 93,78 88,0;
+}
+
+class Appointment
+{
+  position 321 389 132 40;
+  position.association Appointment__TimeSlot 101,42 4,0;
+  position.association Appointment__Combo 132,17 0,10;
+  position.association Appointment__SpecificOccurence 166,60 0,10;
+  position.association Appointment__ServiceOffering 166,35 0,34;
+  position.association Appointment__Service 133,57 0,10;
+  position.association Appointment__Service:selectedService 133,7 0,18;
+  position.association Appointment__ComboItem:selectedComboOptions 118,42 0,33;
+  position.association Appointment__SingleService:selectedComboOptions 133,38 0,10;
+  position.association Appointment__SingleService:selectedServiceComboOptions 133,41 0,10;
+  position.association Appointment:appointmentsOfService__Service:selectedService 133,10 0,10;
+  position.association Appointment:appointmentOf__Service:selectedService 133,10 0,10;
+  position.association Appointment:appointmentOfService__Service:selectedService 133,10 0,10;
+  position.association Appointment__SingleService:selectedServiceComboOptbions 133,11 0,10;
+}
+
+class Business
+{
+  position 392 639 170 112;
+  position.association Appointment:appointments__Business 137,0 76,42;
+  position.association Address:address__Business 0,82 110,28;
+  position.association Business__BusinessHours:businessHours 34,0 63,42;
+  position.association Business__TimeSlot:calendar 171,63 0,6;
+  position.association Business__BusinessHour:businessHours 79,96 0,16;
+  position.association Appointment:appointmentCalendar__Business 126,0 61,42;
+  position.association Business__BusinessHour:weeklyBusinessHours 145,96 30,0;
+  position.association Business__BusinessHour:weeklySchedule 99,96 30,0;
+  position.association Business__ScheduleEvent:busi 126,96 31,0;
+  position.association Appointment:appointmentCalendanr__Business 171,10 0,10;
+  position.association Business__ScheduleEvent:businessHurs 171,21 0,10;
+  position.association Business__ScheduleEvent:businessHours 55,0 107,60;
+  position.association Business__OpeningHours:openHours 0,10 156,10;
+  position.association Business__OpeningHours:openingHours 0,83 156,27;
+  position.association Business__ScheduleEvent 0,10 196,13;
+  position.association Business__ScheduledBreak:breakSchedule 0,10 136,12;
+  position.association Business__LeaveOfAbsence:leavesOfAbsence 30,0 88,60;
+  position.association Business__OpeningHours:weeklyOpeningHours 0,10 191,11;
+}
+
+class ServiceCombo
+{
+  position 1045 519 109 40;
+  position.association ComboItem:mainService__ServiceCombo:serviceComboOfMainService 17,42 80,0;
+  position.association ComboItem:comboServices__ServiceCombo:serviceCombo 11,42 162,33;
+  position.association ComboItem:mainService__ServiceCombo 0,34 142,0;
+  position.association ComboItewm:mainService__ServiceCombo 78,42 37,0;
+  position.association ComboItewm:comboServices__ServiceCombo:serviceCombo 27,42 0,12;
+  position.association ComboItem:mainSingleService__ServiceCombo 30,42 122,0;
+  position.association ComboItem:cominedSingleServices__ServiceCombo:serviceCombo 0,30 162,26;
+  position.association ComboItem:singleServiceCombination__ServiceCombo:serviceCombo 75,42 161,10;
+  position.association ComboItem:combinedSingleServices__ServiceCombo:serviceCombo 86,42 162,39;
+  position.association ComboItem:combination__ServiceCombo:serviceCombo 1,42 159,0;
+  position.association ComboItem2:mainSingleService__ServiceCombo 0,10 162,34;
+  position.association ComboItem:singleServiceCombination__ServiceCombo 73,42 162,0;
+}
+
+class OpeningHours
+{
+  position 24 620 190 94;
+}
+
+class SingleService
+{
+  position 706 520 235 94;
+}
+
+class LeaveOfAbsence
+{
+  position 26 386 174 58;
+}
+
+class ScheduledEvent
+{
+  position 154 237 195 93;
+}
+
+class ComboItem
+{
+  position.association ComboItem__SingleService:combinedSingleService 0,7 129,96;
+  position 889 694 161 58;
+}

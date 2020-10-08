@@ -8,6 +8,7 @@ import ca.mcgill.ecse.flexibook.model.*;
 public class FlexiBookController {
 	/**
 	 * @author louca
+	 * @category CRUD Account
 	 * 
 	 * @param username to give to the created Customer account
 	 * @param password to give to the created Customer account
@@ -21,6 +22,7 @@ public class FlexiBookController {
 	 */
 	public static Customer createCustomerAccount(String username, String password) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
+		
 		validateCustomerAccountUsername(username);
 		validateUserAccountPassword(password);
 		
@@ -30,7 +32,7 @@ public class FlexiBookController {
 		
 		try {
 			return new Customer(username, password, flexiBook);
-		} catch (RuntimeException e) { // this conceals other RuntimeExceptions that may occur during Customer construction
+		} catch (RuntimeException e) { // conceals other RuntimeExceptions that may occur during Customer construction
 			throw new InvalidInputException("The username already exists");
 		}
 	}
@@ -75,38 +77,7 @@ public class FlexiBookController {
 	
 	/**
 	 * @author louca
-	 * 
-	 * @param customer to update
-	 * @param newUsername with which to update the Customer account
-	 * @return whether or not the Customer account username was updated
-	 * 
-	 * @throws InvalidInputException if the newUsername is empty or whitespace, or if the newUsername is not available
-	 */
-	public static boolean updateCustomerAccountUsername(Customer customer, String newUsername) throws InvalidInputException {
-		validateCustomerAccountUsername(newUsername);
-		if (customer.setUsername(newUsername)) {
-			return true;
-		}
-		throw new InvalidInputException("Username not available");
-	}
-	
-	/**
-	 * @author louca
-	 * 
-	 * @param user to update
-	 * @param newPassword with which to update the User account
-	 * @return whether or not the User account password was updated
-	 * 
-	 * @throws InvalidInputException if the newPassword is empty or whitespace
-	 */
-	public static boolean updateUserAccountPassword(User user, String newPassword) throws InvalidInputException {
-		validateUserAccountPassword(newPassword);
-		user.setPassword(newPassword);
-		return true;
-	}
-	
-	/**
-	 * @author louca
+	 * @category CRUD Account
 	 * 
 	 * @param user of the User account to update
 	 * @param newUsername with which to update the User account
@@ -125,16 +96,53 @@ public class FlexiBookController {
 		if (userToUpdate instanceof Customer) {
 			return updateCustomerAccountUsername((Customer) userToUpdate, newUsername) 
 					&& updateUserAccountPassword(userToUpdate, newPassword);
-		} else { // instanceof Owner
+		} else if (userToUpdate instanceof Owner) {
 			if (!newUsername.equals("owner")) {
 				throw new InvalidInputException("Changing username of owner is not allowed");
 			}
 			return updateUserAccountPassword(userToUpdate, newPassword);
+		} else { // userToUpdate == null
+			return false;
 		}
 	}
 	
 	/**
 	 * @author louca
+	 * @category CRUD Account
+	 * 
+	 * @param customer to update
+	 * @param newUsername with which to update the Customer account
+	 * @return whether or not the Customer account username was updated
+	 * 
+	 * @throws InvalidInputException if the newUsername is empty or whitespace, or if the newUsername is not available
+	 */
+	private static boolean updateCustomerAccountUsername(Customer customer, String newUsername) throws InvalidInputException {
+		validateCustomerAccountUsername(newUsername);
+		if (customer.setUsername(newUsername)) {
+			return true;
+		}
+		throw new InvalidInputException("Username not available");
+	}
+	
+	/**
+	 * @author louca
+	 * @category CRUD Account
+	 * 
+	 * @param user to update
+	 * @param newPassword with which to update the User account
+	 * @return whether or not the User account password was updated
+	 * 
+	 * @throws InvalidInputException if the newPassword is empty or whitespace
+	 */
+	private static boolean updateUserAccountPassword(User user, String newPassword) throws InvalidInputException {
+		validateUserAccountPassword(newPassword);
+		user.setPassword(newPassword);
+		return true;
+	}
+	
+	/**
+	 * @author louca
+	 * @category CRUD Account
 	 * 
 	 * @param username of the Customer account to delete
 	 * @return whether or not the Customer account was deleted

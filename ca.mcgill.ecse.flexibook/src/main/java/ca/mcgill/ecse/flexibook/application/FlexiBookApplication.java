@@ -14,8 +14,6 @@ public class FlexiBookApplication {
 
     public static void main(String[] args) {
         System.out.println(new FlexiBookApplication().getGreeting());
-        
-        
     }
     
     public static FlexiBook getFlexiBook() {
@@ -29,5 +27,4 @@ public class FlexiBookApplication {
     public static void setFlexiBook(FlexiBook aFlexiBook) {
     	flexiBook = aFlexiBook;
     }
-    
 }

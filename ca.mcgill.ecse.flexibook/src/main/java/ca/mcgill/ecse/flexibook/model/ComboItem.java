@@ -2,7 +2,6 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse.flexibook.model;
-import java.util.*;
 
 // line 79 "../../../../../FlexiBook.ump"
 public class ComboItem
@@ -17,20 +16,24 @@ public class ComboItem
 
   //ComboItem Associations
   private Service service;
-  private List<ServiceCombo> serviceCombos;
+  private ServiceCombo serviceCombo;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public ComboItem(boolean aMandatory, Service aService)
+  public ComboItem(boolean aMandatory, Service aService, ServiceCombo aServiceCombo)
   {
     mandatory = aMandatory;
     if (!setService(aService))
     {
       throw new RuntimeException("Unable to create ComboItem due to aService. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
-    serviceCombos = new ArrayList<ServiceCombo>();
+    boolean didAddServiceCombo = setServiceCombo(aServiceCombo);
+    if (!didAddServiceCombo)
+    {
+      throw new RuntimeException("Unable to create service due to serviceCombo. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
   }
 
   //------------------------
@@ -59,35 +62,10 @@ public class ComboItem
   {
     return service;
   }
-  /* Code from template association_GetMany */
-  public ServiceCombo getServiceCombo(int index)
+  /* Code from template association_GetOne */
+  public ServiceCombo getServiceCombo()
   {
-    ServiceCombo aServiceCombo = serviceCombos.get(index);
-    return aServiceCombo;
-  }
-
-  public List<ServiceCombo> getServiceCombos()
-  {
-    List<ServiceCombo> newServiceCombos = Collections.unmodifiableList(serviceCombos);
-    return newServiceCombos;
-  }
-
-  public int numberOfServiceCombos()
-  {
-    int number = serviceCombos.size();
-    return number;
-  }
-
-  public boolean hasServiceCombos()
-  {
-    boolean has = serviceCombos.size() > 0;
-    return has;
-  }
-
-  public int indexOfServiceCombo(ServiceCombo aServiceCombo)
-  {
-    int index = serviceCombos.indexOf(aServiceCombo);
-    return index;
+    return serviceCombo;
   }
   /* Code from template association_SetUnidirectionalOne */
   public boolean setService(Service aNewService)
@@ -100,105 +78,45 @@ public class ComboItem
     }
     return wasSet;
   }
-  /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfServiceCombos()
+  /* Code from template association_SetOneToMandatoryMany */
+  public boolean setServiceCombo(ServiceCombo aServiceCombo)
   {
-    return 0;
-  }
-  /* Code from template association_AddManyToManyMethod */
-  public boolean addServiceCombo(ServiceCombo aServiceCombo)
-  {
-    boolean wasAdded = false;
-    if (serviceCombos.contains(aServiceCombo)) { return false; }
-    if (serviceCombos.contains(aServiceCombo)) { return false; }
-    serviceCombos.add(aServiceCombo);
-    if (aServiceCombo.indexOfService(this) != -1)
+    boolean wasSet = false;
+    //Must provide serviceCombo to service
+    if (aServiceCombo == null)
     {
-      wasAdded = true;
-    }
-    else
-    {
-      wasAdded = aServiceCombo.addService(this);
-      if (!wasAdded)
-      {
-        serviceCombos.remove(aServiceCombo);
-      }
-    }
-    return wasAdded;
-  }
-  /* Code from template association_RemoveMany */
-  public boolean removeServiceCombo(ServiceCombo aServiceCombo)
-  {
-    boolean wasRemoved = false;
-    if (!serviceCombos.contains(aServiceCombo))
-    {
-      return wasRemoved;
+      return wasSet;
     }
 
-    int oldIndex = serviceCombos.indexOf(aServiceCombo);
-    serviceCombos.remove(oldIndex);
-    if (aServiceCombo.indexOfService(this) == -1)
+    if (serviceCombo != null && serviceCombo.numberOfServices() <= ServiceCombo.minimumNumberOfServices())
     {
-      wasRemoved = true;
+      return wasSet;
     }
-    else
+
+    ServiceCombo existingServiceCombo = serviceCombo;
+    serviceCombo = aServiceCombo;
+    if (existingServiceCombo != null && !existingServiceCombo.equals(aServiceCombo))
     {
-      wasRemoved = aServiceCombo.removeService(this);
-      if (!wasRemoved)
+      boolean didRemove = existingServiceCombo.removeService(this);
+      if (!didRemove)
       {
-        serviceCombos.add(oldIndex,aServiceCombo);
+        serviceCombo = existingServiceCombo;
+        return wasSet;
       }
     }
-    return wasRemoved;
-  }
-  /* Code from template association_AddIndexControlFunctions */
-  public boolean addServiceComboAt(ServiceCombo aServiceCombo, int index)
-  {  
-    boolean wasAdded = false;
-    if(addServiceCombo(aServiceCombo))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfServiceCombos()) { index = numberOfServiceCombos() - 1; }
-      serviceCombos.remove(aServiceCombo);
-      serviceCombos.add(index, aServiceCombo);
-      wasAdded = true;
-    }
-    return wasAdded;
-  }
-
-  public boolean addOrMoveServiceComboAt(ServiceCombo aServiceCombo, int index)
-  {
-    boolean wasAdded = false;
-    if(serviceCombos.contains(aServiceCombo))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfServiceCombos()) { index = numberOfServiceCombos() - 1; }
-      serviceCombos.remove(aServiceCombo);
-      serviceCombos.add(index, aServiceCombo);
-      wasAdded = true;
-    } 
-    else 
-    {
-      wasAdded = addServiceComboAt(aServiceCombo, index);
-    }
-    return wasAdded;
+    serviceCombo.addService(this);
+    wasSet = true;
+    return wasSet;
   }
 
   public void delete()
   {
     service = null;
-    ArrayList<ServiceCombo> copyOfServiceCombos = new ArrayList<ServiceCombo>(serviceCombos);
-    serviceCombos.clear();
-    for(ServiceCombo aServiceCombo : copyOfServiceCombos)
+    ServiceCombo placeholderServiceCombo = serviceCombo;
+    this.serviceCombo = null;
+    if(placeholderServiceCombo != null)
     {
-      if (aServiceCombo.numberOfServices() <= ServiceCombo.minimumNumberOfServices())
-      {
-        aServiceCombo.delete();
-      }
-      else
-      {
-        aServiceCombo.removeService(this);
-      }
+      placeholderServiceCombo.removeService(this);
     }
   }
 
@@ -207,6 +125,7 @@ public class ComboItem
   {
     return super.toString() + "["+
             "mandatory" + ":" + getMandatory()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "service = "+(getService()!=null?Integer.toHexString(System.identityHashCode(getService())):"null");
+            "  " + "service = "+(getService()!=null?Integer.toHexString(System.identityHashCode(getService())):"null") + System.getProperties().getProperty("line.separator") +
+            "  " + "serviceCombo = "+(getServiceCombo()!=null?Integer.toHexString(System.identityHashCode(getServiceCombo())):"null");
   }
 }

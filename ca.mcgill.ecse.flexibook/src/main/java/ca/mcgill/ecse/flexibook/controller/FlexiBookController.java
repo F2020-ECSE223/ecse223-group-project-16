@@ -9,57 +9,66 @@ public class FlexiBookController {
 	/**
 	 * @author louca
 	 * 
-	 * @param username the username that the created Customer account will be given
-	 * @param password the password that the created Customer account will be given
+	 * @param username to give to the created Customer account
+	 * @param password to give to the created Customer account
 	 * @return the created Customer account
 	 * 
 	 * @throws IllegalArgumentException if any of the username or password are null
-	 * @throws InvalidInputException if any of the username or password are empty or whitespace only
+	 * @throws InvalidInputException if any of the username or password are empty or whitespace, or if the username already exists
 	 */
 	public static Customer createCustomerAccount(String username, String password) throws InvalidInputException {
-		// perform validation according to constraints
-		if (validateCustomerAccountUsername(username) && validateUserAccountPassword(password)) { 
+		validateCustomerAccountUsername(username);
+		validateUserAccountPassword(password);
+		try {
 			return new Customer(username, password, FlexiBookApplication.getFlexiBook());
+		} catch (RuntimeException e) { // this conceals other RuntimeExceptions that may occur during Customer construction
+			throw new InvalidInputException("The username already exists");
 		}
-		throw new InvalidInputException("Customer account username or password cannot be empty or whitespace only.");
 	}
 
-	private static boolean validateCustomerAccountUsername(String username) throws IllegalArgumentException {
+	private static void validateCustomerAccountUsername(String username) throws InvalidInputException {
 		if (username == null) {
-			throw new IllegalArgumentException("Customer account username cannot be null.");
+			throw new IllegalArgumentException("The username cannot be null");
 		}
-		if (username.equals("") || username.trim().isEmpty()) {
-			return false;
+		if (username.trim().isEmpty()) {
+			throw new InvalidInputException("The username cannot be empty");
 		}
-		return true;
 	}
 	
-	private static boolean validateUserAccountPassword(String password) throws IllegalArgumentException {
+	private static void validateUserAccountPassword(String password) throws InvalidInputException {
 		if (password == null) {
-			throw new IllegalArgumentException("User account password cannot be null.");
+			throw new IllegalArgumentException("The password cannot be null");
 		}
-		if (password.equals("") || password.trim().isEmpty()) {
-			return false;
+		if (password.trim().isEmpty()) {
+			throw new InvalidInputException("The password cannot be empty");
 		}
-		return true;
+	}
+	
+	public static Customer getCustomerByUsername(String username) {
+		for (Customer customer : FlexiBookApplication.getFlexiBook().getCustomers()) {
+			if (customer.getUsername().equals(username)) {
+				return customer;
+			}
+		}
+		return null;
+	}
+	
+	public static User getLoggedInUser() {
+		return null;
 	}
 	
 	/**
 	 * @author louca
 	 * 
-	 * @param username the username of the Customer account to delete
+	 * @param username of the Customer account to delete
 	 * @return whether or not the Customer account was deleted
 	 */
 	public static boolean deleteCustomer(String username) {
-		List<Customer> allCustomers = FlexiBookApplication.getFlexiBook().getCustomers();
-		for (Customer customer : allCustomers) {
-			if (customer.getUsername().equals(username)) {
-				if (true) {
-					deleteAllCustomerAppointments(customer);
-					customer.delete();
-					return true;
-				}
-			}
+		Customer customerToDelete = getCustomerByUsername(username);
+		if (customerToDelete != null && customerToDelete == getLoggedInUser()) {
+			deleteAllCustomerAppointments(customerToDelete);
+			customerToDelete.delete();
+			return true;
 		}
 		return false;
 	}
@@ -79,52 +88,46 @@ public class FlexiBookController {
 	/**
 	 * @author louca
 	 * 
-	 * @param customer the Customer account to update
-	 * @param username the updated username
+	 * @param customer to update
+	 * @param newUsername with which to update the Customer account
 	 * @return the updated Customer account
 	 * 
-	 * @throws IllegalArgumentException if any of the username or password are null
-	 * @throws InvalidInputException if any of the username or password are invalid
+	 * @throws InvalidInputException if the newUsername is empty or whitespace, or if the newUsername already exists
 	 */
-	public static Customer updateCustomerAccountUsername(Customer customer, String username) throws InvalidInputException {
-		if (validateCustomerAccountUsername(username)) {
-			customer.setUsername(username);
-			return customer;
-		}
-		throw new InvalidInputException("Customer account username cannot be empty or whitespace only.");
+	public static Customer updateCustomerAccountUsername(Customer customer, String newUsername) throws InvalidInputException {
+		validateCustomerAccountUsername(newUsername);
+		customer.setUsername(newUsername);
+		return customer;
 	}
 	
 	/**
 	 * @author louca
 	 * 
-	 * @param user
-	 * @param password
-	 * @return
+	 * @param user to update
+	 * @param newPassword with which to update the User account
+	 * @return the updated User account
 	 * 
-	 * @throws IllegalArgumentException
-	 * @throws InvalidInputException
+	 * @throws InvalidInputException if the newPassword is empty or whitespace
 	 */
-	public static User updateUserAccountPassword(User user, String password) throws InvalidInputException {
-		if (validateUserAccountPassword(password)) {
-			user.setPassword(password);
-			return user;
-		}
-		throw new InvalidInputException("User account password cannot be empty or whitespace only.");
+	public static User updateUserAccountPassword(User user, String newPassword) throws InvalidInputException {
+		validateUserAccountPassword(newPassword);
+		user.setPassword(newPassword);
+		return user;
 	}
 	
 	/**
 	 * @author louca
 	 * 
-	 * @param customer
-	 * @param username
-	 * @param password
+	 * @param customer to update
+	 * @param newUsername with which to update the Customer account
+	 * @param newPassword with which to update the Customer account
 	 * @return
-	 * @throws IllegalArgumentException
+	 * 
 	 * @throws InvalidInputException
 	 */
-	public static Customer updateCustomerAccount(Customer customer, String username, String password) throws InvalidInputException {
-		updateCustomerAccountUsername(customer, username);
-		updateUserAccountPassword(customer, password);
+	public static Customer updateCustomerAccount(Customer customer, String newUsername, String newPassword) throws InvalidInputException {
+		updateCustomerAccountUsername(customer, newUsername);
+		updateUserAccountPassword(customer, newPassword);
 		return customer;
 	}
 }

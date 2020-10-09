@@ -29,17 +29,18 @@ public class CucumberStepDefinitions {
 	
 	private FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 	
-	@After // each scenario
-	public void deleteCustomers(Scenario scenario) {
+	/**
+	 * Teardown environment after each scenario
+	 */
+	@After
+	public void deleteCustomers() {
 		for (Customer customer : new ArrayList<Customer>(flexiBook.getCustomers())) {
 			customer.delete();
 		}
-		System.out.println(flexiBook.getCustomers().size());
 		
 		for (BookableService bookableService : new ArrayList<BookableService>(flexiBook.getBookableServices())) {
 			bookableService.delete();
 		}
-		System.out.println(flexiBook.getBookableServices().size());
 	}
 		
 	@Given("a Flexibook system exists")
@@ -47,6 +48,15 @@ public class CucumberStepDefinitions {
 	    assertTrue(FlexiBookApplication.getFlexiBook() != null);
 	}
 
+	//================================================================================
+    // DeleteCustomerAccount
+    //================================================================================
+
+	/**
+	 * @author louca
+	 * @param string username
+	 * @param string2 password
+	 */
 	@Given("an owner account exists in the system with username {string} and password {string}")
 	public void an_owner_account_exists_in_the_system_with_username_and_password(String string, String string2) {
 		if (!flexiBook.hasOwner()) {
@@ -55,6 +65,10 @@ public class CucumberStepDefinitions {
 		
 	    assertTrue(flexiBook.hasOwner());
 	}
+	/**
+	 * @author louca
+	 * @param dataTable username, password rows
+	 */
 	@Given("the following customers exist in the system:")
 	public void the_following_customers_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
 		List<Map<String, String>> rows = dataTable.asMaps();
@@ -63,6 +77,10 @@ public class CucumberStepDefinitions {
 			new Customer(columns.get("username"), columns.get("password"), flexiBook);
 		}
 	}
+	/**
+	 * @@author louca
+	 * @param string username
+	 */
 	@Given("the account with username {string} has pending appointments")
 	public void the_account_with_username_has_pending_appointments(String string) {
 	    Customer customer = FlexiBookController.getCustomerByUsername(string);
@@ -86,12 +104,22 @@ public class CucumberStepDefinitions {
 	    
 	    assertTrue(customer.getAppointments().size() > 0);
 	}
+	/**
+	 * @author louca
+	 * @param string username
+	 */
 	@Given("the user is logged in to an account with username {string}")
 	public void the_user_is_logged_in_to_an_account_with_username(String string) {
 	    assertTrue(true);
 	}
+	
 	List<Appointment> allAppointmentsOfDeletedCustomer;
 	Exception deletionException;
+	
+	/**
+	 * @author louca
+	 * @param string username
+	 */
 	@When("the user tries to delete account with the username {string}")
 	public void the_user_tries_to_delete_account_with_the_username(String string) {
 		User user = FlexiBookController.getUserByUsername(string);
@@ -102,34 +130,55 @@ public class CucumberStepDefinitions {
 	    try {
 			FlexiBookController.deleteCustomerAccount(string);
 		} catch (InvalidInputException e) {
-			System.out.println("caught -----------------");
 			deletionException = e;
 			fail(e);
 		}
 	}
+	/**
+	 * @author louca
+	 * @param string username
+	 */
 	@Then("the account with the username {string} does not exist")
 	public void the_account_with_the_username_does_not_exist(String string) {
 	    assertEquals(null, FlexiBookController.getCustomerByUsername(string));
 	}
+	/**
+	 * @author louca
+	 * @param string username
+	 */
 	@Then("all associated appointments of the account with the username {string} shall not exist")
 	public void all_associated_appointments_of_the_account_with_the_username_shall_not_exist(String string) {
 	    for (Appointment appointment : allAppointmentsOfDeletedCustomer) {
 	    	assertEquals(null, appointment);
 	    }
 	}
+	/**
+	 * @author louca
+	 */
 	@Then("the user shall be logged out")
 	public void the_user_shall_be_logged_out() {
 	    assertTrue(true);
 	}
+	/**
+	 * @author louca
+	 * @param string username
+	 */
 	@Then("the account with the username {string} exists")
 	public void the_account_with_the_username_exists(String string) {
 	    assertTrue(FlexiBookController.getUserByUsername(string) != null);
 	}
+	/**
+	 * @author louca
+	 * @param string error message
+	 */
 	@Then("an error message {string} shall be raised")
 	public void an_error_message_shall_be_raised(String string) {
 	    assertEquals(string, deletionException.getMessage());
 	}
 
+	//================================================================================
+    // SignUpCustomerAccount
+    //================================================================================
 
 
 

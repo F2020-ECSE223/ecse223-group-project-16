@@ -55,7 +55,14 @@ public class FlexiBookController {
 		}
 	}
 	
-	private static User getUserByUsername(String username) {
+	/**
+	 * @author louca
+	 * @category CRUD Account
+	 * 
+	 * @param username of the User account to retrieve
+	 * @return the retrieved User account (null if no User account with that username exists)
+	 */
+	public static User getUserByUsername(String username) {
 		if (username.equals("owner")) {
 			return FlexiBookApplication.getFlexiBook().getOwner();
 		}
@@ -71,8 +78,12 @@ public class FlexiBookController {
 		return null;
 	}
 	
-	public static User getLoggedInUserAccount() {
+	private static User getLoggedInUserAccount() {
 		return null;
+	}
+	
+	private static boolean isOwnerAccount(User user) {
+		return (user instanceof Owner) && user.getUsername().equals("owner");
 	}
 	
 	/**
@@ -93,14 +104,14 @@ public class FlexiBookController {
 	public static boolean updateUserAccount(String username, String newUsername, String newPassword) throws InvalidInputException {
 		User userToUpdate = getUserByUsername(username);
 		
-		if (userToUpdate instanceof Customer) {
-			return updateCustomerAccountUsername((Customer) userToUpdate, newUsername) 
-					&& updateUserAccountPassword(userToUpdate, newPassword);
-		} else if (userToUpdate instanceof Owner) {
+		if (isOwnerAccount(userToUpdate)) {
 			if (!newUsername.equals("owner")) {
 				throw new InvalidInputException("Changing username of owner is not allowed");
 			}
 			return updateUserAccountPassword(userToUpdate, newPassword);
+		} else if (userToUpdate instanceof Customer) {
+			return updateCustomerAccountUsername((Customer) userToUpdate, newUsername) 
+					&& updateUserAccountPassword(userToUpdate, newPassword);
 		} else { // userToUpdate == null
 			return false;
 		}
@@ -136,8 +147,7 @@ public class FlexiBookController {
 	 */
 	private static boolean updateUserAccountPassword(User user, String newPassword) throws InvalidInputException {
 		validateUserAccountPassword(newPassword);
-		user.setPassword(newPassword);
-		return true;
+		return user.setPassword(newPassword);
 	}
 	
 	/**
@@ -146,15 +156,23 @@ public class FlexiBookController {
 	 * 
 	 * @param username of the Customer account to delete
 	 * @return whether or not the Customer account was deleted
+	 * 
+	 * @throws InvalidInputException 
 	 */
-	public static boolean deleteCustomer(String username) {
+	public static boolean deleteCustomerAccount(String username) throws InvalidInputException {
 		Customer customerToDelete = getCustomerByUsername(username);
-		if (customerToDelete != null && customerToDelete == getLoggedInUserAccount()) {
+		User loggedInUser = getLoggedInUserAccount();
+		
+		if (customerToDelete == null) {
+			return false;
+		}
+		
+		if (customerToDelete == loggedInUser && !username.equals("owner")) {
 			deleteAllCustomerAppointments(customerToDelete);
 			customerToDelete.delete();
 			return true;
 		}
-		return false;
+		throw new InvalidInputException("You do not have permission to delete this account");
 	}
 	
 	private static void deleteAppointment(Appointment appointment) {

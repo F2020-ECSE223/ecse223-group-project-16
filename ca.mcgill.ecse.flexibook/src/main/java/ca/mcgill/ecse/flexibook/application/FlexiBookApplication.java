@@ -3,12 +3,45 @@
  */
 package ca.mcgill.ecse.flexibook.application;
 
+import ca.mcgill.ecse.flexibook.model.FlexiBook;
+import ca.mcgill.ecse.flexibook.model.User;
+
 public class FlexiBookApplication {
+	private static FlexiBook flexiBook;
+	private static User currentUser;
+	
     public String getGreeting() {
         return "Hello world.";
     }
 
     public static void main(String[] args) {
         System.out.println(new FlexiBookApplication().getGreeting());
+    }
+    
+    public static FlexiBook getFlexiBook() {
+    	if (flexiBook == null) {
+    		flexiBook = new FlexiBook();
+    	}
+    	
+    	return flexiBook;
+    }
+    
+    public static boolean hasCurrentUser() {
+    	return currentUser != null;
+    }
+    
+    public static User getCurrentUser() {
+    	return currentUser;
+    }
+    
+    public static void setCurrentUser(User user) {
+    	if (user == null) {
+    		throw new IllegalArgumentException("Current user cannot be set to null"); // use #unsetCurrentUser
+    	}
+    	currentUser = user;
+    }
+    
+    public static void unsetCurrentUser() {
+    	currentUser = null;
     }
 }

@@ -5,7 +5,7 @@ package ca.mcgill.ecse.flexibook.controller;
 import java.sql.Date;
 import java.sql.Time;
 
-// line 21 "../../../../../FlexiBookTransferObjects.ump"
+// line 26 "../../../../../FlexiBookTransferObjects.ump"
 public class TOTimeSlot
 {
 

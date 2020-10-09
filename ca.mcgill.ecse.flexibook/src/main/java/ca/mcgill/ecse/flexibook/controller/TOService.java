@@ -13,6 +13,7 @@ public class TOService
 
   //TOService Attributes
   private String name;
+  private int duration;
   private int downtimeDuration;
   private int downtimeStart;
 
@@ -20,9 +21,10 @@ public class TOService
   // CONSTRUCTOR
   //------------------------
 
-  public TOService(String aName, int aDowntimeDuration, int aDowntimeStart)
+  public TOService(String aName, int aDuration, int aDowntimeDuration, int aDowntimeStart)
   {
     name = aName;
+    duration = aDuration;
     downtimeDuration = aDowntimeDuration;
     downtimeStart = aDowntimeStart;
   }
@@ -35,6 +37,14 @@ public class TOService
   {
     boolean wasSet = false;
     name = aName;
+    wasSet = true;
+    return wasSet;
+  }
+
+  public boolean setDuration(int aDuration)
+  {
+    boolean wasSet = false;
+    duration = aDuration;
     wasSet = true;
     return wasSet;
   }
@@ -60,6 +70,11 @@ public class TOService
     return name;
   }
 
+  public int getDuration()
+  {
+    return duration;
+  }
+
   public int getDowntimeDuration()
   {
     return downtimeDuration;
@@ -78,6 +93,7 @@ public class TOService
   {
     return super.toString() + "["+
             "name" + ":" + getName()+ "," +
+            "duration" + ":" + getDuration()+ "," +
             "downtimeDuration" + ":" + getDowntimeDuration()+ "," +
             "downtimeStart" + ":" + getDowntimeStart()+ "]";
   }

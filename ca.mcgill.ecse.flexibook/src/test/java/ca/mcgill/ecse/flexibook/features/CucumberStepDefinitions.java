@@ -28,12 +28,27 @@ import io.cucumber.java.en.When;
 public class CucumberStepDefinitions {
 	
 	private FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
+	private Exception exception;
+	
+	/**
+	 * Setup environment before each scenario
+	 */
+	@Before
+	public void setup() {
+		flexiBook = FlexiBookApplication.getFlexiBook();
+	}
 	
 	/**
 	 * Teardown environment after each scenario
 	 */
 	@After
-	public void deleteCustomers() {
+	public void teardown() {
+		FlexiBookApplication.unsetCurrentUser();
+		
+		if (flexiBook.hasOwner()) {
+			flexiBook.getOwner().delete();
+		}
+		
 		for (Customer customer : new ArrayList<Customer>(flexiBook.getCustomers())) {
 			customer.delete();
 		}
@@ -41,6 +56,8 @@ public class CucumberStepDefinitions {
 		for (BookableService bookableService : new ArrayList<BookableService>(flexiBook.getBookableServices())) {
 			bookableService.delete();
 		}
+		
+		exception = null;
 	}
 		
 	@Given("a Flexibook system exists")
@@ -110,15 +127,35 @@ public class CucumberStepDefinitions {
 	 */
 	@Given("the user is logged in to an account with username {string}")
 	public void the_user_is_logged_in_to_an_account_with_username(String string) {
+		System.out.println("all customers:\n");
 		for (Customer customer : flexiBook.getCustomers()) {
-			if (customer.getUsername().equals(string)) {
-				FlexiBookApplication.setCurrentUser(customer);
+			System.out.println(customer.getUsername());
+		}
+		
+		User currentUser = null;
+		if (string.equals("owner")) {
+			if (flexiBook.hasOwner()) {
+				currentUser = flexiBook.getOwner();
+			} else {
+				System.out.println("flexibook has no owner");
+				currentUser = new Owner(string, "ownerPass", flexiBook);
+			}
+		} else {
+			for (Customer customer : flexiBook.getCustomers()) {
+				if (customer.getUsername().equals(string)) {
+					currentUser = customer;
+				}
+			}
+			if (currentUser == null) {
+				System.out.println("creating user with uname:");
+				System.out.println(string);
+				currentUser = new Customer(string, "customerPass", flexiBook);
 			}
 		}
+		FlexiBookApplication.setCurrentUser(currentUser);
 	}
 	
 	List<Appointment> allAppointmentsOfDeletedCustomer;
-	Exception deletionException;
 	
 	/**
 	 * @author louca
@@ -134,7 +171,7 @@ public class CucumberStepDefinitions {
 	    try {
 			FlexiBookController.deleteCustomerAccount(string);
 		} catch (InvalidInputException e) {
-			deletionException = e;
+			exception = e;
 		}
 	}
 	/**
@@ -176,7 +213,7 @@ public class CucumberStepDefinitions {
 	 */
 	@Then("an error message {string} shall be raised")
 	public void an_error_message_shall_be_raised(String string) {
-	    assertEquals(string, deletionException.getMessage());
+	    assertEquals(string, exception.getMessage());
 	}
 
 	//================================================================================
@@ -185,18 +222,16 @@ public class CucumberStepDefinitions {
 	
 	@Given("there is no existing username {string}")
 	public void there_is_no_existing_username(String string) {
-	    for (Customer customer : flexiBook.getCustomers()) {
-	    	assertTrue(!customer.getUsername().equals(string));
-	    }
-	    
-	    Owner owner = flexiBook.getOwner();
-	    if (owner != null) {
-	    	assertTrue(!owner.getUsername().equals(string));
-	    }
+		if (string.equals("owner")) {
+			assertTrue(!flexiBook.hasOwner());
+		} else {
+			for (Customer customer : flexiBook.getCustomers()) {
+		    	assertTrue(!customer.getUsername().equals(string));
+		    }
+		}
 	}
 	
 	int priorCustomersCount;
-	Exception signUpException;
 	
 	@When("the user provides a new username {string} and a password {string}")
 	public void the_user_provides_a_new_username_and_a_password(String string, String string2) {
@@ -205,8 +240,7 @@ public class CucumberStepDefinitions {
 	    try {
 			FlexiBookController.createCustomerAccount(string, string2);
 		} catch (InvalidInputException e) {
-			e.printStackTrace();
-			signUpException = e;
+			exception = e;
 		}
 	}
 	@Then("a new customer account shall be created")
@@ -225,12 +259,18 @@ public class CucumberStepDefinitions {
 	}
 	@Given("there is an existing username {string}")
 	public void there_is_an_existing_username(String string) {
-	    for (Customer customer : flexiBook.getCustomers()) {
-	    	if (customer.getUsername().equals(string)) {
-	    		return;
-	    	}
-	    }
-	    new Customer(string, "testPass", flexiBook);
+		if (string.equals("owner")) {
+			if (!flexiBook.hasOwner()) {
+				new Owner(string, "ownerPass", flexiBook);
+			}
+		} else {
+		    for (Customer customer : flexiBook.getCustomers()) {
+		    	if (customer.getUsername().equals(string)) {
+		    		return;
+		    	}
+		    }
+		    new Customer(string, "customerPass", flexiBook);
+		}
 	}
 	@Then("no new account shall be created")
 	public void no_new_account_shall_be_created() {

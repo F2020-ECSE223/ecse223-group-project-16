@@ -26,7 +26,8 @@ public class FlexiBookController {
 		validateCustomerAccountUsername(username);
 		validateUserAccountPassword(password);
 		
-		if (FlexiBookApplication.getCurrentUser() == flexiBook.getOwner()) {
+		User currentUser = FlexiBookApplication.getCurrentUser();
+		if (currentUser != null && currentUser == flexiBook.getOwner()) {
 			throw new InvalidInputException("You must log out of the owner account before creating a customer account");
 		}
 		
@@ -43,7 +44,7 @@ public class FlexiBookController {
 			throw new IllegalArgumentException("The username cannot be null");
 		}
 		if (username.trim().isEmpty()) {
-			throw new InvalidInputException("The username cannot be empty");
+			throw new InvalidInputException("The user name cannot be empty"); // space here
 		}
 	}
 	

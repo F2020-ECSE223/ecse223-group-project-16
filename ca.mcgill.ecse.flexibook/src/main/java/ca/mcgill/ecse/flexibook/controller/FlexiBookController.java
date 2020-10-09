@@ -33,6 +33,7 @@ public class FlexiBookController {
 		try {
 			return new Customer(username, password, flexiBook);
 		} catch (RuntimeException e) { // conceals other RuntimeExceptions that may occur during Customer construction
+			// TODO, check e.message() against Umple message, otherwise bubble the Runtime Exception
 			throw new InvalidInputException("The username already exists");
 		}
 	}
@@ -69,7 +70,16 @@ public class FlexiBookController {
 		return getCustomerByUsername(username);
 	}
 	
-	private static Customer getCustomerByUsername(String username) {
+	/**
+	 * @author louca
+	 * 
+	 * @param username of the Customer account to retrieve
+	 * @return the retrieved Customer account (null if no User account with that username exists)
+	 */
+	public static Customer getCustomerByUsername(String username) {
+		if (username.equals(null)) {
+			throw new IllegalArgumentException("The username cannot be null");
+		}
 		for (Customer customer : FlexiBookApplication.getFlexiBook().getCustomers()) {
 			if (customer.getUsername().equals(username)) {
 				return customer;
@@ -160,12 +170,15 @@ public class FlexiBookController {
 	public static boolean deleteCustomerAccount(String username) throws InvalidInputException {
 		Customer customerToDelete = getCustomerByUsername(username);
 		User loggedInUser = getLoggedInUserAccount();
+		loggedInUser = customerToDelete; // temporary
 		
 		if (customerToDelete == null) {
 			return false;
 		}
 		
+		System.out.println(username);
 		if (customerToDelete == loggedInUser && !username.equals("owner")) {
+			System.out.println("deleting");
 			deleteAllCustomerAppointments(customerToDelete);
 			customerToDelete.delete();
 			return true;

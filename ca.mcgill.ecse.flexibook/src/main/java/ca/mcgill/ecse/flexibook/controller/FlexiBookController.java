@@ -26,7 +26,7 @@ public class FlexiBookController {
 		validateCustomerAccountUsername(username);
 		validateUserAccountPassword(password);
 		
-		if (getLoggedInUserAccount() == flexiBook.getOwner()) {
+		if (FlexiBookApplication.getCurrentUser() == flexiBook.getOwner()) {
 			throw new InvalidInputException("You must log out of the owner account before creating a customer account");
 		}
 		
@@ -85,10 +85,6 @@ public class FlexiBookController {
 				return customer;
 			}
 		}
-		return null;
-	}
-	
-	private static User getLoggedInUserAccount() {
 		return null;
 	}
 	
@@ -169,22 +165,19 @@ public class FlexiBookController {
 	 */
 	public static boolean deleteCustomerAccount(String username) throws InvalidInputException {
 		Customer customerToDelete = getCustomerByUsername(username);
-		User loggedInUser = getLoggedInUserAccount();
-		loggedInUser = customerToDelete; // temporary
+		
+		if (customerToDelete != FlexiBookApplication.getCurrentUser() || username.equals("owner")) {
+			throw new InvalidInputException("You do not have permission to delete this account");
+		}
 		
 		if (customerToDelete == null) {
 			return false;
 		}
 		
-		System.out.println(username);
-		if (customerToDelete == loggedInUser && !username.equals("owner")) {
-			System.out.println("deleting");
-			deleteAllCustomerAppointments(customerToDelete);
-			customerToDelete.delete();
-			return true;
-		}
-		
-		throw new InvalidInputException("You do not have permission to delete this account");
+		logout();
+		deleteAllCustomerAppointments(customerToDelete);
+		customerToDelete.delete();
+		return true;
 	}
 	
 	private static void deleteAppointment(Appointment appointment) {
@@ -196,5 +189,9 @@ public class FlexiBookController {
 		for (Appointment appointment : customer.getAppointments()) {
 			deleteAppointment(appointment);
 		}
+	}
+	
+	public static void logout() {
+		FlexiBookApplication.unsetCurrentUser();
 	}
 }

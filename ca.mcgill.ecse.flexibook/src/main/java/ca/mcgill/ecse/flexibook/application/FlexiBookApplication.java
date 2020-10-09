@@ -4,9 +4,11 @@
 package ca.mcgill.ecse.flexibook.application;
 
 import ca.mcgill.ecse.flexibook.model.FlexiBook;
+import ca.mcgill.ecse.flexibook.model.User;
 
 public class FlexiBookApplication {
 	private static FlexiBook flexiBook;
+	private static User currentUser;
 	
     public String getGreeting() {
         return "Hello world.";
@@ -22,5 +24,20 @@ public class FlexiBookApplication {
     	}
     	
     	return flexiBook;
+    }
+    
+    public static User getCurrentUser() {
+    	return currentUser;
+    }
+    
+    public static void setCurrentUser(User user) {
+    	if (user == null) {
+    		throw new IllegalArgumentException("Current user cannot be set to null"); // use #unsetCurrentUser
+    	}
+    	currentUser = user;
+    }
+    
+    public static void unsetCurrentUser() {
+    	currentUser = null;
     }
 }

@@ -110,7 +110,11 @@ public class CucumberStepDefinitions {
 	 */
 	@Given("the user is logged in to an account with username {string}")
 	public void the_user_is_logged_in_to_an_account_with_username(String string) {
-	    assertTrue(true);
+		for (Customer customer : flexiBook.getCustomers()) {
+			if (customer.getUsername().equals(string)) {
+				FlexiBookApplication.setCurrentUser(customer);
+			}
+		}
 	}
 	
 	List<Appointment> allAppointmentsOfDeletedCustomer;
@@ -131,7 +135,6 @@ public class CucumberStepDefinitions {
 			FlexiBookController.deleteCustomerAccount(string);
 		} catch (InvalidInputException e) {
 			deletionException = e;
-			fail(e);
 		}
 	}
 	/**
@@ -157,7 +160,7 @@ public class CucumberStepDefinitions {
 	 */
 	@Then("the user shall be logged out")
 	public void the_user_shall_be_logged_out() {
-	    assertTrue(true);
+	    assertEquals(null, FlexiBookApplication.getCurrentUser());
 	}
 	/**
 	 * @author louca
@@ -179,6 +182,64 @@ public class CucumberStepDefinitions {
 	//================================================================================
     // SignUpCustomerAccount
     //================================================================================
+	
+	@Given("there is no existing username {string}")
+	public void there_is_no_existing_username(String string) {
+	    for (Customer customer : flexiBook.getCustomers()) {
+	    	assertTrue(!customer.getUsername().equals(string));
+	    }
+	    
+	    Owner owner = flexiBook.getOwner();
+	    if (owner != null) {
+	    	assertTrue(!owner.getUsername().equals(string));
+	    }
+	}
+	
+	int priorCustomersCount;
+	Exception signUpException;
+	
+	@When("the user provides a new username {string} and a password {string}")
+	public void the_user_provides_a_new_username_and_a_password(String string, String string2) {
+		priorCustomersCount = flexiBook.getCustomers().size();
+		
+	    try {
+			FlexiBookController.createCustomerAccount(string, string2);
+		} catch (InvalidInputException e) {
+			e.printStackTrace();
+			signUpException = e;
+		}
+	}
+	@Then("a new customer account shall be created")
+	public void a_new_customer_account_shall_be_created() {
+	    assertEquals(priorCustomersCount + 1, flexiBook.getCustomers().size());
+	}
+	@Then("the account shall have username {string} and password {string}")
+	public void the_account_shall_have_username_and_password(String string, String string2) {
+		Customer newCustomer = null;
+	    for (Customer customer : flexiBook.getCustomers()) {
+	    	if (customer.getUsername().equals(string) && customer.getPassword().equals(string2)) {
+	    		newCustomer = customer;
+	    	}
+	    }
+	    assertTrue(newCustomer != null);
+	}
+	@Given("there is an existing username {string}")
+	public void there_is_an_existing_username(String string) {
+	    for (Customer customer : flexiBook.getCustomers()) {
+	    	if (customer.getUsername().equals(string)) {
+	    		return;
+	    	}
+	    }
+	    new Customer(string, "testPass", flexiBook);
+	}
+	@Then("no new account shall be created")
+	public void no_new_account_shall_be_created() {
+	    assertEquals(priorCustomersCount, flexiBook.getCustomers().size());
+	}
+
+
+
+
 
 
 

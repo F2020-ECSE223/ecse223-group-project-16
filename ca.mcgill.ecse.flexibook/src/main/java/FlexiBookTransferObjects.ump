@@ -14,8 +14,13 @@ class TOBusiness {
 
 class TOService {
 	String name;
+	int duration;
 	int downtimeDuration;
 	int downtimeStart;
+}
+
+class TOServiceCombo {
+	String name;
 }
 
 class TOTimeSlot {

@@ -249,13 +249,19 @@ public class CucumberStepDefinitions {
 	}
 	@Then("the account shall have username {string} and password {string}")
 	public void the_account_shall_have_username_and_password(String string, String string2) {
-		Customer newCustomer = null;
-	    for (Customer customer : flexiBook.getCustomers()) {
-	    	if (customer.getUsername().equals(string) && customer.getPassword().equals(string2)) {
-	    		newCustomer = customer;
-	    	}
-	    }
-	    assertTrue(newCustomer != null);
+		if (string.equals("owner")) {
+			Owner owner = flexiBook.getOwner();
+			assertEquals(string, owner.getUsername());
+			assertEquals(string2, owner.getPassword());
+		} else {
+			Customer customer = null;
+		    for (Customer c : flexiBook.getCustomers()) {
+		    	if (c.getUsername().equals(string) && c.getPassword().equals(string2)) {
+		    		customer = c;
+		    	}
+		    }
+		    assertTrue(customer != null);
+		}
 	}
 	@Given("there is an existing username {string}")
 	public void there_is_an_existing_username(String string) {
@@ -277,6 +283,28 @@ public class CucumberStepDefinitions {
 	    assertEquals(priorCustomersCount, flexiBook.getCustomers().size());
 	}
 
+	//================================================================================
+    // UpdateAccount
+    //================================================================================
+	
+	String priorUsername;
+	String priorPassword;
+	
+	@When("the user tries to update account with a new username {string} and password {string}")
+	public void the_user_tries_to_update_account_with_a_new_username_and_password(String string, String string2) {
+		priorUsername = FlexiBookApplication.getCurrentUser().getUsername();
+		priorPassword = FlexiBookApplication.getCurrentUser().getPassword();
+	    try {
+			FlexiBookController.updateUserAccount(FlexiBookApplication.getCurrentUser().getUsername(), string, string2);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}
+	}
+	@Then("the account shall not be updated")
+	public void the_account_shall_not_be_updated() {
+	    assertEquals(priorUsername, FlexiBookApplication.getCurrentUser().getUsername());
+	    assertEquals(priorPassword, FlexiBookApplication.getCurrentUser().getPassword());
+	}
 
 
 

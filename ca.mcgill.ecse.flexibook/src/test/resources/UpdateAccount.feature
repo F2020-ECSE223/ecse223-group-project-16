@@ -32,6 +32,7 @@ Feature: Update customer or owner account
       | owner    | User1   | dragonfruit | ownerPass   | Changing username of owner is not allowed |
 
   Scenario Outline: Update account by the account holder with incomplete form
+  	Given the user is logged in to an account with username "<username>"
     When the user tries to update account with a new username "<username>" and password "<password>"
     Then the account shall not be updated
     Then an error message "<error>" shall be raised

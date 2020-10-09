@@ -26,6 +26,10 @@ public class FlexiBookApplication {
     	return flexiBook;
     }
     
+    public static boolean hasCurrentUser() {
+    	return currentUser != null;
+    }
+    
     public static User getCurrentUser() {
     	return currentUser;
     }

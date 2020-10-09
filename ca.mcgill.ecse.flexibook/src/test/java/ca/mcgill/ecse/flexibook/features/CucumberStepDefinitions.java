@@ -79,8 +79,6 @@ public class CucumberStepDefinitions {
 		if (!flexiBook.hasOwner()) {
 			new Owner(string, string2, flexiBook);
 		}
-		
-	    assertTrue(flexiBook.hasOwner());
 	}
 	/**
 	 * @author louca
@@ -100,8 +98,13 @@ public class CucumberStepDefinitions {
 	 */
 	@Given("the account with username {string} has pending appointments")
 	public void the_account_with_username_has_pending_appointments(String string) {
-	    Customer customer = FlexiBookController.getCustomerByUsername(string);
-	    // TODO make use Controller method from feature set 6
+		Customer customer = null;
+	    for (Customer c : flexiBook.getCustomers()) {
+	    	if (c.getUsername().equals(string)) {
+	    		customer = c;
+	    	}
+	    }
+	    
 	    customer.addAppointment(new Appointment(
 	    		customer, 
 	    		new Service("cut", flexiBook, 60, 0, 0), 
@@ -118,8 +121,6 @@ public class CucumberStepDefinitions {
 	    				Date.valueOf(LocalDate.now().plusDays(2)), Time.valueOf(LocalTime.NOON.plusHours(1)), 
 	    				flexiBook), 
 	    		flexiBook));
-	    
-	    assertTrue(customer.getAppointments().size() > 0);
 	}
 	/**
 	 * @author louca
@@ -127,32 +128,15 @@ public class CucumberStepDefinitions {
 	 */
 	@Given("the user is logged in to an account with username {string}")
 	public void the_user_is_logged_in_to_an_account_with_username(String string) {
-		System.out.println("all customers:\n");
-		for (Customer customer : flexiBook.getCustomers()) {
-			System.out.println(customer.getUsername());
-		}
-		
-		User currentUser = null;
 		if (string.equals("owner")) {
-			if (flexiBook.hasOwner()) {
-				currentUser = flexiBook.getOwner();
-			} else {
-				System.out.println("flexibook has no owner");
-				currentUser = new Owner(string, "ownerPass", flexiBook);
-			}
+			FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
 		} else {
 			for (Customer customer : flexiBook.getCustomers()) {
 				if (customer.getUsername().equals(string)) {
-					currentUser = customer;
+					FlexiBookApplication.setCurrentUser(customer);
 				}
 			}
-			if (currentUser == null) {
-				System.out.println("creating user with uname:");
-				System.out.println(string);
-				currentUser = new Customer(string, "customerPass", flexiBook);
-			}
 		}
-		FlexiBookApplication.setCurrentUser(currentUser);
 	}
 	
 	List<Appointment> allAppointmentsOfDeletedCustomer;
@@ -294,6 +278,7 @@ public class CucumberStepDefinitions {
 	public void the_user_tries_to_update_account_with_a_new_username_and_password(String string, String string2) {
 		priorUsername = FlexiBookApplication.getCurrentUser().getUsername();
 		priorPassword = FlexiBookApplication.getCurrentUser().getPassword();
+		
 	    try {
 			FlexiBookController.updateUserAccount(FlexiBookApplication.getCurrentUser().getUsername(), string, string2);
 		} catch (InvalidInputException e) {
@@ -305,11 +290,4 @@ public class CucumberStepDefinitions {
 	    assertEquals(priorUsername, FlexiBookApplication.getCurrentUser().getUsername());
 	    assertEquals(priorPassword, FlexiBookApplication.getCurrentUser().getPassword());
 	}
-
-
-
-
-
-
 }
-

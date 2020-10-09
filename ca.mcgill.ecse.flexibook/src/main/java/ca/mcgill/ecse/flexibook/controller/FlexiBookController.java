@@ -98,18 +98,20 @@ public class FlexiBookController {
 	 * - the User by the given username is the Owner, and the newUsername is not "owner"
 	 */
 	public static boolean updateUserAccount(String username, String newUsername, String newPassword) throws InvalidInputException {
-		User userToUpdate = getUserByUsername(username);
-		
 		if (username.equals("owner")) {
 			if (!newUsername.equals("owner")) {
 				throw new InvalidInputException("Changing username of owner is not allowed");
 			}
-			return updateUserAccountPassword(userToUpdate, newPassword);
-		} else if (userToUpdate instanceof Customer) {
-			return updateCustomerAccountUsername((Customer) userToUpdate, newUsername) 
-					&& updateUserAccountPassword(userToUpdate, newPassword);
-		} else { // userToUpdate == null
-			return false;
+			
+			return updateUserAccountPassword(FlexiBookApplication.getFlexiBook().getOwner(), newPassword);
+		} else {
+			Customer customerToUpdate = getCustomerByUsername(username);
+			if (customerToUpdate == null) {
+				return false;
+			}
+			
+			return updateCustomerAccountUsername(customerToUpdate, newUsername) 
+					&& updateUserAccountPassword(customerToUpdate, newPassword);
 		}
 	}
 	

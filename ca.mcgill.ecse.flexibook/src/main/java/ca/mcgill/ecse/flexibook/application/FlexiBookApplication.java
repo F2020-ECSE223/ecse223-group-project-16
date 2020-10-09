@@ -23,8 +23,4 @@ public class FlexiBookApplication {
     	
     	return flexiBook;
     }
-    
-    public static void setFlexiBook(FlexiBook aFlexiBook) {
-    	flexiBook = aFlexiBook;
-    }
 }

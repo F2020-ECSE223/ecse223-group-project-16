@@ -1,5 +1,6 @@
 package ca.mcgill.ecse.flexibook.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
@@ -195,4 +196,20 @@ public class FlexiBookController {
 	public static void logout() {
 		FlexiBookApplication.unsetCurrentUser();
 	}
+	
+	//================================================================================
+    // Query methods
+    //================================================================================
+    
+	/**
+	 * @author louca
+	 * @return the Business vacation TimeSlots as TOTimeSlots
+	 */
+    public static List<TOTimeSlot> getVacation() {
+        List<TOTimeSlot> TOvacation = new ArrayList<TOTimeSlot>();
+        for (TimeSlot timeSlot : FlexiBookApplication.getFlexiBook().getBusiness().getVacation()) {
+            TOvacation.add(new TOTimeSlot(timeSlot.getStartDate(), timeSlot.getStartTime(), timeSlot.getEndDate(), timeSlot.getEndTime()));
+        }
+        return TOvacation;
+    }
 }

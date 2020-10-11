@@ -206,10 +206,91 @@ public class FlexiBookController {
 	 * @return the Business vacation TimeSlots as TOTimeSlots
 	 */
     public static List<TOTimeSlot> getVacation() {
-        List<TOTimeSlot> TOvacation = new ArrayList<TOTimeSlot>();
+        List<TOTimeSlot> vacation = new ArrayList<TOTimeSlot>();
         for (TimeSlot timeSlot : FlexiBookApplication.getFlexiBook().getBusiness().getVacation()) {
-            TOvacation.add(new TOTimeSlot(timeSlot.getStartDate(), timeSlot.getStartTime(), timeSlot.getEndDate(), timeSlot.getEndTime()));
+        	vacation.add(new TOTimeSlot(timeSlot.getStartDate(), timeSlot.getStartTime(), timeSlot.getEndDate(), timeSlot.getEndTime()));
         }
-        return TOvacation;
+        return vacation;
+    }
+    
+    public static List<TOTimeSlot> getHolidays() {
+    	List<TOTimeSlot> holidays = new ArrayList<TOTimeSlot>();
+    	for (TimeSlot timeSlot : FlexiBookApplication.getFlexiBook().getBusiness().getHolidays()) {
+    		holidays.add(new TOTimeSlot(timeSlot.getStartDate(), timeSlot.getStartTime(), timeSlot.getEndDate(), timeSlot.getEndTime()));
+    	}
+    	return holidays;
+    }
+    
+//    public static List<TOTimeSlot> getAppointmentTimeSlots() {
+//    	List<TOTimeSlot> appointmentTimeSlots = new ArrayList<TOTimeSlot>();
+//    	for (Appointment appointment : FlexiBookApplication.getFlexiBook().getAppointments()) {
+//    		TimeSlot timeSlot = appointment.getTimeSlot();
+//    		appointmentTimeSlots.add(new TOTimeSlot(timeSlot.getStartDate(), timeSlot.getStartTime(), timeSlot.getEndDate(), timeSlot.getEndTime()));
+//    	}
+//    	return appointmentTimeSlots;
+//    }
+    
+    public static List<TOBusinessHour> getBusinessHours() {
+    	List<TOBusinessHour> businessHours = new ArrayList<TOBusinessHour>();
+    	for (BusinessHour businessHour : FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()) {
+//    		businessHours.add(new TOBusinessHour(businessHour.getDayOfWeek(), businessHour.getStartTime(), businessHour.getEndTime()));
+    	}
+    	return businessHours;
+    }
+    
+    public static TOBusiness getBusiness() {
+    	Business business = FlexiBookApplication.getFlexiBook().getBusiness();
+    	return new TOBusiness(business.getName(), business.getAddress(), business.getPhoneNumber(), business.getEmail());
+    }
+    
+    public static List<TOService> getServices() {
+    	List<TOService> services = new ArrayList<TOService>();
+    	for (BookableService bookableService : FlexiBookApplication.getFlexiBook().getBookableServices()) {
+    		if (bookableService instanceof Service) {
+    			Service service = (Service) bookableService;
+    			services.add(new TOService(service.getName(), service.getDuration(), service.getDowntimeDuration(), service.getDowntimeStart()));
+    		}
+    	}
+    	return services;
+    }
+    
+    public static TOService getServiceByName() {
+    	for (BookableService bookableService : FlexiBookApplication.getFlexiBook().getBookableServices()) {
+    		if (bookableService instanceof Service) {
+    			Service service = (Service) bookableService;
+    			return new TOService(service.getName(), service.getDuration(), service.getDowntimeDuration(), service.getDowntimeStart());
+    		}
+    	}
+    	return null;
+    }
+    
+    public static TOServiceCombo getServiceComboByName() {
+    	for (BookableService bookableService : FlexiBookApplication.getFlexiBook().getBookableServices()) {
+    		if (bookableService instanceof ServiceCombo) {
+    			ServiceCombo serviceCombo = (ServiceCombo) bookableService;
+    			return new TOServiceCombo(serviceCombo.getName());
+    		}
+    	}
+    	return null;
+    }
+    
+    public static List<TOService> getServicesOfServiceCombo(String serviceComboName) {
+    	ServiceCombo serviceCombo = null;
+    	List<TOService> services = new ArrayList<TOService>();
+    	
+    	for (BookableService bookableService : FlexiBookApplication.getFlexiBook().getBookableServices()) {
+    		if (bookableService.getName().equals(serviceComboName) && bookableService instanceof ServiceCombo) {
+    			serviceCombo = (ServiceCombo) bookableService;
+    			break;
+    		}
+    	}
+    	
+    	if (serviceCombo != null) {
+    		for (ComboItem comboItem : serviceCombo.getServices()) {
+    			Service service = comboItem.getService();
+    			services.add(new TOService(service.getName(), service.getDuration(), service.getDowntimeDuration(), service.getDowntimeStart()));
+    		}
+    	}
+    	return services;
     }
 }

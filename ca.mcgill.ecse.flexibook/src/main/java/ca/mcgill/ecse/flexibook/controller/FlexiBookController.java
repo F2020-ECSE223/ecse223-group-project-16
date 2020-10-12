@@ -1,6 +1,8 @@
 package ca.mcgill.ecse.flexibook.controller;
 
-import java.util.List;
+import java.sql.Time;
+import java.sql.Date;
+import java.util.Calendar;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.model.*;
@@ -181,6 +183,148 @@ public class FlexiBookController {
 		return true;
 	}
 	
+	/**
+	 * @author He Qian Wang
+	 * @return
+	 * 
+	 *         Current as a method that takes in Bookable service, but easily
+	 *         changeable to two methods
+	 * @throws InvalidUserException
+	 */
+	public static boolean makeAppointment(Time startTime, Date startDate, BookableService bookableService)
+			throws InvalidUserException {
+
+		canUserMakeAppointment();
+		
+		Time withDownTime = startTime;
+		Time noDowntime = startTime;
+
+		if(bookableService instanceof Service){
+			Service service = (Service) bookableService;
+			withDownTime = new Time(startTime.getTime() + service.getDuration() * 60 * 1000);
+			noDowntime = new Time(startTime.getTime() + (service.getDuration() - service.getDowntimeDuration()) * 60 * 1000);
+		}
+		else if(bookableService instanceof ServiceCombo){
+			ServiceCombo serviceCombo = (ServiceCombo) bookableService;
+			int totalDuration = serviceCombo.getServices().stream().mapToInt(x -> x.getService().getDuration()).sum();
+			int lastDowntime = serviceCombo.getServices().get(serviceCombo.getServices().size() - 1).getService().getDowntimeDuration();
+			withDownTime = new Time(startTime.getTime() + totalDuration * 60 * 1000);
+			noDowntime = new Time(startTime.getTime() + (totalDuration - lastDowntime) * 60 * 1000);
+		}
+
+		Date endDate = new Date(withDownTime.getTime());
+		
+		final Time endTimeWithDowntime = withDownTime;
+		final Time endTimeNoDowntime = noDowntime;
+		// make appointments need to account for next available timeslot
+		// first -> future date, then make sure it is within the bounds of 
+		// available timeslots.
+		// 1. future date
+		// 2. Within bounds of business hours
+		// 3. no conflicts
+		// 4. duration is legit
+		// 5. account for downtime
+
+		if(!startDate.after(new Date(System.currentTimeMillis()))){
+			// do something about cannot schedule in the past
+		}
+
+		if(!startDate.equals(endDate)){
+			// do something about must have same day appointments
+			// 
+		}
+
+		Calendar c = Calendar.getInstance();
+		c.setTime(startTime);
+		int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+
+		if(!FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()
+			.stream().anyMatch(x -> x.getDayOfWeek().equals(getDayOfWeek(dayOfWeek)) 
+				&& x.getStartTime().before(startTime) 
+				&& x.getEndTime().after(endTimeWithDowntime)))
+		{
+			// nothing matches regular opening hours
+		}
+
+
+		if(FlexiBookApplication.getFlexiBook().getBusiness().getVacation()
+			.stream().anyMatch(x -> x.getStartDate().equals(startDate) 
+				|| (x.getStartDate().before(startDate) && x.getEndDate().after(startDate))))
+		{
+			// do something about appointment within vacations
+		}
+
+		if(FlexiBookApplication.getFlexiBook().getBusiness().getHolidays()
+			.stream().anyMatch(x -> x.getStartDate().equals(startDate) 
+				|| (x.getStartDate().before(startDate) && x.getEndDate().after(startDate))))
+		{
+			// do something about appointment within holidays
+		}
+
+		if(FlexiBookApplication.getFlexiBook().getAppointments()
+			.stream().anyMatch(x -> x.getTimeSlot().getStartDate().equals(startDate) 
+				|| x.getTimeSlot().getStartTime().before(endTimeNoDowntime)
+				|| x.getTimeSlot().getEndTime().after(startTime)))
+		{
+			// do something about invalid timeslot
+		}
+
+		// sort time slots here?
+		// do we add the appointments in a sorted way? 
+		// this is the only place that checks for 
+
+		// binary search in the timeslots to look for which timeslot?
+		// input: List<TimeSlots>
+
+		// I will add the timeslots in an ordered way.
+		// List<Appointment> appointments = FlexiBookApplication.getFlexiBook().getAppointments();
+
+		// parse through each of them and if neither start/end time while accounting for downtime 
+		// of current appointments do not interfere, then add them
+		// for(int i = 0; i < appointments.size(); i++){
+		// 	if(appointments.get(i).getTimeSlot().getEndDate().equals(suggestedTimeslot.getStartDate())){
+
+		// 	}
+		// }
+
+		// basically true unless we find that the timeslot is not good 
+		// for (Appointment appointment : FlexiBookApplication.getFlexiBook().getAppointments()){
+		// 	if(appointment.getTimeSlot().getStartDate().equals(suggestedTimeslot.getStartDate())){
+		// 		if(appointment.getBookableService() instanceof Service){
+
+		// 		}
+		// 		else if(appointment.getBookableService() instanceof ServiceCombo){
+
+		// 		}
+		// 	}
+		// }
+
+		// if everything here pass, then make the appointment here and add it to the relevant service/places
+
+		return true;
+	}
+
+	/**
+	 * @author He Qian Wang
+	 * @return
+	 */
+	public static boolean updateAppointment(){
+
+		// run someone checks and see if you can change it
+		// call make appointment to see if you can make it.
+
+
+		return true;
+	}
+
+	/**
+	 * @author He Qian Wang
+	 * @return
+	 */
+	public static boolean cancelAppointment(){
+		return true;
+	}
+	
 	private static void deleteAppointment(Appointment appointment) {
 		appointment.getTimeSlot().delete();
 		appointment.delete();
@@ -195,4 +339,33 @@ public class FlexiBookController {
 	public static void logout() {
 		FlexiBookApplication.unsetCurrentUser();
 	}
+
+	private static void canUserMakeAppointment() throws InvalidUserException {
+		if(FlexiBookApplication.getCurrentUser() == null){
+			throw new InvalidUserException("An User must be logged in to make an appointment.");
+		}
+		if(FlexiBookApplication.getCurrentUser().getUsername().equals("owner")){	
+			throw new InvalidUserException("The owner may not create an appointment.");
+		}
+	}
+
+	private static BusinessHour.DayOfWeek getDayOfWeek(int day){
+		BusinessHour.DayOfWeek[] list = { 
+			BusinessHour.DayOfWeek.Sunday,
+			BusinessHour.DayOfWeek.Monday, 
+			BusinessHour.DayOfWeek.Tuesday, 
+			BusinessHour.DayOfWeek.Wednesday, 
+			BusinessHour.DayOfWeek.Thursday, 
+			BusinessHour.DayOfWeek.Friday, 
+			BusinessHour.DayOfWeek.Saturday, 
+		};
+		return list[day];
+	}
 }
+
+
+// first open the folder then src/test/java/features
+// Right click and run as JUnit test
+
+// .feature translated to method in testRunner
+// copy paste from generation to Step Generation

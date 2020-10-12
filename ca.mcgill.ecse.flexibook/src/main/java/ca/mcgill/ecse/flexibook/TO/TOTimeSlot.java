@@ -1,36 +1,33 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
-package TO;
+package ca.mcgill.ecse.flexibook.TO;
+import java.sql.Date;
 import java.sql.Time;
 
-// line 33 "../../../../../FlexiBookTransferObjects.ump"
-public class TOBusinessHour
+// line 26 "../../../../../FlexiBookTransferObjects.ump"
+public class TOTimeSlot
 {
-
-  //------------------------
-  // ENUMERATIONS
-  //------------------------
-
-  public enum DayOfWeek { Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday }
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
 
-  //TOBusinessHour Attributes
-  private DayOfWeek dayOfWeek;
+  //TOTimeSlot Attributes
+  private Date startDate;
   private Time startTime;
+  private Date endDate;
   private Time endTime;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public TOBusinessHour(DayOfWeek aDayOfWeek, Time aStartTime, Time aEndTime)
+  public TOTimeSlot(Date aStartDate, Time aStartTime, Date aEndDate, Time aEndTime)
   {
-    dayOfWeek = aDayOfWeek;
+    startDate = aStartDate;
     startTime = aStartTime;
+    endDate = aEndDate;
     endTime = aEndTime;
   }
 
@@ -38,10 +35,10 @@ public class TOBusinessHour
   // INTERFACE
   //------------------------
 
-  public boolean setDayOfWeek(DayOfWeek aDayOfWeek)
+  public boolean setStartDate(Date aStartDate)
   {
     boolean wasSet = false;
-    dayOfWeek = aDayOfWeek;
+    startDate = aStartDate;
     wasSet = true;
     return wasSet;
   }
@@ -54,6 +51,14 @@ public class TOBusinessHour
     return wasSet;
   }
 
+  public boolean setEndDate(Date aEndDate)
+  {
+    boolean wasSet = false;
+    endDate = aEndDate;
+    wasSet = true;
+    return wasSet;
+  }
+
   public boolean setEndTime(Time aEndTime)
   {
     boolean wasSet = false;
@@ -62,14 +67,19 @@ public class TOBusinessHour
     return wasSet;
   }
 
-  public DayOfWeek getDayOfWeek()
+  public Date getStartDate()
   {
-    return dayOfWeek;
+    return startDate;
   }
 
   public Time getStartTime()
   {
     return startTime;
+  }
+
+  public Date getEndDate()
+  {
+    return endDate;
   }
 
   public Time getEndTime()
@@ -84,8 +94,9 @@ public class TOBusinessHour
   public String toString()
   {
     return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "dayOfWeek" + "=" + (getDayOfWeek() != null ? !getDayOfWeek().equals(this)  ? getDayOfWeek().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
+            "  " + "startDate" + "=" + (getStartDate() != null ? !getStartDate().equals(this)  ? getStartDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "startTime" + "=" + (getStartTime() != null ? !getStartTime().equals(this)  ? getStartTime().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
+            "  " + "endDate" + "=" + (getEndDate() != null ? !getEndDate().equals(this)  ? getEndDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "endTime" + "=" + (getEndTime() != null ? !getEndTime().equals(this)  ? getEndTime().toString().replaceAll("  ","    ") : "this" : "null");
   }
 }

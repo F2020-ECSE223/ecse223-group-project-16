@@ -1,7 +1,7 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
-package TO;
+package ca.mcgill.ecse.flexibook.TO;
 
 // line 22 "../../../../../FlexiBookTransferObjects.ump"
 public class TOServiceCombo

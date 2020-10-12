@@ -181,6 +181,63 @@ public class FlexiBookController {
 		return true;
 	}
 	
+	/**
+	 * @author theodore
+	 * @category CRUD ServiceCombo
+	 * 
+	 * @param name of the new ServiceCombo
+	 * @param array of names of Service s
+	 * @param name of main Service
+	 * @param array of booleans for whether each service is mandatory
+	 * @return created ServiceCombo
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static ServiceCombo defineServiceCombo(String name, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException { // maybe lists is better idk
+		return null;
+	}
+	
+	/**
+	 * @author theodore
+	 * @category CRUD ServiceCombo
+	 * 
+	 * @param ServiceCombo to update
+	 * @param name of the updated ServiceCombo
+	 * @param array of names of Service s
+	 * @param name of main Service
+	 * @param array of booleans for whether each service is mandatory
+	 * @return whether updated succesfully
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static boolean updateServiceCombo(ServiceCombo combo, String name, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException { // maybe lists is better idk
+		return false;
+	}
+	
+	/**
+	 * @author theodore
+	 * @category CRUD ServiceCombo
+	 * 
+	 * @param name of the ServiceCombo to be deleted
+	 * @return whether deleted succesfully
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static boolean deleteServiceCombo(String name) throws InvalidInputException {
+		return false;
+	}
+	
+	/**
+	 * @author theodore
+	 * @category CRUD ServiceCombo
+	 * 
+	 * @param name of the ServiceCombo
+	 * @return ServiceCombo with that name, or null if not found
+	 */
+	public static ServiceCombo getServiceCombo(String name) {
+		return null;
+	}
+	
 	private static void deleteAppointment(Appointment appointment) {
 		appointment.getTimeSlot().delete();
 		appointment.delete();

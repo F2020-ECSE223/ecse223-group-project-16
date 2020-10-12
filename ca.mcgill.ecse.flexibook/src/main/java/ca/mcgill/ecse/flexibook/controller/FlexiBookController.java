@@ -210,7 +210,7 @@ public class FlexiBookController {
 	 * 
 	 * @throws InvalidInputException
 	 */
-	public static bool updateServiceCombo(ServiceCombo combo, String name, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException { // maybe lists is better idk
+	public static boolean updateServiceCombo(ServiceCombo combo, String name, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException { // maybe lists is better idk
 		return false;
 	}
 	

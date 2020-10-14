@@ -290,4 +290,58 @@ public class CucumberStepDefinitions {
 	    assertEquals(priorUsername, FlexiBookApplication.getCurrentUser().getUsername());
 	    assertEquals(priorPassword, FlexiBookApplication.getCurrentUser().getPassword());
 	}
+	
+	//================================================================================
+    // Login
+    //================================================================================
+	
+	
+
+	@When("the user tries to log in with username {string} and password {string}")
+	public void the_user_tries_to_log_in_with_username_and_password(String string, String string2) {
+		   // Write code here that turns the phrase above into concrete actions
+		  
+		
+		
+	}
+
+	@Then("the user should be successfully logged in")
+	public void the_user_should_be_successfully_logged_in() {
+		   // Write code here that turns the phrase above into concrete actions
+		   throw new io.cucumber.java.PendingException();
+	}
+
+
+	//================================================================================
+    // Logout
+    //================================================================================
+	
+	@Given("the user is logged out")
+	public void the_user_is_logged_out() {
+		if (FlexiBookApplication.getCurrentUser() != null) {
+			FlexiBookApplication.unsetCurrentUser();
+		}
+	}
+
+
+	@When("the user tries to log out")
+	public void the_user_tries_to_log_out() {
+		try {
+			FlexiBookController.logout();
+		}
+		catch (InvalidInputException e) { 
+			exception = e;
+		}
+	}
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
 }

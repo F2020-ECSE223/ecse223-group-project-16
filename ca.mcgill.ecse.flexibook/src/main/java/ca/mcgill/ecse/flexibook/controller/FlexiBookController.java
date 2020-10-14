@@ -175,7 +175,7 @@ public class FlexiBookController {
 			return false;
 		}
 		
-		logout();
+		logout(); 
 		deleteAllCustomerAppointments(customerToDelete);
 		customerToDelete.delete();
 		return true;
@@ -192,7 +192,10 @@ public class FlexiBookController {
 		}
 	}
 	
-	public static void logout() {
+	public static void logout() throws InvalidInputException {
+		if (FlexiBookApplication.getCurrentUser() == null ) {
+			throw new InvalidInputException ("The user is already logged out");
+		}
 		FlexiBookApplication.unsetCurrentUser();
 	}
 }

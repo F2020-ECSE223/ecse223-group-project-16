@@ -95,11 +95,14 @@ public class CucumberStepDefinitions {
 	@Given("the following customers exist in the system:")
 	public void the_following_customers_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
 		List<Map<String, String>> rows = dataTable.asMaps();
-		
+		System.out.println(flexiBook.getCustomers().size());
+		System.out.println(flexiBook.getOwner().getUsername());
 		boolean customerExists;
+		
 		for (Map<String, String> columns : rows) {
 			customerExists = false;
 			for (Customer c : flexiBook.getCustomers()) {
+				System.out.println(columns.get("username") + " " + c.getUsername());
 				if (c.getUsername().equals(columns.get("username"))) {
 					customerExists = true;
 					break;
@@ -364,6 +367,7 @@ public class CucumberStepDefinitions {
 	    assertEquals(priorPassword, FlexiBookApplication.getCurrentUser().getPassword());
 	}
 
+
 	// tested
 	@Given("the system's time and date is {string}")
 	public void the_system_s_time_and_date_is(String string) {
@@ -378,42 +382,43 @@ public class CucumberStepDefinitions {
 		}
 		SystemTime.setTesting(date, time);
 	}
-	
+
 	//================================================================================
     // DefineServiceCombo
     //================================================================================
 	
-	/**
-	 * @author theodore
-	 */
-	@Given("an owner account exists in the system")
-    public void an_owner_account_exists_in_the_system() {
-		if (!flexiBook.hasOwner()) {
-			new Owner("owner", "owner", flexiBook);
-		}
-    }
-	/**
-	 * @author theodore
-	 */
-    @Given("a business exists in the system")
-    public void a_business_exists_in_the_system() {
-        if (!flexiBook.hasBusiness()) {
-        	new Business("widget shop", "123 Street street", "1(800) 888-8888", "no-reply@google.com", flexiBook);
-        }
-    }
+	
     /**
 	 * @author theodore
-	 */
-    @Given("the following services exist in the system:")
-    public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
-    	List<Map<String,String>> serviceData = dataTable.asMaps();
-    	System.out.println(serviceData);
-    	for (Map<String,String> e : serviceData) {
-			new Service(e.get("name"), flexiBook, Integer.parseInt(e.get("duration")), Integer.parseInt(e.get("downtimeDuration")), Integer.parseInt(e.get("downtimeStart")));
-    	}
-    }
-    /**
+=======
+//	@Given("an owner account exists in the system")
+//    public void an_owner_account_exists_in_the_system() {
+//		if (!flexiBook.hasOwner())
+//			new Owner("owner", "", flexiBook);
+//    }
+//	/**
+//	 * @author theodore
+//	 */
+//    @Given("a business exists in the system")
+//    public void a_business_exists_in_the_system() {
+//        if (!flexiBook.hasBusiness())
+//        	new Business("widget shop", "123 Street street", "1(800) 888-8888", "no-reply@google.com", flexiBook);
+//    }
+//    /**
+//	 * @author theodore
+//	 * @param dataTable data for services in the system
+//	 */
+//    @Given("the following services exist in the system:")
+//    public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+//    	List<Map<String,String>> serviceData = dataTable.asMaps();
+//    	System.out.println(serviceData);
+//    	for (Map<String,String> e : serviceData)
+//			new Service(e.get("name"), flexiBook, Integer.parseInt(e.get("duration")), Integer.parseInt(e.get("downtimeDuration")), Integer.parseInt(e.get("downtimeStart")));
+//    }
+	/**
 	 * @author theodore
+	 * @param dataTable data for service combos in the system
+>>>>>>> 1a88bc8... deleteService feature completed (+1 squashed commit)
 	 */
     @Given("the following service combos exist in the system:")
     public void the_following_service_combos_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
@@ -437,27 +442,24 @@ public class CucumberStepDefinitions {
 	    	}
 		}
     }
-    /**
-	 * @author theodore
-	 */
-    @Given("the Owner with username {string} is logged in")
-    public void the_owner_with_username_is_logged_in(String string) {
-    	assertEquals(string, "owner");
-    	FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
-    }
-    /**
-	 * @author theodore
-	 * @param string customer username
-	 */
-    @Given("Customer with username {string} is logged in")
-    public void customer_with_username_is_logged_in(String string) {
-    	for (Customer customer : flexiBook.getCustomers()) {
-			if (customer.getUsername().equals(string)) {
-				FlexiBookApplication.setCurrentUser(customer);
-				return;
-			}
-    	}
-    }
+ 
+
+//    @Given("the Owner with username {string} is logged in")
+//    public void the_owner_with_username_is_logged_in(String string) {
+//    	assertEquals(string, "owner");
+//    	FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
+//    }
+//    /**
+//	 * @author theodore
+//	 * @param string customer username
+//	 */
+//    @Given("Customer with username {string} is logged in")
+//    public void customer_with_username_is_logged_in(String string) {
+//    	for (Customer customer : flexiBook.getCustomers())
+//			if (customer.getUsername().equals(string))
+//				FlexiBookApplication.setCurrentUser(customer);
+//    }
+
     /**
 	 * @author theodore
 	 */
@@ -609,51 +611,7 @@ public class CucumberStepDefinitions {
     /**
      * @author theodore
      */
-    @Given("the following appointments exist in the system:")
-    public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
-    	List<Map<String, String>> appointmentData = dataTable.asMaps();
-    	for (Map<String, String> a : appointmentData) {
-    		Customer cust = null;
-    		for (Customer cu : flexiBook.getCustomers()) {
-    			if (cu.getUsername().equals(a.get("customer"))) {
-    				cust = cu;
-    				break;
-    			}
-    		}
-    		BookableService bkable = null;
-    		for (BookableService b : flexiBook.getBookableServices()) {
-    			if (b.getName().equals(a.get("serviceName"))) {
-    				bkable = b;
-    				break;
-    			}
-    		}
-    		TimeSlot timeSlotSelected = null;
-    		try {
-    			Date date = FlexiBookUtil.getDateFromString(a.get("date"));
-    			Time startTime = FlexiBookUtil.getTimeFromString(a.get("startTime"));
-    			Time endTime = FlexiBookUtil.getTimeFromString(a.get("endTime"));
-    			timeSlotSelected = new TimeSlot(date, startTime, date, endTime, flexiBook);
-    		} catch (ParseException e) {
-    			fail();
-    		}
-    		Appointment appt = new Appointment(cust, bkable, timeSlotSelected, flexiBook);
-    		if (bkable instanceof ServiceCombo) {
-    			ServiceCombo sc = (ServiceCombo) bkable;
-        		for (ComboItem c : sc.getServices()) {
-        			if (c.getMandatory()) {
-        				appt.addChosenItem(c);
-        			} else {
-        				for (String s : a.get("selectedComboItems").split(",")) {
-        					if (c.getService().getName().equals(s)) {
-        						appt.addChosenItem(c);
-        						break;
-        					}
-        				}
-        			}
-	    		}
-    		}
-    	}
-    }
+    
     /**
 	 * @author theodore
 	 */
@@ -668,23 +626,25 @@ public class CucumberStepDefinitions {
     /**
 	 * @author theodore
 	 */
-    @Then("the number of appointments in the system with service {string} shall be {string}")
-    public void the_number_of_appointments_in_the_system_with_service_shall_be(String name, String num) {
-    	int counter = 0;
-    	for (Appointment a : flexiBook.getAppointments()) {
-    		if (a.getBookableService().getName().equals(name)) {
-    			counter++;
-    		}
-    	}
-    	assertEquals(Integer.parseInt(num), counter);
-    }
+
+
+
+//    @Then("the number of appointments in the system with service {string} shall be {string}")
+//    public void the_number_of_appointments_in_the_system_with_service_shall_be(String name, String num) {
+//    	int counter = 0;
+//    	for (Appointment a : flexiBook.getAppointments())
+//    		if (a.getBookableService().getName().equals(name))
+//    			counter++;
+//    	assertEquals(Integer.parseInt(num), counter);
+//    }
+
     /**
 	 * @author theodore
 	 */
-    @Then("the number of appointments in the system shall be {string}")
-    public void the_number_of_appointments_in_the_system_shall_be(String num) {
-        assertEquals(Integer.parseInt(num), flexiBook.numberOfAppointments());
-    }
+//    @Then("the number of appointments in the system shall be {string}")
+//    public void the_number_of_appointments_in_the_system_shall_be(String num) {
+//        assertEquals(Integer.parseInt(num), flexiBook.numberOfAppointments());
+//    }
 	
 	//================================================================================
     // UpdateServiceCombo
@@ -717,5 +677,308 @@ public class CucumberStepDefinitions {
     		the_service_combo_shall_not_exist_in_the_system(oldComboName);
     	}
     }
-    
+
+	//================================================================================
+    // AddService
+    //================================================================================
+	
+    /**
+	 * @author aayush
+	 */
+	@Given("an owner account exists in the system")
+	public void an_owner_account_exists_in_the_system() {
+	    // Write code here that turns the phrase above into concrete actions
+		if (FlexiBookApplication.getFlexiBook().hasOwner() == false) {
+			new Owner("owner", "owner", FlexiBookApplication.getFlexiBook());
+		}
+	}
+	 /**
+	 * @author aayush
+	 */
+	@Given("a business exists in the system")
+	public void a_business_exists_in_the_system() {
+		if (FlexiBookApplication.getFlexiBook().getBusiness() == null) {
+			new Business("TheAve", "33 Rockford Terrace NW", "4036147734", "theave@gmail.com", FlexiBookApplication.getFlexiBook());
+		}
+		
+	}
+	/**
+	* @author aayush
+	*/
+	@Given("the Owner with username {string} is logged in")
+	public void the_owner_with_username_is_logged_in(String string) {
+		if (string.equals("owner")) {
+			FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
+		} else {
+			Owner newOwner = new Owner("owner", "owner", FlexiBookApplication.getFlexiBook());
+			FlexiBookApplication.setCurrentUser(newOwner);
+			}
+	}
+	/**
+	* @author aayush
+	*/
+	@Given("Customer with username {string} is logged in")
+	public void customer_with_username_is_logged_in(String string) {
+		for (Customer customer : flexiBook.getCustomers()) {
+		    if (customer.getUsername().equals(string)) {
+		        FlexiBookApplication.setCurrentUser(customer);
+		        return;
+		    }
+		}
+		 
+		FlexiBookApplication.setCurrentUser(new Customer(string, "password", flexiBook));
+	}
+	/**
+	 * @author aayush
+	 */
+	@When("{string} initiates the addition of the service {string} with duration {string}, start of down time {string} and down time duration {string}")
+	public void initiates_the_addition_of_the_service_with_duration_start_of_down_time_and_down_time_duration(String string, String string2, String string3, String string4, String string5) {
+		try {
+			FlexiBookController.addService(string2, string3, string4, string5);
+		} catch (InvalidInputException e) {
+			exception = e;
+			System.out.println(e.getMessage());
+		}
+	}
+	/**
+	* @author aayush
+	*/
+	@Then("the service {string} shall exist in the system")
+	public void the_service_shall_exist_in_the_system(String string) {
+		boolean flag = false;
+		for (BookableService s: FlexiBookApplication.getFlexiBook().getBookableServices()) {
+			if (s.getName().equals(string)) {
+				flag = true;
+				break;
+			}
+		}
+		assertTrue(flag);
+	}
+	/**
+	* @author aayush
+	*/
+	@Then("the service {string} shall have duration {string}, start of down time {string} and down time duration {string}")
+	public void the_service_shall_have_duration_start_of_down_time_and_down_time_duration(String string, String string2, String string3, String string4) {
+		for (BookableService s: FlexiBookApplication.getFlexiBook().getBookableServices()) {
+			if (s instanceof Service) {
+				Service service = (Service) s;
+				assertEquals(Integer.parseInt(string2), service.getDuration());
+				assertEquals(Integer.parseInt(string3), service.getDowntimeStart());
+				assertEquals(Integer.parseInt(string4), service.getDowntimeDuration());
+			}
+		}
+	}
+	/**
+	* @author aayush
+	*/
+	@Then("the number of services in the system shall be {string}")
+	public void the_number_of_services_in_the_system_shall_be(String string) {
+		int counter = 0;
+		for (BookableService s: FlexiBookApplication.getFlexiBook().getBookableServices()) {
+			if (s instanceof Service) {
+			counter ++;
+			}
+		}
+		assertEquals(Integer.parseInt(string), counter);
+	}
+	
+//	@Then("an error message with content {string} shall be raised")
+//	public void an_error_message_with_content_shall_be_raised(String string) {
+//		assertEquals(string, exception.getMessage());
+//	}
+	/**
+	* @author aayush
+	*/
+	@Then("the service {string} shall still preserve the following properties:")
+	public void the_service_shall_still_preserve_the_following_properties(String string, io.cucumber.datatable.DataTable dataTable) {
+		List<Map<String, String>> rows = dataTable.asMaps();
+		Service s = null;
+		
+		for (BookableService bS: flexiBook.getBookableServices()) {
+			if (bS instanceof Service && bS.getName().equals(string)) {
+				s = (Service) bS;
+			}
+		}
+		for (Map<String, String> columns : rows) {
+			assertEquals((columns.get("name")), s.getName());
+			assertEquals(Integer.parseInt(columns.get("duration")), s.getDuration());
+			assertEquals(Integer.parseInt(columns.get("downtimeStart")), s.getDowntimeStart());
+			assertEquals(Integer.parseInt(columns.get("downtimeDuration")), s.getDowntimeDuration());
+		}
+	}
+
+
+	//================================================================================
+    // DeleteService
+    //================================================================================
+
+	/**
+	* @author aayush
+	*/
+	@Given("the following services exist in the system:")
+	public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+		List<Map<String, String>> rows = dataTable.asMaps();
+		
+		for (Map<String, String> columns : rows) {
+			new Service(columns.get("name"), flexiBook, Integer.parseInt(columns.get("duration")), Integer.parseInt(columns.get("downtimeDuration")),Integer.parseInt(columns.get("downtimeStart")));
+		}	
+	}
+	/**
+	* @author aayush
+	*/
+	@Given("the following appointments exist in the system:")
+	public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+		List<Map<String, String>> rows = dataTable.asMaps();
+		
+		for (Map<String, String> columns : rows) {
+			String customerNameString = columns.get("customer");
+			String serviceNameString = columns.get("serviceName");
+			String dateString = columns.get("date");
+			String startTimeString = columns.get("startTime");
+			String endTimeString = columns.get("endTime");
+			Date dateSelected = null;
+			Time startTimeSelected = null;
+			Time endTimeSelected = null;
+			
+			try {
+				dateSelected = FlexiBookUtil.getDateFromString(dateString);
+				startTimeSelected = FlexiBookUtil.getTimeFromString(startTimeString);
+				endTimeSelected = FlexiBookUtil.getTimeFromString(endTimeString);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		
+			TimeSlot timeSlotSelected = new TimeSlot(dateSelected, startTimeSelected, dateSelected, endTimeSelected, flexiBook);
+			Service serviceSelected = null;
+			for (BookableService s: FlexiBookApplication.getFlexiBook().getBookableServices()) {
+				if (s instanceof Service && s.getName().contentEquals(serviceNameString)) {
+					serviceSelected = (Service) s;
+				}
+			}
+			Customer customerSelected = null;
+		    for (Customer c : flexiBook.getCustomers()) {
+		    	if (c.getUsername().equals(customerNameString)) {
+		    		customerSelected = c;
+		    	}
+		    }
+			new Appointment(customerSelected, serviceSelected, timeSlotSelected, flexiBook);
+		}
+	}
+	/**
+	* @author aayush
+	*/
+	@When("{string} initiates the deletion of service {string}")
+	public void initiates_the_deletion_of_service(String string, String string2) {
+		try {
+			FlexiBookController.deleteService(string2);
+		} catch (InvalidInputException e) {
+			exception = e;
+			System.out.println(e.getMessage());
+		}
+	}
+	/**
+	* @author aayush
+	*/
+	@Then("the service {string} shall not exist in the system")
+	public void the_service_shall_not_exist_in_the_system(String string) {
+		Boolean flag = true;
+		for (BookableService s: FlexiBookApplication.getFlexiBook().getBookableServices()) {
+			if (s instanceof Service) {
+				Service service = (Service) s;
+				System.out.println(service.getName());
+				if (service.getName().contentEquals(string)) {
+					flag = false;
+				}
+			}
+		}
+		assertTrue(flag);
+	}
+	/**
+	* @author aayush
+	*/
+	@Then("the number of appointments in the system with service {string} shall be {string}")
+	public void the_number_of_appointments_in_the_system_with_service_shall_be(String string, String string2) {
+		int counter = 0;
+		for (Appointment a: FlexiBookApplication.getFlexiBook().getAppointments()) {
+			if (a.getBookableService().getName().contentEquals(string)) {
+				counter++;
+			}
+		}
+		assertEquals(Integer.parseInt(string2), counter);
+	}
+	/**
+	* @author aayush
+	*/
+	@Then("the number of appointments in the system shall be {string}")
+	public void the_number_of_appointments_in_the_system_shall_be(String string) {
+		assertEquals(Integer.parseInt(string), FlexiBookApplication.getFlexiBook().getAppointments().size());
+		
+		// Write code here that turns the phrase above into concrete actions
+	}
+	/**
+	* @author aayush
+	*/
+	@Then("the service combos {string} shall not exist in the system")
+	public void the_service_combos_shall_not_exist_in_the_system(String string) {
+		Boolean flag = true;
+    	for (BookableService b : flexiBook.getBookableServices()) {
+    		if (b instanceof ServiceCombo && b.getName().equals(string)) {
+				flag = false;
+			}
+    	}
+    	assertTrue(flag);
+	}
+	/**
+	* @author aayush
+	*/
+	@Then("the service combos {string} shall not contain service {string}")
+	public void the_service_combos_shall_not_contain_service(String string, String string2) {
+		ServiceCombo newServiceCombo = null;
+		boolean flag = true;
+    	
+		for (BookableService b : flexiBook.getBookableServices()){
+			if (b instanceof ServiceCombo && b.getName().equals(string)) {
+				newServiceCombo = (ServiceCombo) b;
+				for (int i=0; i<newServiceCombo.numberOfServices(); i++) {
+					if (newServiceCombo.getService(i).getService().getName().equals(string2)) {
+						flag = false;
+					}
+				}	
+			}   
+		}
+	   assertTrue(flag);
+	}
+	
+	//================================================================================
+    // UpdateService
+    //================================================================================
+	
+	/**
+	* @author aayush
+	*/
+	@When("{string} initiates the update of the service {string} to name {string}, duration {string}, start of down time {string} and down time duration {string}")
+	public void initiates_the_update_of_the_service_to_name_duration_start_of_down_time_and_down_time_duration(String string, String string2, String string3, String string4, String string5, String string6) {
+		try {
+			FlexiBookController.updateService(string2, string3, string4, string5, string6);
+		} catch (InvalidInputException e) {
+			exception = e;
+			System.out.println(e.getMessage());
+		}
+	}
+	/**
+	* @author aayush
+	*/
+	@Then("the service {string} shall be updated to name {string}, duration {string}, start of down time {string} and down time duration {string}")
+	public void the_service_shall_be_updated_to_name_duration_start_of_down_time_and_down_time_duration(String string, String string2, String string3, String string4, String string5) {
+		Service s = null;
+		for (BookableService bS: FlexiBookApplication.getFlexiBook().getBookableServices()) {
+			if (bS instanceof Service && bS.getName() == string2) {
+				s = (Service) bS;
+				assertEquals(string2,s.getName());
+				assertEquals(Integer.parseInt(string3),s.getDuration());
+				assertEquals(Integer.parseInt(string4),s.getDowntimeStart());
+				assertEquals(Integer.parseInt(string3),s.getDowntimeDuration());
+			}
+		}
+	}
 }

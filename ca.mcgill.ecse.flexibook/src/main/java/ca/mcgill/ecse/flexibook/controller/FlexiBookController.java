@@ -269,38 +269,7 @@ public class FlexiBookController {
 			// do something about invalid timeslot
 		}
 
-		// sort time slots here?
-		// do we add the appointments in a sorted way? 
-		// this is the only place that checks for 
-
-		// binary search in the timeslots to look for which timeslot?
-		// input: List<TimeSlots>
-
-		// I will add the timeslots in an ordered way.
-		// List<Appointment> appointments = FlexiBookApplication.getFlexiBook().getAppointments();
-
-		// parse through each of them and if neither start/end time while accounting for downtime 
-		// of current appointments do not interfere, then add them
-		// for(int i = 0; i < appointments.size(); i++){
-		// 	if(appointments.get(i).getTimeSlot().getEndDate().equals(suggestedTimeslot.getStartDate())){
-
-		// 	}
-		// }
-
-		// basically true unless we find that the timeslot is not good 
-		// for (Appointment appointment : FlexiBookApplication.getFlexiBook().getAppointments()){
-		// 	if(appointment.getTimeSlot().getStartDate().equals(suggestedTimeslot.getStartDate())){
-		// 		if(appointment.getBookableService() instanceof Service){
-
-		// 		}
-		// 		else if(appointment.getBookableService() instanceof ServiceCombo){
-
-		// 		}
-		// 	}
-		// }
-
-		// if everything here pass, then make the appointment here and add it to the relevant service/places
-
+		// Make the appointment
 		return true;
 	}
 

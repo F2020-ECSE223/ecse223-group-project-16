@@ -8,10 +8,14 @@ import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.sql.Date;
 import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
@@ -289,5 +293,129 @@ public class CucumberStepDefinitions {
 	public void the_account_shall_not_be_updated() {
 	    assertEquals(priorUsername, FlexiBookApplication.getCurrentUser().getUsername());
 	    assertEquals(priorPassword, FlexiBookApplication.getCurrentUser().getPassword());
+	}
+	
+	//================================================================================
+    // MakeAppointmentss
+    //================================================================================	
+	
+	@Given("the system's time and date is {string}")
+	public void the_system_s_time_and_date_is(String string) {
+		// Write code here that turns the phrase above into concrete actions
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd+HH:mm");
+		try {
+			Date date = new Date(formatter.parse(string).getTime());
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		try {
+			Time time = new Time(formatter.parse(string).getTime());
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Given("an owner account exists in the system")
+	public void an_owner_account_exists_in_the_system() {
+	    if (!flexiBook.hasOwner()) {
+			new Owner("owner", "password", flexiBook);
+		}
+	}
+
+	@Given("a business exists in the system")
+	public void a_business_exists_in_the_system() {
+	    // Write code here that turns the phrase above into concrete actions
+	    if(!FlexiBookApplication.getFlexiBook().hasBusiness()){
+			FlexiBookApplication.getFlexiBook().setBusiness(
+				new Business("Flexibook", "101 Sherbrooke", "5148888888", "flexi@mcgill.ca", FlexiBookApplication.getFlexiBook())
+			);
+		}
+	}
+	@Given("the following services exist in the system:")
+	public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+		dataTable.asMaps().stream().forEach(x -> 
+			new Service(
+				x.get("name"), 
+				FlexiBookApplication.getFlexiBook(), 
+				Integer.parseInt(x.get("duration")), 
+				Integer.parseInt(x.get("downtimeDuration")), 
+				Integer.parseInt(x.get("downtimeStart")))
+		);
+	}
+
+	@Given("the following service combos exist in the system:")
+	public void the_following_service_combos_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+		dataTable.asMaps().stream().forEach(x -> {
+				// ServiceCombo sc = new ServiceCombo(
+				// 	x.get("mainService"),
+				// 	FlexiBookApplication.getFlexiBook(),
+				// 	(Service) FlexiBookApplication.getFlexiBook().getBookableServices().stream().filter(y -> 
+				// 		y.getName().equals(x.get("name"))).collect(Collectors.toList()).get(0)
+				// );
+
+				ServiceCombo sc = (ServiceCombo) new BookableService(x.get("name"), FlexiBookApplication.getFlexiBook())
+				
+				Arrays.asList(x.get("services").split(",")).stream().forEach(y -> {
+						sc.addService(y.get);
+					}
+					
+				);
+
+				x.get("mandatory").split(",");
+			}
+		);
+	}
+	@Given("the business has the following opening hours")
+	public void the_business_has_the_following_opening_hours(io.cucumber.datatable.DataTable dataTable) {
+	    // Write code here that turns the phrase above into concrete actions
+	    // For automatic transformation, change DataTable to one of
+	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
+	    //
+	    // For other transformations you can register a DataTableType.
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Given("the business has the following holidays")
+	public void the_business_has_the_following_holidays(io.cucumber.datatable.DataTable dataTable) {
+	    // Write code here that turns the phrase above into concrete actions
+	    // For automatic transformation, change DataTable to one of
+	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
+	    //
+	    // For other transformations you can register a DataTableType.
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Given("the following appointments exist in the system:")
+	public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+	    // Write code here that turns the phrase above into concrete actions
+	    // For automatic transformation, change DataTable to one of
+	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
+	    //
+	    // For other transformations you can register a DataTableType.
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Given("{string} is logged in to their account")
+	public void is_logged_in_to_their_account(String string) {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+	@When("{string} schedules an appointment on {string} for {string} at {string}")
+	public void schedules_an_appointment_on_for_at(String string, String string2, String string3, String string4) {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Then("{string} shall have a {string} appointment on {string} from {string} to {string}")
+	public void shall_have_a_appointment_on_from_to(String string, String string2, String string3, String string4, String string5) {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Then("there shall be {int} more appointment in the system")
+	public void there_shall_be_more_appointment_in_the_system(Integer int1) {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
 	}
 }

@@ -295,23 +295,35 @@ public class CucumberStepDefinitions {
     // Login
     //================================================================================
 	
+	User currentUser;
+	boolean initialHasOwner;
 	
-
 	@When("the user tries to log in with username {string} and password {string}")
 	public void the_user_tries_to_log_in_with_username_and_password(String string, String string2) {
-		   // Write code here that turns the phrase above into concrete actions
-		  
-		
-		
+		  try {
+			initialHasOwner = flexiBook.hasOwner();
+			currentUser = FlexiBookController.login(string, string2);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}
 	}
 
 	@Then("the user should be successfully logged in")
 	public void the_user_should_be_successfully_logged_in() {
-		   // Write code here that turns the phrase above into concrete actions
-		   throw new io.cucumber.java.PendingException();
+		   assertEquals(currentUser, FlexiBookApplication.getCurrentUser());
 	}
 
+	@Then("the user should not be logged in")
+	public void the_user_should_not_be_logged_in() {
+		   assertEquals(null, FlexiBookApplication.getCurrentUser());
+	}
 
+	@Then("a new account shall be created")
+	public void a_new_account_shall_be_created() {
+		  assertEquals(true, !initialHasOwner);
+	}
+	
+	
 	//================================================================================
     // Logout
     //================================================================================

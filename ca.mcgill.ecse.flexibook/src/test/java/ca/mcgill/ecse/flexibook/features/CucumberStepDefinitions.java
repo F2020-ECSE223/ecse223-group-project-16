@@ -300,7 +300,7 @@ public class CucumberStepDefinitions {
 	
 	@When("the user tries to log in with username {string} and password {string}")
 	public void the_user_tries_to_log_in_with_username_and_password(String string, String string2) {
-		  try {
+		try {
 			initialHasOwner = flexiBook.hasOwner();
 			currentUser = FlexiBookController.login(string, string2);
 		} catch (InvalidInputException e) {
@@ -310,17 +310,22 @@ public class CucumberStepDefinitions {
 
 	@Then("the user should be successfully logged in")
 	public void the_user_should_be_successfully_logged_in() {
-		   assertEquals(currentUser, FlexiBookApplication.getCurrentUser());
+		assertEquals(currentUser, FlexiBookApplication.getCurrentUser());
 	}
 
 	@Then("the user should not be logged in")
 	public void the_user_should_not_be_logged_in() {
-		   assertEquals(null, FlexiBookApplication.getCurrentUser());
+		assertEquals(null, FlexiBookApplication.getCurrentUser());
+	}
+
+	@Then("the user shall be successfully logged in")
+	public void the_user_shall_be_successfully_logged_in() {
+		assertEquals(flexiBook.getOwner(), FlexiBookApplication.getCurrentUser());
 	}
 
 	@Then("a new account shall be created")
 	public void a_new_account_shall_be_created() {
-		  assertEquals(true, !initialHasOwner);
+		assertEquals(true, !initialHasOwner);
 	}
 	
 	
@@ -347,9 +352,138 @@ public class CucumberStepDefinitions {
 	}
 
 
+	//================================================================================
+    // ViewAppointmentCalendar
+    //================================================================================
 
-	
-	
+	@Given("the system's time and date is {string}")
+	public void the_system_s_time_and_date_is(String string) {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Given("an owner account exists in the system")
+	public void an_owner_account_exists_in_the_system() {
+	    if (!flexiBook.hasOwner()) {
+	    	new Owner ("owner", "ownerPass", flexiBook);
+	    }
+	}
+	@Given("a business exists in the system")
+	public void a_business_exists_in_the_system() {
+	    if (!flexiBook.hasBusiness()) {
+	    	// create new business - flexiBook.setBusiness(new Business(...));
+	    	new Business("businessName", "address", "phone", "email", flexiBook); 
+	    }
+	}
+	@Given("the following services exist in the system:")
+	public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+	    // Write code here that turns the phrase above into concrete actions
+	    // For automatic transformation, change DataTable to one of
+	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
+	    //
+	    // For other transformations you can register a DataTableType.
+		
+		List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
+				
+		
+		
+		/*
+		 * for each service
+		 * if the service doesnt exist in the system
+		 * create the service
+		 * 
+		 * */
+	    
+	    
+	}
+	@Given("the following service combos exist in the system:")
+	public void the_following_service_combos_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+	    // Write code here that turns the phrase above into concrete actions
+	    // For automatic transformation, change DataTable to one of
+	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
+	    //
+	    // For other transformations you can register a DataTableType.
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Given("the business has the following opening hours:")
+	public void the_business_has_the_following_opening_hours(io.cucumber.datatable.DataTable dataTable) {
+	    // Write code here that turns the phrase above into concrete actions
+	    // For automatic transformation, change DataTable to one of
+	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
+	    //
+	    // For other transformations you can register a DataTableType.
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Given("the business has the following holidays:")
+	public void the_business_has_the_following_holidays(io.cucumber.datatable.DataTable dataTable) {
+	    // Write code here that turns the phrase above into concrete actions
+	    // For automatic transformation, change DataTable to one of
+	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
+	    //
+	    // For other transformations you can register a DataTableType.
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Given("the following appointments exist in the system:")
+	public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+	    // Write code here that turns the phrase above into concrete actions
+	    // For automatic transformation, change DataTable to one of
+	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
+	    //
+	    // For other transformations you can register a DataTableType.
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Given("{string} is logged in to their account") 
+	public void is_logged_in_to_their_account(String string) {
+		if (string.equals("owner")) {
+			FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
+		} 
+		else {
+			for (Customer customer : flexiBook.getCustomers()) {
+				if (customer.getUsername().equals(string)) {
+					FlexiBookApplication.setCurrentUser(customer);
+				}
+			}
+		}
+	}
+	@When("{string} requests the appointment calendar for the day of {string}")
+	public void requests_the_appointment_calendar_for_the_day_of(String string, String string2) {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Then("the following slots shall be unavailable:")
+	public void the_following_slots_shall_be_unavailable(io.cucumber.datatable.DataTable dataTable) {
+	    // Write code here that turns the phrase above into concrete actions
+	    // For automatic transformation, change DataTable to one of
+	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
+	    //
+	    // For other transformations you can register a DataTableType.
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Then("the following slots shall be available:")
+	public void the_following_slots_shall_be_available(io.cucumber.datatable.DataTable dataTable) {
+	    // Write code here that turns the phrase above into concrete actions
+	    // For automatic transformation, change DataTable to one of
+	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
+	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
+	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
+	    //
+	    // For other transformations you can register a DataTableType.
+	    throw new io.cucumber.java.PendingException();
+	}
+
+
+
 	
 	
 	

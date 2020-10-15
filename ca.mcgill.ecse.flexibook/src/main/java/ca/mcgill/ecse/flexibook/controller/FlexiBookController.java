@@ -213,7 +213,7 @@ public class FlexiBookController {
 		
 		if (username.equals("owner")) {
 			if (!flexiBook.hasOwner()) {
-				 flexiBook.setOwner(new Owner("owner", "owner", flexiBook)); // TODO redundancy? 
+				 new Owner("owner", "owner", flexiBook); 
 			}
 			FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
 			return FlexiBookApplication.getCurrentUser();
@@ -222,7 +222,7 @@ public class FlexiBookController {
 			for (User user : flexiBook.getCustomers() ) {
 				if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
 					FlexiBookApplication.setCurrentUser(user);
-					return user;
+					return FlexiBookApplication.getCurrentUser();
 				}
 			}
 		}

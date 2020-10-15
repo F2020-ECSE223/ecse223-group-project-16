@@ -194,7 +194,32 @@ public class FlexiBookController {
 	 * @throws InvalidInputException
 	 */
 	public static ServiceCombo defineServiceCombo(String name, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException { // maybe lists is better idk
-		return null;
+		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
+		
+		if (services.length == mandatory.length || services.length < 2) {
+			Service[] comboServices = new Service[services.length];
+			Service mainComboService = null;
+			for (int i=0; i < services.length; i++) {
+				Service s = getService(services[i]);
+				if (s==null)
+					throw new InvalidInputException("Service " + services[i] + " does not exist");
+				else
+					comboServices[i] = s;
+				if (services[i].equals(mainService)) {
+					if (!mandatory[i]) 
+						throw new InvalidInputException("Main service must be mandatory");
+					mainComboService = s;
+				}
+			}
+			if (!mainServiceIncluded)
+				throw new InvalidInputException("Main service must be included in the services");
+			
+			if (getServiceCombo(name)!=null)
+				throw new InvalidInputException("Service combo " + name + " already exists");
+			//ServiceCombo combo = new ServiceCombo(name, flexiBook, ???);
+
+		}
+		throw new InvalidInputException("A service Combo must contain at least 2 services");
 	}
 	
 	/**
@@ -211,7 +236,39 @@ public class FlexiBookController {
 	 * @throws InvalidInputException
 	 */
 	public static boolean updateServiceCombo(ServiceCombo combo, String name, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException { // maybe lists is better idk
-		return false;
+		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
+		if (services.length == mandatory.length || services.length < 2) {
+			Service[] comboServices = new Service[services.length];
+			int mainServiceIndex = -1;
+			for (int i=0; i < services.length; i++) {
+				Service s = getService(services[i]);
+				if (s==null)
+					throw new InvalidInputException("Service " + services[i] + " does not exist");
+				else
+					comboServices[i] = s;
+				if (services[i].equals(mainService)) {
+					if (!mandatory[i]) 
+						throw new InvalidInputException("Main service must be mandatory");
+					mainServiceIndex = i;
+				}
+			}
+			if (!mainServiceIncluded)
+				throw new InvalidInputException("Main service must be included in the services");
+			
+			if (!combo.getName().equals(name) && getServiceCombo(name)!=null)
+				throw new InvalidInputException("Service combo " + name + " already exists");
+			combo.setName(name);
+			int n = combo.numberOfServices();
+			for (int i=0; i<comboServices.length; i++) {
+				ComboItem c = new ComboItem(mandatory[i], comboServices[i], combo);
+				if (i==mainServiceIndex)
+					combo.setMainService(c);
+			}
+			for (int i=0; i<n; i++) { // delete old services in combo
+				combo.getService(0).delete();
+			}
+		}
+		throw new InvalidInputException("A service Combo must contain at least 2 services");
 	}
 	
 	/**

@@ -16,6 +16,7 @@ import java.util.Map;
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
+import ca.mcgill.ecse.flexibook.controller.TOBusinessHour.DayOfWeek;
 import ca.mcgill.ecse.flexibook.model.*;
 
 import io.cucumber.java.Before;
@@ -356,6 +357,7 @@ public class CucumberStepDefinitions {
     // ViewAppointmentCalendar
     //================================================================================
 
+	// TODO 
 	@Given("the system's time and date is {string}")
 	public void the_system_s_time_and_date_is(String string) {
 	    // Write code here that turns the phrase above into concrete actions
@@ -370,76 +372,77 @@ public class CucumberStepDefinitions {
 	@Given("a business exists in the system")
 	public void a_business_exists_in_the_system() {
 	    if (!flexiBook.hasBusiness()) {
-	    	// create new business - flexiBook.setBusiness(new Business(...));
 	    	new Business("businessName", "address", "phone", "email", flexiBook); 
 	    }
 	}
 	@Given("the following services exist in the system:")
-	public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
-	    // Write code here that turns the phrase above into concrete actions
-	    // For automatic transformation, change DataTable to one of
-	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
-	    //
-	    // For other transformations you can register a DataTableType.
+	public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {			
+		List<Map<String, String>> rows = dataTable.asMaps();
 		
-		List<Map<String, String>> list = dataTable.asMaps(String.class, String.class);
-				
-		
-		
-		/*
-		 * for each service
-		 * if the service doesnt exist in the system
-		 * create the service
-		 * 
-		 * */
-	    
-	    
+		for (Map<String, String> columns : rows) {
+			new Service(columns.get("name"), flexiBook, Integer.parseInt(columns.get("duration")), 
+					Integer.parseInt(columns.get("downtimeStart")), Integer.parseInt(columns.get("downtimeDuration")));
+		}
+		 
 	}
 	@Given("the following service combos exist in the system:")
 	public void the_following_service_combos_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
-	    // Write code here that turns the phrase above into concrete actions
-	    // For automatic transformation, change DataTable to one of
-	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
-	    //
-	    // For other transformations you can register a DataTableType.
-	    throw new io.cucumber.java.PendingException();
+	    List<Map<String, String>> rows = dataTable.asMaps();
+	    
+	    for (Map<String, String> columns : rows) {
+			new ServiceCombo(columns.get("name"), flexiBook);
+		}
 	}
 	@Given("the business has the following opening hours:")
 	public void the_business_has_the_following_opening_hours(io.cucumber.datatable.DataTable dataTable) {
-	    // Write code here that turns the phrase above into concrete actions
-	    // For automatic transformation, change DataTable to one of
-	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
-	    //
-	    // For other transformations you can register a DataTableType.
-	    throw new io.cucumber.java.PendingException();
-	}
+		 List<Map<String, String>> rows = dataTable.asMaps();
+		 
+		 for (Map<String, String> columns : rows) {
+			ca.mcgill.ecse.flexibook.model.BusinessHour.DayOfWeek day = ca.mcgill.ecse.flexibook.model.BusinessHour.DayOfWeek.valueOf(columns.get("day"));
+			Time startTime = Time.valueOf(columns.get("startTime"));
+			Time endTime = Time.valueOf(columns.get("endTime"));
+			
+			flexiBook.getBusiness().addBusinessHour(new BusinessHour(day, startTime, endTime, flexiBook));
+		 }
+	}  
 	@Given("the business has the following holidays:")
 	public void the_business_has_the_following_holidays(io.cucumber.datatable.DataTable dataTable) {
-	    // Write code here that turns the phrase above into concrete actions
-	    // For automatic transformation, change DataTable to one of
-	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
-	    //
-	    // For other transformations you can register a DataTableType.
-	    throw new io.cucumber.java.PendingException();
+		 List<Map<String, String>> rows = dataTable.asMaps();
+		    
+		 for (Map<String, String> columns : rows) {
+			 flexiBook.getBusiness().addHoliday(new TimeSlot(Date.valueOf(columns.get("startDate")), 
+					Time.valueOf(columns.get("startTime")), Date.valueOf(columns.get("endDate")), 
+					Time.valueOf(columns.get("endTime")), flexiBook));
+		 }
 	}
 	@Given("the following appointments exist in the system:")
 	public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
-	    // Write code here that turns the phrase above into concrete actions
-	    // For automatic transformation, change DataTable to one of
-	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
-	    //
-	    // For other transformations you can register a DataTableType.
-	    throw new io.cucumber.java.PendingException();
+		List<Map<String, String>> rows = dataTable.asMaps();
+		Customer customer = null;
+		BookableService bookableService = null;
+		TimeSlot timeSlot = null;
+		
+	 
+		for (Map<String, String> columns : rows) {
+			
+			for (Customer c : flexiBook.getCustomers()) {
+		    	if (c.getUsername().equals(columns.get("customer"))) {
+		    		customer = c;
+		    	}
+		    }
+			
+			for (BookableService b : flexiBook.getBookableServices()) {
+		    	if (b.getName().equals(columns.get("serviceName"))) {
+		    		bookableService = b;
+		    	}
+		    }
+			
+			timeSlot = new TimeSlot(Date.valueOf(columns.get("startDate")), Time.valueOf(columns.get("startTime")),
+					Date.valueOf(columns.get("startDate")), Time.valueOf(columns.get("endTime")), flexiBook);
+			
+				
+			new Appointment(customer, bookableService, timeSlot, flexiBook);
+		}
 	}
 	@Given("{string} is logged in to their account") 
 	public void is_logged_in_to_their_account(String string) {

@@ -1,1 +1,20 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+#Ignore Eclipse-specific files
+.classpath
+.project
+.settings
+bin
+
+# Mac specific files
 .DS_Store
+/bin/
+
+# Autosave files
+*~*
+\#*
+*\#

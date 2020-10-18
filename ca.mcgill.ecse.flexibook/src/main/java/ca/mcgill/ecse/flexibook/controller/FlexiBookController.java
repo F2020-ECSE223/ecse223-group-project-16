@@ -4,14 +4,9 @@ import java.sql.Time;
 import java.text.ParseException;
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.model.*;
@@ -212,62 +207,187 @@ public class FlexiBookController {
 
 	// handle the service booking
 	public static void makeAppointment(String customerString, String dateString, String serviceName, String startTimeString)
-			throws InvalidInputException {
-			
+		throws InvalidInputException {
+
+		if(customerString.equals("owner")){
+			throw new InvalidInputException("An owner cannot make an appointment");
+		}
+		
+		Time startTime = null;
+		try {
+			startTime = FlexiBookUtil.getTimeFromString(startTimeString);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		Time endTimeWithDownTime = startTime;
+		Time endTimeWithNoDowntime = startTime;
+		
+		Optional<BookableService> optionalService = FlexiBookApplication.getFlexiBook().getBookableServices().stream()
+			.filter(x -> x.getName().equals(serviceName)).findFirst();
+		
+		if(!optionalService.isPresent()){
+			throw new InvalidInputException(String.format("Service with name %s does not exist", serviceName));
+		}
+
+		Service service = (Service) optionalService.get();
+
+		endTimeWithDownTime = new Time(startTime.getTime() 
+			+ service.getDuration() * 60 * 1000);
+		endTimeWithNoDowntime = new Time(startTime.getTime()  
+			+ (service.getDuration() - service.getDowntimeDuration()) * 60 * 1000);
+
+		long totalDuration = (endTimeWithNoDowntime.getTime() - startTime.getTime()) / 60 / 1000;
+		
+		if(startTime.after(endTimeWithNoDowntime) || startTime.after(endTimeWithDownTime)){
+			throw new InvalidInputException("Start date and end date must be the same");
+		}
+
+		Date startDate = null;
+
+		try {
+			startDate = FlexiBookUtil.getDateFromString(dateString);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		if(startDate.before(SystemTime.getDate())){
+			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
+				serviceName, dateString, startTimeString));
+		}
+		else if(startDate.equals(SystemTime.getDate()) && startTime.before(SystemTime.getTime())){
+			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
+				serviceName, dateString, startTimeString));
+		}
+		
+		Calendar c = Calendar.getInstance();
+		c.setTime(startTime);
+		int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+
+		final Time finalStartTime = startTime;
+		final Date finalStartDate = startDate;
+		final Time finalEndTimeWithDownTime = endTimeWithDownTime;
+		final Time finalEndTimeWithNoDownTime = endTimeWithNoDowntime;
+
+
+		if(!(FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours().stream().anyMatch(x -> 
+			x.getDayOfWeek().equals(getDayOfWeek(dayOfWeek))
+			&& x.getStartTime().before(finalStartTime)
+			&& x.getEndTime().after(finalEndTimeWithDownTime))))
+		{
+			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
+				serviceName, dateString, startTimeString));
+		}
+		
+		if(FlexiBookApplication.getFlexiBook().getBusiness().getVacation().stream().anyMatch(x -> 
+			x.getStartDate().after(finalStartDate) && x.getEndDate().before(finalStartDate)
+			|| (x.getStartDate().equals(finalStartDate) && x.getStartTime().before(finalEndTimeWithDownTime))
+			|| (x.getEndDate().equals(finalStartDate) && x.getEndTime().after(finalStartTime))))
+		{
+			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
+				serviceName, dateString, startTimeString));
+		}
+
+		if(FlexiBookApplication.getFlexiBook().getBusiness().getHolidays().stream().anyMatch(x -> 
+			x.getStartDate().after(finalStartDate) && x.getEndDate().before(finalStartDate)
+			|| (x.getStartDate().equals(finalStartDate) && x.getStartTime().before(finalEndTimeWithDownTime))
+			|| (x.getEndDate().equals(finalStartDate) && x.getEndTime().after(finalStartTime))))
+		{
+			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
+				serviceName, dateString, startTimeString));
+		}
+
+		if(!validateConflictingAppointments(finalStartDate, finalStartTime, finalEndTimeWithDownTime, 
+			finalEndTimeWithNoDownTime, totalDuration)){
+			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
+			serviceName, dateString, startTimeString));
+		}
+
+		FlexiBookApplication.getFlexiBook().addAppointment(
+			new Appointment((Customer) FlexiBookApplication.getCurrentUser(), service, 
+			new TimeSlot(startDate, startTime, startDate, endTimeWithDownTime, FlexiBookApplication.getFlexiBook()), 
+			FlexiBookApplication.getFlexiBook()));
+	}
+
+	public static void makeAppointment(String customerString, String dateString, String serviceName, String optServices, 
+		String startTimeString) throws InvalidInputException{
+
+			if(customerString.equals("owner")){
+				throw new InvalidInputException("An owner cannot make an appointment");
+			}
+
 			Time startTime = null;
 			try {
 				startTime = FlexiBookUtil.getTimeFromString(startTimeString);
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-			Time endTimeWithDownTime = startTime;
-			Time endTimeWithNoDowntime = startTime;
-			
-			Optional<BookableService> optionalService = FlexiBookApplication.getFlexiBook().getBookableServices().stream()
+
+			Optional<BookableService> possibleService = FlexiBookApplication.getFlexiBook().getBookableServices().stream()
 				.filter(x -> x.getName().equals(serviceName)).findFirst();
 			
-			if(!optionalService.isPresent()){
+			if(!possibleService.isPresent()){
 				throw new InvalidInputException(String.format("Service with name %s does not exist", serviceName));
 			}
+	
+			ServiceCombo serviceCombo = (ServiceCombo) possibleService.get();
+	
+			// now get the chosen services
+			int durationWithAllServices = serviceCombo.getMainService().getService().getDuration();
+			int lastDowntime = 0;
+			
+			String[] optServiceList = optServices.split(",");
+			List<ComboItem> chosenItems = new ArrayList<>();
+			
+			for(String s: optServiceList){
+				for(ComboItem ci: serviceCombo.getServices()){
+					if(ci.getService().getName().equals(s)){
+						chosenItems.add(ci);
+						durationWithAllServices += ci.getService().getDuration();
+						lastDowntime = ci.getService().getDowntimeDuration();
+					}
+				}
+			}
 
-			Service service = (Service) optionalService.get();
-
-			endTimeWithDownTime = new Time(startTime.getTime() 
-				+ service.getDuration() * 60 * 1000);
-			endTimeWithNoDowntime = new Time(startTime.getTime()  
-				+ (service.getDuration() - service.getDowntimeDuration()) * 60 * 1000);
-
+			Time endTimeWithDownTime = new Time(startTime.getTime() 
+				+ durationWithAllServices * 60 * 1000);
+			Time endTimeWithNoDowntime = new Time(startTime.getTime()  
+				+ (durationWithAllServices - lastDowntime) * 60 * 1000);
+	
 			long totalDuration = (endTimeWithNoDowntime.getTime() - startTime.getTime()) / 60 / 1000;
 			
 			if(startTime.after(endTimeWithNoDowntime) || startTime.after(endTimeWithDownTime)){
 				throw new InvalidInputException("Start date and end date must be the same");
 			}
-
+	
 			Date startDate = null;
+	
+			// added shit here
 
 			try {
 				startDate = FlexiBookUtil.getDateFromString(dateString);
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-
+	
 			if(startDate.before(SystemTime.getDate())){
-				throw new InvalidInputException("Appointment must happen in the future");
+				throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
+					serviceName, dateString, startTimeString));
 			}
 			else if(startDate.equals(SystemTime.getDate()) && startTime.before(SystemTime.getTime())){
-				throw new InvalidInputException("Appointment must happen in the future");
+				throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
+					serviceName, dateString, startTimeString));
 			}
 			
 			Calendar c = Calendar.getInstance();
 			c.setTime(startTime);
 			int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
-
+	
 			final Time finalStartTime = startTime;
 			final Date finalStartDate = startDate;
 			final Time finalEndTimeWithDownTime = endTimeWithDownTime;
 			final Time finalEndTimeWithNoDownTime = endTimeWithNoDowntime;
-
-
+	
+	
 			if(!(FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours().stream().anyMatch(x -> 
 				x.getDayOfWeek().equals(getDayOfWeek(dayOfWeek))
 				&& x.getStartTime().before(finalStartTime)
@@ -285,7 +405,7 @@ public class FlexiBookController {
 				throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
 					serviceName, dateString, startTimeString));
 			}
-
+	
 			if(FlexiBookApplication.getFlexiBook().getBusiness().getHolidays().stream().anyMatch(x -> 
 				x.getStartDate().after(finalStartDate) && x.getEndDate().before(finalStartDate)
 				|| (x.getStartDate().equals(finalStartDate) && x.getStartTime().before(finalEndTimeWithDownTime))
@@ -294,88 +414,24 @@ public class FlexiBookController {
 				throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
 					serviceName, dateString, startTimeString));
 			}
-
+	
 			if(!validateConflictingAppointments(finalStartDate, finalStartTime, finalEndTimeWithDownTime, 
-			 finalEndTimeWithNoDownTime, totalDuration)){
+				finalEndTimeWithNoDownTime, totalDuration)){
 				throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
 				serviceName, dateString, startTimeString));
-			 }
-
-			FlexiBookApplication.getFlexiBook().addAppointment(
-				new Appointment((Customer) FlexiBookApplication.getCurrentUser(), service, 
-				new TimeSlot(startDate, startTime, startDate, endTimeWithDownTime, FlexiBookApplication.getFlexiBook()), 
-				FlexiBookApplication.getFlexiBook()));
-		}
-
-
-		private static boolean validateConflictingAppointments(Date finalStartDate, Time finalStartTime, Time finalEndTimeWithDownTime, 
-			Time finalEndTimeWithNoDownTime, long totalDuration){
-			for(Appointment app: FlexiBookApplication.getFlexiBook().getAppointments()){
-				if(app.getTimeSlot().getStartDate().equals(finalStartDate)){
-					int downtime = 0;
-					if(app.getBookableService() instanceof Service){
-						Service s = (Service) app.getBookableService();
-						downtime = s.getDowntimeDuration();
-					}
-					else if(app.getBookableService() instanceof ServiceCombo){
-						ServiceCombo sc = (ServiceCombo) app.getBookableService();
-						if(app.getChosenItems().isEmpty()){
-							downtime = sc.getMainService().getService().getDowntimeDuration();
-						}
-						else{
-							ComboItem lastCI = app.getChosenItem(app.getChosenItems().size() - 1);
-
-							for(int i = sc.getServices().size() -  1; i >= 0; i++){
-								if(sc.getService(i).equals(lastCI)){
-									break;
-								}
-								if(sc.getService(i).equals(sc.getMainService())){
-									lastCI = sc.getMainService();
-									break;
-								}
-							}
-							downtime = lastCI.getService().getDowntimeDuration();
-						}
-					}
-
-					Time appEndNoDowntime = new Time(app.getTimeSlot().getEndTime().getTime() 
-					- downtime * 60 * 1000);
-
-					if((app.getTimeSlot().getStartTime().equals(finalEndTimeWithDownTime) ||
-					appEndNoDowntime.equals(finalStartTime))){
-						return true;
-					}
-					else if((app.getTimeSlot().getStartTime().before(finalEndTimeWithNoDownTime)
-					|| appEndNoDowntime.after(finalStartTime))){
-						boolean fitsInDowntime = false;
-						if(app.getBookableService() instanceof Service){
-							fitsInDowntime = ((Service) app.getBookableService()).getDowntimeDuration() >= totalDuration;
-						}
-						else{
-							for(ComboItem ci : app.getChosenItems()){
-								if(ci.getService().getDowntimeDuration() >= totalDuration){
-									fitsInDowntime = true;
-								}
-							}
-							if(((ServiceCombo) app.getBookableService()).getMainService().getService().getDowntimeDuration() >= totalDuration){
-								fitsInDowntime = true;
-							}
-						}
-						return fitsInDowntime;
-					}
-				}
 			}
-			return true;
-		}
-
-		public static List<String> selectOptionalServices(String customer, String optionalServices){
-			return Arrays.asList(optionalServices.split(",")).stream().collect(Collectors.toList());
-		}
-
-		public static void makeAppointment(String customer, List<String> optionalServices, String date, String serviceName, String startTime){
 			
-		}
+			Appointment a = new Appointment((Customer) FlexiBookApplication.getCurrentUser(), serviceCombo, 
+			new TimeSlot(startDate, startTime, startDate, endTimeWithDownTime, FlexiBookApplication.getFlexiBook()), 
+			FlexiBookApplication.getFlexiBook());
+			
+			for(ComboItem ci : chosenItems){
+				a.addChosenItem(ci);
+			}
 
+			FlexiBookApplication.getFlexiBook().addAppointment(a);
+	}
+	
 
 	/**
 	 * @author He Qian Wang
@@ -395,6 +451,65 @@ public class FlexiBookController {
 	 * @return
 	 */
 	public static boolean cancelAppointment(){
+		return true;
+	}
+
+	private static boolean validateConflictingAppointments(Date finalStartDate, Time finalStartTime, Time finalEndTimeWithDownTime, 
+		Time finalEndTimeWithNoDownTime, long totalDuration){
+		for(Appointment app: FlexiBookApplication.getFlexiBook().getAppointments()){
+			if(app.getTimeSlot().getStartDate().equals(finalStartDate)){
+				int downtime = 0;
+				if(app.getBookableService() instanceof Service){
+					Service s = (Service) app.getBookableService();
+					downtime = s.getDowntimeDuration();
+				}
+				else if(app.getBookableService() instanceof ServiceCombo){
+					ServiceCombo sc = (ServiceCombo) app.getBookableService();
+					if(app.getChosenItems().isEmpty()){
+						downtime = sc.getMainService().getService().getDowntimeDuration();
+					}
+					else{
+						ComboItem lastCI = app.getChosenItem(app.getChosenItems().size() - 1);
+						for(int i = sc.getServices().size() -  1; i >= 0; i++){
+							if(sc.getService(i).equals(lastCI)){
+								break;
+							}
+							if(sc.getService(i).equals(sc.getMainService())){
+								lastCI = sc.getMainService();
+								break;
+							}
+						}
+						downtime = lastCI.getService().getDowntimeDuration();
+					}
+				}
+
+				Time appEndNoDowntime = new Time(app.getTimeSlot().getEndTime().getTime() 
+				- downtime * 60 * 1000);
+
+				if((app.getTimeSlot().getStartTime().equals(finalEndTimeWithDownTime) ||
+				appEndNoDowntime.equals(finalStartTime))){
+					return true;
+				}
+				else if((app.getTimeSlot().getStartTime().before(finalEndTimeWithNoDownTime)
+				|| appEndNoDowntime.after(finalStartTime))){
+					boolean fitsInDowntime = false;
+					if(app.getBookableService() instanceof Service){
+						fitsInDowntime = ((Service) app.getBookableService()).getDowntimeDuration() >= totalDuration;
+					}
+					else{
+						for(ComboItem ci : app.getChosenItems()){
+							if(ci.getService().getDowntimeDuration() >= totalDuration){
+								fitsInDowntime = true;
+							}
+						}
+						if(((ServiceCombo) app.getBookableService()).getMainService().getService().getDowntimeDuration() >= totalDuration){
+							fitsInDowntime = true;
+						}
+					}
+					return fitsInDowntime;
+				}
+			}
+		}
 		return true;
 	}
 	
@@ -426,10 +541,3 @@ public class FlexiBookController {
 		return list[day];
 	}
 }
-
-
-// first open the folder then src/test/java/features
-// Right click and run as JUnit test
-
-// .feature translated to method in testRunner
-// copy paste from generation to Step Generation

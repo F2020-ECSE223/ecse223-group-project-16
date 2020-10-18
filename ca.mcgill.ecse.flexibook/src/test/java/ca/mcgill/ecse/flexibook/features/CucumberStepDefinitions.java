@@ -463,30 +463,26 @@ public class CucumberStepDefinitions {
 		}
 	}
 
-	List<String> chosenItems;
-	@When("{string} selects {string} for the service combo")
-	public void selects_for_the_service_combo(String string, String string2) {
-		chosenItems = FlexiBookController.selectOptionalServices(string, string2);
-	}
-
 	int appointmentCount;
 
 	@When("{string} schedules an appointment on {string} for {string} at {string}")
-	public void schedules_an_appointment_on_for_at(String string, String string2, String string3, String string4)
-			throws InvalidInputException {
+	public void schedules_an_appointment_on_for_at(String string, String string2, String string3, String string4) {
 		appointmentCount = flexiBook.getAppointments().size();
-		if(chosenItems == null){
-			// try {
-				FlexiBookController.makeAppointment(string, string2, string3, string4);
-			// } catch (InvalidInputException e) {
-			// 	exception = e;
-			// }
-		}
-		else
-		{
-//			TODO
-		}
-		chosenItems = null;
+		try {
+			FlexiBookController.makeAppointment(string, string2, string3, string4);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}		
+	}
+
+	@When("{string} schedules an appointment on {string} for {string} with {string} at {string}")
+	public void schedules_an_appointment_on_for_with_at(String string, String string2, String string3, String string4, String string5) {
+		appointmentCount = flexiBook.getAppointments().size();
+		try {
+			FlexiBookController.makeAppointment(string, string2, string3, string4, string5);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}	
 	}
 
 	// tested and it works
@@ -526,6 +522,11 @@ public class CucumberStepDefinitions {
 
 	@Then("there shall be {int} more appointment in the system")
 	public void there_shall_be_more_appointment_in_the_system(Integer int1) {
-		assertEquals(appointmentCount + 1, flexiBook.getAppointments().size());
+		assertEquals(appointmentCount + int1, flexiBook.getAppointments().size());
+	}
+
+	@Then("the system shall report {string}")
+	public void the_system_shall_report(String string) {
+		assertEquals(string, exception.getMessage());
 	}
 }

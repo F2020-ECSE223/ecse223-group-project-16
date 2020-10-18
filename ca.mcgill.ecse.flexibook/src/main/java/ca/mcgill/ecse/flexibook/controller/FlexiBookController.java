@@ -195,7 +195,7 @@ public class FlexiBookController {
 	public static void defineServiceCombo(String name, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException { // maybe lists is better idk
 		checkUser("owner");
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
-		if (services.length != mandatory.length || services.length < 2)
+		if (services.length < 2)
 			throw new InvalidInputException("A service Combo must contain at least 2 services");
 		if (getService(mainService)==null)
 			throw new InvalidInputException("Service " + mainService + " does not exist");
@@ -238,12 +238,9 @@ public class FlexiBookController {
 	 * 
 	 * @throws InvalidInputException
 	 */
-	public static void updateServiceCombo(String oldComboName, String name, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException {
+	public static void updateServiceCombo(String comboName, String newComboName, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException {
 		checkUser("owner");
-		ServiceCombo combo = getServiceCombo(oldComboName);
-		if (combo==null)
-			throw new InvalidInputException("Service combo " + name + " does not exist");
-		if (services.length != mandatory.length || services.length < 2)
+		if (services.length < 2)
 			throw new InvalidInputException("A service Combo must have at least 2 services");
 		if (getService(mainService)==null)
 			throw new InvalidInputException("Service " + mainService + " does not exist");
@@ -263,9 +260,12 @@ public class FlexiBookController {
 		}
 		if (mainServiceIndex==-1)
 			throw new InvalidInputException("Main service must be included in the services");
-		if (!combo.getName().equals(name) && getBookableService(name)!=null)
+		ServiceCombo combo = getServiceCombo(comboName);
+		if (combo==null)
+			throw new InvalidInputException("Service combo " + comboName + " does not exist");
+		if (!newComboName.equals(comboName) && getBookableService(name)!=null)
 			throw new InvalidInputException("Service combo " + name + " already exists");
-		combo.setName(name);
+		combo.setName(newComboName);
 		int n = combo.numberOfServices();
 		for (int i=0; i<comboServices.length; i++) {
 			ComboItem c = new ComboItem(mandatory[i], comboServices[i], combo);

@@ -457,32 +457,51 @@ public class CucumberStepDefinitions {
 			}
 		}
 	}
+	
+	List<TimeSlot> unavailableTimeSlots;
+	
 	@When("{string} requests the appointment calendar for the day of {string}")
 	public void requests_the_appointment_calendar_for_the_day_of(String string, String string2) {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
+		try {
+			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2);
+		}
+		catch (InvalidInputException e) { 
+			exception = e;
+		}
 	}
 	@Then("the following slots shall be unavailable:")
 	public void the_following_slots_shall_be_unavailable(io.cucumber.datatable.DataTable dataTable) {
-	    // Write code here that turns the phrase above into concrete actions
-	    // For automatic transformation, change DataTable to one of
-	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
-	    //
-	    // For other transformations you can register a DataTableType.
-	    throw new io.cucumber.java.PendingException();
+		List<Map<String, String>> rows = dataTable.asMaps();
+		
+		boolean isMatch = false;
+		for (Map<String, String> columns : rows) {
+			for (TimeSlot t: unavailableTimeSlots) {
+				if (columns.get("date").equals(t.getStartDate().toString())) {
+					 if (columns.get("startTime").equals(t.getStartTime().toString()) && columns.get("endTime").equals(t.getEndTime().toString())) {
+						 isMatch = true;
+						 break;
+					 }
+				 }
+			}
+		}
+		
+		assertTrue(isMatch);
 	}
 	@Then("the following slots shall be available:")
 	public void the_following_slots_shall_be_available(io.cucumber.datatable.DataTable dataTable) {
-	    // Write code here that turns the phrase above into concrete actions
-	    // For automatic transformation, change DataTable to one of
-	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
-	    //
-	    // For other transformations you can register a DataTableType.
-	    throw new io.cucumber.java.PendingException();
+		List<Map<String, String>> rows = dataTable.asMaps();
+		
+		// Unavailable and available time slots do not overlap
+		for (Map<String, String> columns : rows) {
+			for (TimeSlot t: unavailableTimeSlots) {
+				 if (columns.get("date").equals(t.getStartDate().toString())) {
+					 boolean endTimes = t.getEndTime().before(Time.valueOf(columns.get("endTime")));
+					 boolean startTimes = t.getStartTime().after(Time.valueOf(columns.get("startTime")));
+					 assertTrue(endTimes || startTimes);
+				 }
+			}
+		}
+
 	}
 
 

@@ -1,6 +1,11 @@
 package ca.mcgill.ecse.flexibook.controller;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.sql.Date;
+import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.model.*;
@@ -209,7 +214,6 @@ public class FlexiBookController {
 	 */
 	public static User login(String username, String password) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
-		User currentUser;
 		
 		if (username.equals("owner")) {
 			if (!flexiBook.hasOwner()) {
@@ -230,7 +234,87 @@ public class FlexiBookController {
 		throw new InvalidInputException ("Username/password not found");
 	}
 	
+	public static List<TimeSlot> viewAppointmentCalendar (String username, String day) throws InvalidInputException {
+		if (!isDateValid(day)) {
+			throw new InvalidInputException (day + " is not a valid date");
+		}
+		
+		
+		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
+		List<TimeSlot> busyTSlots = new ArrayList<TimeSlot>();
+		List<Appointment> daysAppointments = new ArrayList<Appointment>();
+		TimeSlot firstTS, secondTS;
+		
+		
+		
+		for (Appointment a : flexiBook.getAppointments()) {
+			if (a.getTimeSlot().getStartDate() == Date.valueOf(day)) {
+				daysAppointments.add(a);
+			}
+		}
+		
+		
+		
+		for (Appointment a : daysAppointments) {
+				TimeSlot aptTS = a.getTimeSlot();
+				BookableService aptBService = a.getBookableService();
+				
+				if (aptBService instanceof Service) {
+					firstTS = new TimeSlot(aptTS.getStartDate(), aptTS.getStartTime(), aptTS.getEndDate(), 
+										   addMinToTime(aptTS.getStartTime(), ((Service) aptBService).getDowntimeStart()), flexiBook);
+					secondTS = new TimeSlot(aptTS.getStartDate(), 
+							                addMinToTime(aptTS.getStartTime(), ((Service) aptBService).getDowntimeStart() + ((Service) aptBService).getDowntimeDuration()),
+							                aptTS.getEndDate(), aptTS.getEndTime(), flexiBook);
+				
+					busyTSlots.add(firstTS);
+					busyTSlots.add(secondTS);
+				}
+				else {
+					
+					Time lastServiceEndTime = aptTS.getStartTime();
+					for (ComboItem c : ((ServiceCombo) aptBService).getServices()) {
+						Service service = c.getService();
+						
+						firstTS = new TimeSlot(aptTS.getStartDate(), addMinToTime(addMinToTime(lastServiceEndTime, service.getDowntimeStart()), service.getDowntimeDuration()), 
+								aptTS.getEndDate(), addMinToTime(lastServiceEndTime, service.getDowntimeStart()), flexiBook);
+						
+						secondTS = new TimeSlot(aptTS.getStartDate(), lastServiceEndTime, 
+								aptTS.getEndDate(), addMinToTime(lastServiceEndTime, service.getDuration()), flexiBook);
+						
+						busyTSlots.add(firstTS);
+						busyTSlots.add(secondTS);
+						
+						lastServiceEndTime = addMinToTime(lastServiceEndTime, service.getDuration());
+					}
+				
+				}
+		}
+		
+		
+		return busyTSlots;
+	}
+	
+	private static Time addMinToTime (Time time, int minutes) {
+		 LocalTime lTime = time.toLocalTime();
+		 lTime.plusMinutes(minutes);
+		 
+		 return Time.valueOf(lTime);
+	}
 	
 	
+	
+	private static Boolean isDateValid (String date) {
+		SimpleDateFormat sdf = new SimpleDateFormat("YYYY/MM/DD");
+		sdf.setLenient(false);
+		
+		try {
+			sdf.parse(date);
+		}
+		catch (Exception e) { // ParseException?
+			return false;
+		}
+	
+		return true;
+	}
 	
 }

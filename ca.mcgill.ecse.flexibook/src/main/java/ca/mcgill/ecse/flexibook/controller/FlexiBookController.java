@@ -1,11 +1,22 @@
 package ca.mcgill.ecse.flexibook.controller;
 
 import java.sql.Time;
+import java.text.ParseException;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.model.*;
+import ca.mcgill.ecse.flexibook.util.FlexiBookUtil;
+import ca.mcgill.ecse.flexibook.util.SystemTime;
 
 public class FlexiBookController {
 	/**
@@ -17,26 +28,27 @@ public class FlexiBookController {
 	 * @return the created Customer account
 	 * 
 	 * @throws IllegalArgumentException if any of the username or password are null
-	 * @throws InvalidInputException if:
-	 * - any of the username or password are empty or whitespace
-	 * - the logged in User account is the Owner account
-	 * - the username already exists
+	 * @throws InvalidInputException    if: - any of the username or password are
+	 *                                  empty or whitespace - the logged in User
+	 *                                  account is the Owner account - the username
+	 *                                  already exists
 	 */
 	public static Customer createCustomerAccount(String username, String password) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
-		
+
 		validateCustomerAccountUsername(username);
 		validateUserAccountPassword(password);
-		
+
 		User currentUser = FlexiBookApplication.getCurrentUser();
 		if (currentUser != null && currentUser == flexiBook.getOwner()) {
 			throw new InvalidInputException("You must log out of the owner account before creating a customer account");
 		}
-		
+
 		try {
 			return new Customer(username, password, flexiBook);
 		} catch (RuntimeException e) { // conceals other RuntimeExceptions that may occur during Customer construction
-			// TODO, check e.message() against Umple message, otherwise bubble the Runtime Exception
+			// TODO, check e.message() against Umple message, otherwise bubble the Runtime
+			// Exception
 			throw new InvalidInputException("The username already exists");
 		}
 	}
@@ -49,7 +61,7 @@ public class FlexiBookController {
 			throw new InvalidInputException("The user name cannot be empty"); // space here
 		}
 	}
-	
+
 	private static void validateUserAccountPassword(String password) throws InvalidInputException {
 		if (password == null) {
 			throw new IllegalArgumentException("The password cannot be null");
@@ -58,13 +70,14 @@ public class FlexiBookController {
 			throw new InvalidInputException("The password cannot be empty");
 		}
 	}
-	
+
 	/**
 	 * @author louca
 	 * @category CRUD Account
 	 * 
 	 * @param username of the User account to retrieve
-	 * @return the retrieved User account (null if no User account with that username exists)
+	 * @return the retrieved User account (null if no User account with that
+	 *         username exists)
 	 */
 	public static User getUserByUsername(String username) {
 		if (username.equals("owner")) {
@@ -72,12 +85,13 @@ public class FlexiBookController {
 		}
 		return getCustomerByUsername(username);
 	}
-	
+
 	/**
 	 * @author louca
 	 * 
 	 * @param username of the Customer account to retrieve
-	 * @return the retrieved Customer account (null if no User account with that username exists)
+	 * @return the retrieved Customer account (null if no User account with that
+	 *         username exists)
 	 */
 	public static Customer getCustomerByUsername(String username) {
 		if (username.equals(null)) {
@@ -90,63 +104,66 @@ public class FlexiBookController {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * @author louca
 	 * @category CRUD Account
 	 * 
-	 * @param user of the User account to update
+	 * @param user        of the User account to update
 	 * @param newUsername with which to update the User account
 	 * @param newPassword with which to update the User account
 	 * @return whether or not the User account was updated
 	 * 
-	 * @throws InvalidInputException if 
-	 * - the newUsername is empty or whitespace
-	 * - the newPassword is empty or whitespace
-	 * - the newUsername is not available
-	 * - the User by the given username is the Owner, and the newUsername is not "owner"
+	 * @throws InvalidInputException if - the newUsername is empty or whitespace -
+	 *                               the newPassword is empty or whitespace - the
+	 *                               newUsername is not available - the User by the
+	 *                               given username is the Owner, and the
+	 *                               newUsername is not "owner"
 	 */
-	public static boolean updateUserAccount(String username, String newUsername, String newPassword) throws InvalidInputException {
+	public static boolean updateUserAccount(String username, String newUsername, String newPassword)
+			throws InvalidInputException {
 		if (username.equals("owner")) {
 			if (!newUsername.equals("owner")) {
 				throw new InvalidInputException("Changing username of owner is not allowed");
 			}
-			
+
 			return updateUserAccountPassword(FlexiBookApplication.getFlexiBook().getOwner(), newPassword);
 		} else {
 			Customer customerToUpdate = getCustomerByUsername(username);
 			if (customerToUpdate == null) {
 				return false;
 			}
-			
-			return updateCustomerAccountUsername(customerToUpdate, newUsername) 
+
+			return updateCustomerAccountUsername(customerToUpdate, newUsername)
 					&& updateUserAccountPassword(customerToUpdate, newPassword);
 		}
 	}
-	
+
 	/**
 	 * @author louca
 	 * @category CRUD Account
 	 * 
-	 * @param customer to update
+	 * @param customer    to update
 	 * @param newUsername with which to update the Customer account
 	 * @return whether or not the Customer account username was updated
 	 * 
-	 * @throws InvalidInputException if the newUsername is empty or whitespace, or if the newUsername is not available
+	 * @throws InvalidInputException if the newUsername is empty or whitespace, or
+	 *                               if the newUsername is not available
 	 */
-	private static boolean updateCustomerAccountUsername(Customer customer, String newUsername) throws InvalidInputException {
+	private static boolean updateCustomerAccountUsername(Customer customer, String newUsername)
+			throws InvalidInputException {
 		validateCustomerAccountUsername(newUsername);
 		if (customer.setUsername(newUsername)) {
 			return true;
 		}
 		throw new InvalidInputException("Username not available");
 	}
-	
+
 	/**
 	 * @author louca
 	 * @category CRUD Account
 	 * 
-	 * @param user to update
+	 * @param user        to update
 	 * @param newPassword with which to update the User account
 	 * @return whether or not the User account password was updated
 	 * 
@@ -156,7 +173,7 @@ public class FlexiBookController {
 		validateUserAccountPassword(newPassword);
 		return user.setPassword(newPassword);
 	}
-	
+
 	/**
 	 * @author louca
 	 * @category CRUD Account
@@ -164,114 +181,144 @@ public class FlexiBookController {
 	 * @param username of the Customer account to delete
 	 * @return whether or not the Customer account was deleted
 	 * 
-	 * @throws InvalidInputException 
+	 * @throws InvalidInputException
 	 */
 	public static boolean deleteCustomerAccount(String username) throws InvalidInputException {
 		Customer customerToDelete = getCustomerByUsername(username);
-		
+
 		if (customerToDelete != FlexiBookApplication.getCurrentUser() || username.equals("owner")) {
 			throw new InvalidInputException("You do not have permission to delete this account");
 		}
-		
+
 		if (customerToDelete == null) {
 			return false;
 		}
-		
+
 		logout();
 		deleteAllCustomerAppointments(customerToDelete);
 		customerToDelete.delete();
 		return true;
 	}
-	
+
 	/**
 	 * @author He Qian Wang
 	 * @return
 	 * 
 	 *         Current as a method that takes in Bookable service, but easily
 	 *         changeable to two methods
+	 * @throws InvalidInputException
 	 * @throws InvalidUserException
 	 */
-	public static boolean makeAppointment(Time startTime, Date startDate, BookableService bookableService)
-			throws InvalidUserException {
 
-		canUserMakeAppointment();
-		
-		Time withDownTime = startTime;
-		Time noDowntime = startTime;
+	// handle the service booking
+	public static void makeAppointment(String customerString, String dateString, String serviceName, String startTimeString)
+			throws InvalidInputException {
+			
+			Time startTime = null;
+			try {
+				startTime = FlexiBookUtil.getTimeFromString(startTimeString);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			Time endTimeWithDownTime = startTime;
+			Time endTimeWithNoDowntime = startTime;
+			
+			Optional<BookableService> optionalService = FlexiBookApplication.getFlexiBook().getBookableServices().stream()
+				.filter(x -> x.getName().equals(serviceName)).findFirst();
+			
+			if(!optionalService.isPresent()){
+				throw new InvalidInputException(String.format("Service with name %s does not exist", serviceName));
+			}
 
-		if(bookableService instanceof Service){
-			Service service = (Service) bookableService;
-			withDownTime = new Time(startTime.getTime() + service.getDuration() * 60 * 1000);
-			noDowntime = new Time(startTime.getTime() + (service.getDuration() - service.getDowntimeDuration()) * 60 * 1000);
+			Service service = (Service) optionalService.get();
+
+			endTimeWithDownTime = new Time(startTime.getTime() 
+				+ service.getDuration() * 60 * 1000);
+			endTimeWithNoDowntime = new Time(startTime.getTime()  
+				+ (service.getDuration() - service.getDowntimeDuration()) * 60 * 1000);
+			
+			if(startTime.after(endTimeWithNoDowntime) || startTime.after(endTimeWithDownTime)){
+				throw new InvalidInputException("Start date and end date must be the same");
+			}
+
+			Date startDate = null;
+
+			try {
+				startDate = FlexiBookUtil.getDateFromString(dateString);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+
+			if(startDate.before(SystemTime.getDate())){
+				throw new InvalidInputException("Appointment must happen in the future");
+			}
+			else if(startDate.equals(SystemTime.getDate()) && startTime.before(SystemTime.getTime())){
+				throw new InvalidInputException("Appointment must happen in the future");
+			}
+			
+			Calendar c = Calendar.getInstance();
+			c.setTime(startTime);
+			int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+
+			final Time finalStartTime = startTime;
+			final Date finalStartDate = startDate;
+			final Time finalEndTimeWithDownTime = endTimeWithDownTime;
+			final Time finalEndTimeWithNoDownTime = endTimeWithNoDowntime;
+
+
+			if(!(FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours().stream().anyMatch(x -> 
+				x.getDayOfWeek().equals(getDayOfWeek(dayOfWeek))
+				&& x.getStartTime().before(finalStartTime)
+				&& x.getEndTime().after(finalEndTimeWithDownTime))))
+			{
+				throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
+					serviceName, dateString, startTimeString));
+			}
+			
+			if(FlexiBookApplication.getFlexiBook().getBusiness().getVacation().stream().anyMatch(x -> 
+				x.getStartDate().after(finalStartDate) && x.getEndDate().before(finalStartDate)
+				|| (x.getStartDate().equals(finalStartDate) && x.getStartTime().before(finalEndTimeWithDownTime))
+				|| (x.getEndDate().equals(finalStartDate) && x.getEndTime().after(finalStartTime))))
+			{
+				throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
+					serviceName, dateString, startTimeString));
+			}
+
+			if(FlexiBookApplication.getFlexiBook().getBusiness().getHolidays().stream().anyMatch(x -> 
+				x.getStartDate().after(finalStartDate) && x.getEndDate().before(finalStartDate)
+				|| (x.getStartDate().equals(finalStartDate) && x.getStartTime().before(finalEndTimeWithDownTime))
+				|| (x.getEndDate().equals(finalStartDate) && x.getEndTime().after(finalStartTime))))
+			{
+				throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
+					serviceName, dateString, startTimeString));
+			}
+
+			// ******we have to go fetch the last downtime and subtract that from the endtime
+			if(FlexiBookApplication.getFlexiBook().getAppointments().stream().anyMatch(x -> 
+				x.getTimeSlot().getStartDate().equals(finalStartDate) && 
+				!(x.getTimeSlot().getStartTime().equals(finalEndTimeWithDownTime) ||
+				x.getTimeSlot().getEndTime().equals(finalStartTime))
+				&& (x.getTimeSlot().getStartTime().before(finalEndTimeWithNoDownTime)
+				|| x.getTimeSlot().getEndTime().after(finalStartTime))))
+			{
+				// throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
+				// 	serviceName, dateString, startTimeString));
+				throw new InvalidInputException(finalStartTime + "");
+			}
+			FlexiBookApplication.getFlexiBook().addAppointment(
+				new Appointment((Customer) FlexiBookApplication.getCurrentUser(), service, 
+				new TimeSlot(startDate, startTime, startDate, endTimeWithDownTime, FlexiBookApplication.getFlexiBook()), 
+				FlexiBookApplication.getFlexiBook()));
 		}
-		else if(bookableService instanceof ServiceCombo){
-			ServiceCombo serviceCombo = (ServiceCombo) bookableService;
-			int totalDuration = serviceCombo.getServices().stream().mapToInt(x -> x.getService().getDuration()).sum();
-			int lastDowntime = serviceCombo.getServices().get(serviceCombo.getServices().size() - 1).getService().getDowntimeDuration();
-			withDownTime = new Time(startTime.getTime() + totalDuration * 60 * 1000);
-			noDowntime = new Time(startTime.getTime() + (totalDuration - lastDowntime) * 60 * 1000);
+
+		public static List<String> selectOptionalServices(String customer, String optionalServices){
+			return Arrays.asList(optionalServices.split(",")).stream().collect(Collectors.toList());
 		}
 
-		Date endDate = new Date(withDownTime.getTime());
-		
-		final Time endTimeWithDowntime = withDownTime;
-		final Time endTimeNoDowntime = noDowntime;
-		// make appointments need to account for next available timeslot
-		// first -> future date, then make sure it is within the bounds of 
-		// available timeslots.
-		// 1. future date
-		// 2. Within bounds of business hours
-		// 3. no conflicts
-		// 4. duration is legit
-		// 5. account for downtime
-
-		if(!startDate.after(new Date(System.currentTimeMillis()))){
-			// do something about cannot schedule in the past
+		public static void makeAppointment(String customer, List<String> optionalServices, String date, String serviceName, String startTime){
+			
 		}
 
-		if(!startDate.equals(endDate)){
-			// do something about must have same day appointments
-			// 
-		}
-
-		Calendar c = Calendar.getInstance();
-		c.setTime(startTime);
-		int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
-
-		if(!FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()
-			.stream().anyMatch(x -> x.getDayOfWeek().equals(getDayOfWeek(dayOfWeek)) 
-				&& x.getStartTime().before(startTime) 
-				&& x.getEndTime().after(endTimeWithDowntime)))
-		{
-			// nothing matches regular opening hours
-		}
-
-
-		if(FlexiBookApplication.getFlexiBook().getBusiness().getVacation()
-			.stream().anyMatch(x -> x.getStartDate().equals(startDate) 
-				|| (x.getStartDate().before(startDate) && x.getEndDate().after(startDate))))
-		{
-			// do something about appointment within vacations
-		}
-
-		if(FlexiBookApplication.getFlexiBook().getBusiness().getHolidays()
-			.stream().anyMatch(x -> x.getStartDate().equals(startDate) 
-				|| (x.getStartDate().before(startDate) && x.getEndDate().after(startDate))))
-		{
-			// do something about appointment within holidays
-		}
-
-		if(FlexiBookApplication.getFlexiBook().getAppointments()
-			.stream().anyMatch(x -> x.getTimeSlot().getStartDate().equals(startDate) 
-				|| x.getTimeSlot().getStartTime().before(endTimeNoDowntime)
-				|| x.getTimeSlot().getEndTime().after(startTime)))
-		{
-			// do something about invalid timeslot
-		}
-
-		// Make the appointment
-		return true;
-	}
 
 	/**
 	 * @author He Qian Wang
@@ -307,15 +354,6 @@ public class FlexiBookController {
 	
 	public static void logout() {
 		FlexiBookApplication.unsetCurrentUser();
-	}
-
-	private static void canUserMakeAppointment() throws InvalidUserException {
-		if(FlexiBookApplication.getCurrentUser() == null){
-			throw new InvalidUserException("An User must be logged in to make an appointment.");
-		}
-		if(FlexiBookApplication.getCurrentUser().getUsername().equals("owner")){	
-			throw new InvalidUserException("The owner may not create an appointment.");
-		}
 	}
 
 	private static BusinessHour.DayOfWeek getDayOfWeek(int day){

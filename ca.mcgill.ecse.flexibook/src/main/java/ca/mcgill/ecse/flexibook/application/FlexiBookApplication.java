@@ -3,12 +3,17 @@
  */
 package ca.mcgill.ecse.flexibook.application;
 
+import java.sql.Date;
+import java.sql.Time;
+
 import ca.mcgill.ecse.flexibook.model.FlexiBook;
 import ca.mcgill.ecse.flexibook.model.User;
+import ca.mcgill.ecse.flexibook.util.SystemTime;
 
 public class FlexiBookApplication {
 	private static FlexiBook flexiBook;
-	private static User currentUser;
+    private static User currentUser;
+    private static SystemTime systemTime;
 	
     public String getGreeting() {
         return "Hello world.";
@@ -43,5 +48,21 @@ public class FlexiBookApplication {
     
     public static void unsetCurrentUser() {
     	currentUser = null;
+    }
+
+    public static SystemTime getSystemTime(){
+        if(systemTime == null){
+            systemTime = new SystemTime();
+        }
+        return systemTime;
+    }
+
+    public static void setSystemTime(boolean isTesting, Date date, Time time){
+        if(isTesting){
+            SystemTime.setTesting(date, time);
+        }
+        else{
+            systemTime = new SystemTime();
+        }
     }
 }

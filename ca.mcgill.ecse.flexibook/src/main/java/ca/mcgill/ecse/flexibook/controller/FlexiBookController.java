@@ -236,6 +236,8 @@ public class FlexiBookController {
 				+ service.getDuration() * 60 * 1000);
 			endTimeWithNoDowntime = new Time(startTime.getTime()  
 				+ (service.getDuration() - service.getDowntimeDuration()) * 60 * 1000);
+
+			long totalDuration = (endTimeWithNoDowntime.getTime() - startTime.getTime()) / 60 / 1000;
 			
 			if(startTime.after(endTimeWithNoDowntime) || startTime.after(endTimeWithDownTime)){
 				throw new InvalidInputException("Start date and end date must be the same");
@@ -293,22 +295,77 @@ public class FlexiBookController {
 					serviceName, dateString, startTimeString));
 			}
 
-			// ******we have to go fetch the last downtime and subtract that from the endtime
-			if(FlexiBookApplication.getFlexiBook().getAppointments().stream().anyMatch(x -> 
-				x.getTimeSlot().getStartDate().equals(finalStartDate) && 
-				!(x.getTimeSlot().getStartTime().equals(finalEndTimeWithDownTime) ||
-				x.getTimeSlot().getEndTime().equals(finalStartTime))
-				&& (x.getTimeSlot().getStartTime().before(finalEndTimeWithNoDownTime)
-				|| x.getTimeSlot().getEndTime().after(finalStartTime))))
-			{
-				// throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
-				// 	serviceName, dateString, startTimeString));
-				throw new InvalidInputException(finalStartTime + "");
-			}
+			if(!validateConflictingAppointments(finalStartDate, finalStartTime, finalEndTimeWithDownTime, 
+			 finalEndTimeWithNoDownTime, totalDuration)){
+				throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
+				serviceName, dateString, startTimeString));
+			 }
+
 			FlexiBookApplication.getFlexiBook().addAppointment(
 				new Appointment((Customer) FlexiBookApplication.getCurrentUser(), service, 
 				new TimeSlot(startDate, startTime, startDate, endTimeWithDownTime, FlexiBookApplication.getFlexiBook()), 
 				FlexiBookApplication.getFlexiBook()));
+		}
+
+
+		private static boolean validateConflictingAppointments(Date finalStartDate, Time finalStartTime, Time finalEndTimeWithDownTime, 
+			Time finalEndTimeWithNoDownTime, long totalDuration){
+			for(Appointment app: FlexiBookApplication.getFlexiBook().getAppointments()){
+				if(app.getTimeSlot().getStartDate().equals(finalStartDate)){
+					int downtime = 0;
+					if(app.getBookableService() instanceof Service){
+						Service s = (Service) app.getBookableService();
+						downtime = s.getDowntimeDuration();
+					}
+					else if(app.getBookableService() instanceof ServiceCombo){
+						ServiceCombo sc = (ServiceCombo) app.getBookableService();
+						if(app.getChosenItems().isEmpty()){
+							downtime = sc.getMainService().getService().getDowntimeDuration();
+						}
+						else{
+							ComboItem lastCI = app.getChosenItem(app.getChosenItems().size() - 1);
+
+							for(int i = sc.getServices().size() -  1; i >= 0; i++){
+								if(sc.getService(i).equals(lastCI)){
+									break;
+								}
+								if(sc.getService(i).equals(sc.getMainService())){
+									lastCI = sc.getMainService();
+									break;
+								}
+							}
+							downtime = lastCI.getService().getDowntimeDuration();
+						}
+					}
+
+					Time appEndNoDowntime = new Time(app.getTimeSlot().getEndTime().getTime() 
+					- downtime * 60 * 1000);
+
+					if((app.getTimeSlot().getStartTime().equals(finalEndTimeWithDownTime) ||
+					appEndNoDowntime.equals(finalStartTime))){
+						return true;
+					}
+					else if((app.getTimeSlot().getStartTime().before(finalEndTimeWithNoDownTime)
+					|| appEndNoDowntime.after(finalStartTime))){
+						boolean fitsInDowntime = false;
+						if(app.getBookableService() instanceof Service){
+							fitsInDowntime = ((Service) app.getBookableService()).getDowntimeDuration() >= totalDuration;
+						}
+						else{
+							for(ComboItem ci : app.getChosenItems()){
+								if(ci.getService().getDowntimeDuration() >= totalDuration){
+									fitsInDowntime = true;
+								}
+							}
+							if(((ServiceCombo) app.getBookableService()).getMainService().getService().getDowntimeDuration() >= totalDuration){
+								fitsInDowntime = true;
+							}
+						}
+						return fitsInDowntime;
+					}
+				}
+			}
+			return true;
 		}
 
 		public static List<String> selectOptionalServices(String customer, String optionalServices){

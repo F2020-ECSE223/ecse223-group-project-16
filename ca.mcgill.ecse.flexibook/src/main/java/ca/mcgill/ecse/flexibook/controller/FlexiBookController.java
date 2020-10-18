@@ -449,9 +449,44 @@ public class FlexiBookController {
 	/**
 	 * @author He Qian Wang
 	 * @return
+	 * @throws InvalidInputException
 	 */
-	public static boolean cancelAppointment(){
-		return true;
+	public static void cancelAppointment(String customerString, String serviceName, String dateString,
+			String startTimeString) throws InvalidInputException {
+		
+		// 1. look for that appointment if it exists
+		
+		if(FlexiBookApplication.getCurrentUser().getUsername().equals("owner")){
+			throw new InvalidInputException("An owner cannot cancel an appointment");
+		}
+
+		if(!FlexiBookApplication.getCurrentUser().getUsername().equals(customerString)){
+			throw new InvalidInputException("A customer can only cancel their own appointments");
+		}
+
+		Customer c = (Customer) FlexiBookApplication.getCurrentUser();
+
+		Date startDate = null;
+		Time startTime = null;
+		try {
+			startDate = FlexiBookUtil.getDateFromString(dateString);
+			startTime = FlexiBookUtil.getTimeFromString(startTimeString);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		if(startDate.equals(SystemTime.getDate())){
+			throw new InvalidInputException("Cannot cancel an appointment on the appointment date");
+		}
+
+		// Appointment foundAppointment = null;
+		for(Appointment a : new ArrayList<Appointment>(c.getAppointments())){
+			if(a.getBookableService().getName().equals(serviceName) 
+				&& a.getTimeSlot().getStartDate().equals(startDate)
+				&& a.getTimeSlot().getStartTime().equals(startTime)){
+					a.delete();
+			}
+		}		
 	}
 
 	private static boolean validateConflictingAppointments(Date finalStartDate, Time finalStartTime, Time finalEndTimeWithDownTime, 

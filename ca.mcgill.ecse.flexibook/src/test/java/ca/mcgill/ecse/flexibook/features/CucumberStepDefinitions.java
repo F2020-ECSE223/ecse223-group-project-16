@@ -25,6 +25,7 @@ import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.model.*;
 import ca.mcgill.ecse.flexibook.util.FlexiBookUtil;
+import ca.mcgill.ecse.flexibook.util.SystemTime;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 import io.cucumber.java.After;
@@ -62,6 +63,10 @@ public class CucumberStepDefinitions {
 		
 		for (BookableService bookableService : new ArrayList<BookableService>(flexiBook.getBookableServices())) {
 			bookableService.delete();
+		}
+
+		for (Appointment a : new ArrayList<Appointment>(flexiBook.getAppointments())){
+			a.delete();
 		}
 		
 		exception = null;
@@ -299,19 +304,22 @@ public class CucumberStepDefinitions {
 	}
 	
 	//================================================================================
-    // MakeAppointmentss
+    // MakeAppointments
     //================================================================================	
 
 	// tested
 	@Given("the system's time and date is {string}")
 	public void the_system_s_time_and_date_is(String string) {
 		String[] dateTime = string.split("\\+");
+		Date date = null;
+		Time time = null;
 		try {
-			FlexiBookApplication.setSystemTime(true, FlexiBookUtil.getDateFromString(dateTime[0]),
-					FlexiBookUtil.getTimeFromString(dateTime[1]));
+			date = FlexiBookUtil.getDateFromString(dateTime[0]);
+			time = FlexiBookUtil.getTimeFromString(dateTime[1]);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+		SystemTime.setTesting(date, time);
 	}
 
 	// tested
@@ -347,13 +355,14 @@ public class CucumberStepDefinitions {
 
 	// tested, 6 bookables and combos are linked properly
 	@Given("the following service combos exist in the system:")
-	public void the_following_service_combos_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+	public void the_following_service_combos_exist_in_the_system(io.cucumber.datatable.DataTable dataTable)
+			throws InvalidInputException {
 		dataTable.asMaps().stream().forEach(x -> {
 				ServiceCombo sc = new ServiceCombo(x.get("name"), FlexiBookApplication.getFlexiBook());
 
 				String[] services = x.get("services").split(",");
 				String[] mandatory = x.get("mandatory").split(",");
-
+				
 				IntStream.range(0, Math.min(services.length, mandatory.length)).forEach(i -> {
 						ComboItem c = sc.addService(Boolean.parseBoolean(mandatory[i]), 
 							(Service) FlexiBookApplication.getFlexiBook().getBookableServices().stream().filter(y -> 
@@ -528,5 +537,64 @@ public class CucumberStepDefinitions {
 	@Then("the system shall report {string}")
 	public void the_system_shall_report(String string) {
 		assertEquals(string, exception.getMessage());
+	}
+
+
+	//================================================================================
+    // UpdateAppointments
+	//================================================================================	
+	
+	@When("{string} attempts to update their {string} appointment on {string} at {string} to {string} at {string}")
+	public void attempts_to_update_their_appointment_on_at_to_at(String string, String string2, String string3, String string4, String string5, String string6) {
+		
+	}
+
+	@Then("the system shall report that the update was {string}")
+	public void the_system_shall_report_that_the_update_was(String string) {
+		
+	}
+
+	//================================================================================
+    // CancelAppointments
+	//================================================================================	
+	
+	
+	@When("{string} attempts to cancel their {string} appointment on {string} at {string}")
+	public void attempts_to_cancel_their_appointment_on_at(String string, String string2, String string3, String string4) {
+		appointmentCount = flexiBook.getAppointments().size();
+		try {
+			FlexiBookController.cancelAppointment(string, string2, string3, string4);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}
+	}
+
+	@When("{string} attempts to cancel {string}'s {string} appointment on {string} at {string}")
+	public void attempts_to_cancel_s_appointment_on_at(String string, String string2, String string3, String string4, String string5) {
+		if (string.equals("owner")) {
+			FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
+		} else {
+			for (Customer customer : flexiBook.getCustomers()) {
+				if (customer.getUsername().equals(string)) {
+					FlexiBookApplication.setCurrentUser(customer);
+				}
+			}
+		}
+		appointmentCount = flexiBook.getAppointments().size();
+		try {
+			FlexiBookController.cancelAppointment(string2, string3, string4, string5);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}
+	}
+
+	@Then("{string}'s {string} appointment on {string} at {string} shall be removed from the system")
+	public void s_appointment_on_at_shall_be_removed_from_the_system(String string, String string2, String string3, String string4) {
+		assertEquals(flexiBook.getAppointments().size(), 0);
+	}
+
+	@Then("there shall be {int} less appointment in the system")
+	public void there_shall_be_less_appointment_in_the_system(Integer int1) {
+		assertEquals(appointmentCount - int1, flexiBook.getAppointments().size());
 	}
 }

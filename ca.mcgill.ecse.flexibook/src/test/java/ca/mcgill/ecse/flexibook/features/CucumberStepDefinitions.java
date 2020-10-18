@@ -294,6 +294,74 @@ public class CucumberStepDefinitions {
 	//================================================================================
     // DefineServiceCombo
     //================================================================================
+	/**
+	 * @author theodore
+	 */
+	@Given("an owner account exists in the system")
+    public void an_owner_account_exists_in_the_system() {
+		if (!flexiBook.hasOwner())
+			new Owner("owner", "", flexiBook);
+    }
+	/**
+	 * @author theodore
+	 */
+    @Given("a business exists in the system")
+    public void a_business_exists_in_the_system() {
+        if (!flexiBook.hasBusiness())
+        	new Business("widget shop", "123 Street street", "1(800) 888-8888", "no-reply@google.com", flexiBook);
+    }
+    /**
+	 * @author theodore
+	 * @param dataTable data for services in the system
+	 */
+    @Given("the following services exist in the system:")
+    public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+    	List<Map<String,String>> serviceData = dataTable.asMaps();
+    	System.out.println(serviceData);
+    	for (Map<String,String> e : serviceData)
+			new Service(e.get("name"), flexiBook, Integer.parseInt(e.get("duration")), Integer.parseInt(e.get("downtimeDuration")), Integer.parseInt(e.get("downtimeStart")));
+    }
+    /**
+	 * @author theodore
+	 * @param dataTable data for service combos in the system
+	 */
+    @Given("the following service combos exist in the system:")
+    public void the_following_service_combos_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+    	List<Map<String, String>> serviceComboData = dataTable.asMaps();
+		for (Map<String, String> e : serviceComboData) {
+			ServiceCombo c = new ServiceCombo(e.get("name"), flexiBook);
+			String[] services = e.get("services").split(",");
+	    	String[] m = e.get("mandatory").split(",");
+	    	for (int i=0; i< m.length; i++) {
+	    		Service s = null;
+	    		for (BookableService j : flexiBook.getBookableServices())
+	    			if (j.getName().equals(services[i]))
+	    				s = (Service) j;
+	    		ComboItem ci = new ComboItem(m[i].equals("true"), s, c);
+	    		if (services[i].equals(e.get("mainService")))
+	    			c.setMainService(ci);
+	    	}
+		}
+    }
+    /**
+	 * @author theodore
+	 * @param string the owners username? should always be owner so idk why this is a param
+	 */
+    @Given("the Owner with username {string} is logged in")
+    public void the_owner_with_username_is_logged_in(String string) {
+    	assertEquals(string, "owner");
+    	FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
+    }
+    /**
+	 * @author theodore
+	 * @param string customer username
+	 */
+    @Given("Customer with username {string} is logged in")
+    public void customer_with_username_is_logged_in(String string) {
+    	for (Customer customer : flexiBook.getCustomers())
+			if (customer.getUsername().equals(string))
+				FlexiBookApplication.setCurrentUser(customer);
+    }
     /**
 	 * @author theodore
 	 * @param user logged in user
@@ -315,7 +383,6 @@ public class CucumberStepDefinitions {
 			exception = e;
 		}
     }
-    
     /**
 	 * @author theodore
 	 * @param name combo name
@@ -385,7 +452,11 @@ public class CucumberStepDefinitions {
 	 */
     @Then("the number of service combos in the system shall be {string}")
     public void the_number_of_service_combos_in_the_system_shall_be(String num) {
-        assertEquals(flexiBook.numberOfBookableServices(),Integer.parseInt(num));
+    	int acc = 0;
+    	for (BookableService b : flexiBook.getBookableServices())
+    		if (b instanceof ServiceCombo)
+    			acc++;
+        assertEquals(acc,Integer.parseInt(num));
     }
     /**
 	 * @author theodore
@@ -407,7 +478,30 @@ public class CucumberStepDefinitions {
 				newServiceCombo = (ServiceCombo) b;
 		assertEquals(newServiceCombo,null);
     }
-
+    /**
+	 * @author theodore
+	 * @param name combo name
+	 * @param dataTable service combo data
+	 */
+    @Then("the service combo {string} shall preserve the following properties:")
+    public void the_service_combo_shall_preserve_the_following_properties(String name, io.cucumber.datatable.DataTable dataTable) {
+    	List<Map<String, String>> serviceComboData = dataTable.asMaps();
+		for (Map<String, String> e : serviceComboData) {
+			assertEquals(name, e.get("name"));
+			ServiceCombo c = null;
+			for (BookableService j : flexiBook.getBookableServices())
+				if(j.getName().equals(name))
+					c = (ServiceCombo) j;
+			assertEquals(c.getMainService().getService().getName(), e.get("mainService"));
+			String[] services = e.get("services").split(",");
+	    	String[] m = e.get("mandatory").split(",");
+	    	for (int i=0; i< m.length; i++) {
+	    		ComboItem ci = c.getService(i);
+	    		assertEquals(ci.getMandatory(), m[i].equals("true"));
+	    		assertEquals(ci.getService().getName(), services[i]);
+	    	}
+		}
+    }
 	//================================================================================
     // DeleteServiceCombo
     //================================================================================
@@ -484,5 +578,5 @@ public class CucumberStepDefinitions {
     	if(!oldComboName.equals(name))
     		the_service_combo_shall_not_exist_in_the_system(oldComboName);
     }
-
+    
 }

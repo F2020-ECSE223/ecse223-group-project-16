@@ -195,34 +195,35 @@ public class FlexiBookController {
 	public static void defineServiceCombo(String name, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException { // maybe lists is better idk
 		checkUser("owner");
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
-		if (services.length == mandatory.length || services.length < 2) {
-			Service[] comboServices = new Service[services.length];
-			int mainServiceIndex = -1;
-			for (int i=0; i < services.length; i++) {
-				Service s = getService(services[i]);
-				if (s==null)
-					throw new InvalidInputException("Service " + services[i] + " does not exist");
-				else
-					comboServices[i] = s;
-				if (services[i].equals(mainService)) {
-					if (!mandatory[i]) 
-						throw new InvalidInputException("Main service must be mandatory");
-					mainServiceIndex = i;
-				}
-			}
-			if (mainServiceIndex==-1)
-				throw new InvalidInputException("Main service must be included in the services");
-			if (getBookableService(name)!=null)
-				throw new InvalidInputException("Service combo " + name + " already exists");
-			ServiceCombo combo = new ServiceCombo(name, flexiBook);
-			combo.setName(name);
-			for (int i=0; i<comboServices.length; i++) {
-				ComboItem c = new ComboItem(mandatory[i], comboServices[i], combo);
-				if (i==mainServiceIndex)
-					combo.setMainService(c);
+		if (services.length != mandatory.length || services.length < 2)
+			throw new InvalidInputException("A service Combo must contain at least 2 services");
+		if (getService(mainService)==null)
+			throw new InvalidInputException("Service " + mainService + " does not exist");
+		Service[] comboServices = new Service[services.length];
+		int mainServiceIndex = -1;
+		for (int i=0; i < services.length; i++) {
+			Service s = getService(services[i]);
+			if (s==null)
+				throw new InvalidInputException("Service " + services[i] + " does not exist");
+			else
+				comboServices[i] = s;
+			if (services[i].equals(mainService)) {
+				if (!mandatory[i]) 
+					throw new InvalidInputException("Main service must be mandatory");
+				mainServiceIndex = i;
 			}
 		}
-		throw new InvalidInputException("A service Combo must contain at least 2 services");
+		if (mainServiceIndex==-1)
+			throw new InvalidInputException("Main service must be included in the services");
+		if (getBookableService(name)!=null)
+			throw new InvalidInputException("Service combo " + name + " already exists");
+		ServiceCombo combo = new ServiceCombo(name, flexiBook);
+		combo.setName(name);
+		for (int i=0; i<comboServices.length; i++) {
+			ComboItem c = new ComboItem(mandatory[i], comboServices[i], combo);
+			if (i==mainServiceIndex)
+				combo.setMainService(c);
+		}
 	}
 	
 	/**
@@ -242,38 +243,38 @@ public class FlexiBookController {
 		ServiceCombo combo = getServiceCombo(oldComboName);
 		if (combo==null)
 			throw new InvalidInputException("Service combo " + name + " does not exist");
-		if (services.length == mandatory.length || services.length < 2) {
-			Service[] comboServices = new Service[services.length];
-			int mainServiceIndex = -1;
-			for (int i=0; i < services.length; i++) {
-				Service s = getService(services[i]);
-				if (s==null)
-					throw new InvalidInputException("Service " + services[i] + " does not exist");
-				else
-					comboServices[i] = s;
-				if (services[i].equals(mainService)) {
-					if (!mandatory[i]) 
-						throw new InvalidInputException("Main service must be mandatory");
-					mainServiceIndex = i;
-				}
-			}
-			if (mainServiceIndex==-1)
-				throw new InvalidInputException("Main service must be included in the services");
-			
-			if (!combo.getName().equals(name) && getBookableService(name)!=null)
-				throw new InvalidInputException("Service combo " + name + " already exists");
-			combo.setName(name);
-			int n = combo.numberOfServices();
-			for (int i=0; i<comboServices.length; i++) {
-				ComboItem c = new ComboItem(mandatory[i], comboServices[i], combo);
-				if (i==mainServiceIndex)
-					combo.setMainService(c);
-			}
-			for (int i=0; i<n; i++) { // delete old services in combo
-				combo.getService(0).delete();
+		if (services.length != mandatory.length || services.length < 2)
+			throw new InvalidInputException("A service Combo must have at least 2 services");
+		if (getService(mainService)==null)
+			throw new InvalidInputException("Service " + mainService + " does not exist");
+		Service[] comboServices = new Service[services.length];
+		int mainServiceIndex = -1;
+		for (int i=0; i < services.length; i++) {
+			Service s = getService(services[i]);
+			if (s==null)
+				throw new InvalidInputException("Service " + services[i] + " does not exist");
+			else
+				comboServices[i] = s;
+			if (services[i].equals(mainService)) {
+				if (!mandatory[i]) 
+					throw new InvalidInputException("Main service must be mandatory");
+				mainServiceIndex = i;
 			}
 		}
-		throw new InvalidInputException("A service Combo must contain at least 2 services");
+		if (mainServiceIndex==-1)
+			throw new InvalidInputException("Main service must be included in the services");
+		if (!combo.getName().equals(name) && getBookableService(name)!=null)
+			throw new InvalidInputException("Service combo " + name + " already exists");
+		combo.setName(name);
+		int n = combo.numberOfServices();
+		for (int i=0; i<comboServices.length; i++) {
+			ComboItem c = new ComboItem(mandatory[i], comboServices[i], combo);
+			if (i==mainServiceIndex)
+				combo.setMainService(c);
+		}
+		for (int i=0; i<n; i++) { // delete old services in combo
+			combo.getService(0).delete();
+		}
 	}
 	
 	/**

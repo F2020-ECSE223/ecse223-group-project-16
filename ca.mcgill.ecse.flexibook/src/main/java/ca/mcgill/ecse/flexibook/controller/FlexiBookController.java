@@ -263,8 +263,8 @@ public class FlexiBookController {
 		ServiceCombo combo = getServiceCombo(comboName);
 		if (combo==null)
 			throw new InvalidInputException("Service combo " + comboName + " does not exist");
-		if (!newComboName.equals(comboName) && getBookableService(name)!=null)
-			throw new InvalidInputException("Service combo " + name + " already exists");
+		if (!newComboName.equals(comboName) && getBookableService(comboName)!=null)
+			throw new InvalidInputException("Service combo " + comboName + " already exists");
 		combo.setName(newComboName);
 		int n = combo.numberOfServices();
 		for (int i=0; i<comboServices.length; i++) {

@@ -195,4 +195,38 @@ public class FlexiBookController {
 	public static void logout() {
 		FlexiBookApplication.unsetCurrentUser();
 	}
+	
+	/**
+	 * @author: Julie
+	 */
+	public static void setUpBusinessInfo(String name, String address, String phoneNumber, String email) throws InvalidInputException {
+		if (name == null || name.isEmpty()) {
+			throw new InvalidInputException("Invalid business name");
+		}
+		if (address == null || address.isEmpty()) {
+			throw new InvalidInputException("Invalid address");
+		}
+		if (phoneNumber == null || phoneNumber.isEmpty()) {
+			throw new InvalidInputException("Invalid phone number");
+		}
+		if (email == null || email.isEmpty() || !email.contains("@") ) {
+			throw new InvalidInputException("Invalid email");
+		}
+	    Business aNewBusiness = new Business(name, address, phoneNumber, email, FlexiBookApplication.getFlexiBook());
+		FlexiBookApplication.getFlexiBook().setBusiness(aNewBusiness);
+	}
+
+	public static void addNewBusinessHour(String day, String startTime, String endTime) throws InvalidInputException {
+		
+	}
+		
+	public static void viewBusinessInfo() throws InvalidInputException {
+		if (FlexiBookApplication.getFlexiBook().getBusiness() == null) {
+			throw new InvalidInputException("No business exists");
+		}
+	}
+	
+	public static void addNewTimeSlot(String vacationOrHoliday, String startDate, String startTime, String endDate, String endTime) {
+		
+	}
 }

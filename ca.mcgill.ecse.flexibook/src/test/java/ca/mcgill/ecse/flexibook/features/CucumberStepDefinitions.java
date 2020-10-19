@@ -5,9 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Month;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.List;
@@ -291,71 +294,153 @@ public class CucumberStepDefinitions {
 	    assertEquals(priorPassword, FlexiBookApplication.getCurrentUser().getPassword());
 	}
 	
-	// Julie
 	//================================================================================
     // SetUpBusinessInfo
     //================================================================================
+	/**
+	 * @author Julie
+	 */
 	@Given("no business exists")
 	public void no_business_exists() {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
+	    if (flexiBook.hasBusiness()) {
+	    	flexiBook.delete();
+	    } 
 	}
-
+	/**
+	 * @author Julie
+	 */
+	@When("the user tries to set up the business information with new {string} and {string} and {string} and {string}")
+	public void the_user_tries_to_set_up_the_business_information_with_new_and_and_and(String string, String string2, String string3, String string4) {
+		try {
+			FlexiBookController.setUpBusinessInfo(string, string2, string3, string4);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}	
+	}
+	
 	@Given("the system's time and date is {string}")
 	public void the_system_s_time_and_date_is(String string) {
 	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
 	}
-	@When("the user tries to set up the business information with new {string} and {string} and {string} and {string}")
-	public void the_user_tries_to_set_up_the_business_information_with_new_and_and_and(String string, String string2, String string3, String string4) {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
-	}
+	/**
+	 * @author Julie
+	 */
 	@Then("a new business with new {string} and {string} and {string} and {string} shall {string} created")
 	public void a_new_business_with_new_and_and_and_shall_created(String string, String string2, String string3, String string4, String string5) {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
+		if (string5.equals("be")) {
+			assertEquals(string,flexiBook.getBusiness().getName());
+			assertEquals(string2,flexiBook.getBusiness().getAddress());
+			assertEquals(string3,flexiBook.getBusiness().getPhoneNumber());
+			assertEquals(string4,flexiBook.getBusiness().getEmail());
+		}
+		else {
+			assertEquals(null,flexiBook.getBusiness());
+		}
 	}
+	/**
+	 * @author Julie
+	 */
 	@Then("an error message {string} shall {string} raised")
 	public void an_error_message_shall_raised(String string, String string2) {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
+		boolean flag = false;
+		if (string2.equals("be") || string2.equals("not be")) {
+			flag = true;
+		}
+		assertTrue(flag);
 	}
-	
-	//================================================================================
-    // UpdateBusinessInfo
-    //================================================================================
+	/**
+	 * @author Julie
+	 */
 	@Given("a business exists with the following information:")
 	public void a_business_exists_with_the_following_information(io.cucumber.datatable.DataTable dataTable) {
-	    // Write code here that turns the phrase above into concrete actions
-	    // For automatic transformation, change DataTable to one of
-	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
-	    //
-	    // For other transformations you can register a DataTableType.
-	    throw new io.cucumber.java.PendingException();
+		List<Map<String, String>> rows = dataTable.asMaps();
+		
+		for (Map<String, String> columns : rows) {
+			new Business(columns.get("name"), columns.get("address"), columns.get("phoneNumber"), columns.get("email"), flexiBook);
+		}
 	}
-
+	/**
+	 * @author Julie
+	 */
 	@Given("the business has a business hour on {string} with start time {string} and end time {string}")
 	public void the_business_has_a_business_hour_on_with_start_time_and_end_time(String string, String string2, String string3) {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
+		for (BusinessHour bh : flexiBook.getBusiness().getBusinessHours()) {
+			if (string.equals(bh.getDayOfWeek().toString()) && 
+					bh.getStartTime().toString().substring(0,5).equals(string2) && 
+					bh.getEndTime().toString().substring(0,5).equals(string3)) {
+				return;
+			}
+		}
+
+		new BusinessHour(BusinessHour.DayOfWeek.valueOf(string), 
+				Time.valueOf(LocalTime.of(Integer.valueOf(string2.substring(0,2)), Integer.valueOf(string2.substring(3,5)))),
+				Time.valueOf(LocalTime.of(Integer.valueOf(string3.substring(0,2)), Integer.valueOf(string3.substring(3,5)))), 
+				flexiBook);
+	}
+	
+	int numberOfBusinessHours;
+	/**
+	 * @author Julie
+	 */
+	@When("the user tries to add a new business hour on {string} with start time {string} and end time {string}")
+	public void the_user_tries_to_add_a_new_business_hour_on_with_start_time_and_end_time(String string, String string2, String string3) {
+		numberOfBusinessHours = flexiBook.getBusiness().getBusinessHours().size();
+		try {
+			FlexiBookController.addNewBusinessHour(string, string2, string3);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}	
+	}
+	@Then("a new business hour shall {string} created")
+	public void a_new_business_hour_shall_created(String string) {
+		if (string.equals("be")) {
+			assertEquals(numberOfBusinessHours + 1, flexiBook.getBusiness().getBusinessHours().size());
+		}
+		else {
+			assertEquals(numberOfBusinessHours, flexiBook.getBusiness().getBusinessHours().size());
+		}
+	}
+	
+	@When("the user tries to access the business information")
+	public void the_user_tries_to_access_the_business_information() {
+		try {
+			FlexiBookController.viewBusinessInfo();
+		} catch (InvalidInputException e) {
+			exception = e;
+		}	
+	}
+	@Then("the {string} and {string} and {string} and {string} shall be provided to the user")
+	public void the_and_and_and_shall_be_provided_to_the_user(String string, String string2, String string3, String string4) {
+		assertTrue(string != null);
+		assertTrue(string2 != null);
+		assertTrue(string3 != null);
+		assertTrue(string4 != null);
 	}
 	@Given("a {string} time slot exists with start time {string} at {string} and end time {string} at {string}")
 	public void a_time_slot_exists_with_start_time_at_and_end_time_at(String string, String string2, String string3, String string4, String string5) {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
-	}
-	@When("the user tries to update the business information with new {string} and {string} and {string} and {string}")
-	public void the_user_tries_to_update_the_business_information_with_new_and_and_and(String string, String string2, String string3, String string4) {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
-	}
-	@Then("the business information shall {string} updated with new {string} and {string} and {string} and {string}")
-	public void the_business_information_shall_updated_with_new_and_and_and(String string, String string2, String string3, String string4, String string5) {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
+		if (string.equals("vacation")) {
+			for (TimeSlot v : flexiBook.getBusiness().getVacation()) {
+				if (string.equals(v.getStartDate().toString()) && 
+						v.getStartTime().toString().substring(0,5).equals(string2) && 
+						string3.equals(v.getEndDate().toString()) && 
+						v.getEndTime().toString().substring(0,5).equals(string4)) {
+					return;
+				}
+			}
+			new TimeSlot(Date.valueOf(LocalDate.of(Integer.valueOf(string2.substring(0,4)), Month.of(Integer.valueOf(string2.substring(5,7))), Integer.valueOf(string2.substring(8,10)))), 
+					Time.valueOf(LocalTime.of(Integer.valueOf(string2.substring(0,2)), Integer.valueOf(string2.substring(3,5)))), 
+					Date.valueOf(LocalDate.of(Integer.valueOf(string3.substring(0,4)), Month.of(Integer.valueOf(string3.substring(5,7))), Integer.valueOf(string3.substring(8,10)))),
+					Time.valueOf(LocalTime.of(Integer.valueOf(string3.substring(0,2)), Integer.valueOf(string2.substring(3,5)))),
+					flexiBook);
+		}
 	}
 
+	@When("the user tries to add a new {string} with start date {string} at {string} and end date {string} at {string}")
+	public void the_user_tries_to_add_a_new_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5) {
+		
+	}
+	@Then("a new {string} shall {string} be added with start date {string} at {string} and end date {string} at {string}")
+	public void a_new_shall_be_added_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5, String string6) {
+
+	}
 }

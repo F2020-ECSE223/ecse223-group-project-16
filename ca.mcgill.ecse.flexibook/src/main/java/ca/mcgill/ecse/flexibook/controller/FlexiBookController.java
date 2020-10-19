@@ -181,6 +181,160 @@ public class FlexiBookController {
 		return true;
 	}
 	
+	/**
+	 * @author theodore
+	 * @category CRUD ServiceCombo
+	 * 
+	 * @param name of the new ServiceCombo
+	 * @param array of names of Service s
+	 * @param name of main Service
+	 * @param array of booleans for whether each service is mandatory
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static void defineServiceCombo(String name, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException { // maybe lists is better idk
+		checkUser("owner");
+		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
+		if (services.length < 2)
+			throw new InvalidInputException("A service Combo must contain at least 2 services");
+		if (getService(mainService)==null)
+			throw new InvalidInputException("Service " + mainService + " does not exist");
+		Service[] comboServices = new Service[services.length];
+		int mainServiceIndex = -1;
+		for (int i=0; i < services.length; i++) {
+			Service s = getService(services[i]);
+			if (s==null)
+				throw new InvalidInputException("Service " + services[i] + " does not exist");
+			else
+				comboServices[i] = s;
+			if (services[i].equals(mainService)) {
+				if (!mandatory[i]) 
+					throw new InvalidInputException("Main service must be mandatory");
+				mainServiceIndex = i;
+			}
+		}
+		if (mainServiceIndex==-1)
+			throw new InvalidInputException("Main service must be included in the services");
+		if (getBookableService(name)!=null)
+			throw new InvalidInputException("Service combo " + name + " already exists");
+		ServiceCombo combo = new ServiceCombo(name, flexiBook);
+		combo.setName(name);
+		for (int i=0; i<comboServices.length; i++) {
+			ComboItem c = new ComboItem(mandatory[i], comboServices[i], combo);
+			if (i==mainServiceIndex)
+				combo.setMainService(c);
+		}
+	}
+	
+	/**
+	 * @author theodore
+	 * @category CRUD ServiceCombo
+	 * 
+	 * @param ServiceCombo to update
+	 * @param name of the updated ServiceCombo
+	 * @param array of names of Service s
+	 * @param name of main Service
+	 * @param array of booleans for whether each service is mandatory
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static void updateServiceCombo(String comboName, String newComboName, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException {
+		checkUser("owner");
+		if (services.length < 2)
+			throw new InvalidInputException("A service Combo must have at least 2 services");
+		if (getService(mainService)==null)
+			throw new InvalidInputException("Service " + mainService + " does not exist");
+		Service[] comboServices = new Service[services.length];
+		int mainServiceIndex = -1;
+		for (int i=0; i < services.length; i++) {
+			Service s = getService(services[i]);
+			if (s==null)
+				throw new InvalidInputException("Service " + services[i] + " does not exist");
+			else
+				comboServices[i] = s;
+			if (services[i].equals(mainService)) {
+				if (!mandatory[i]) 
+					throw new InvalidInputException("Main service must be mandatory");
+				mainServiceIndex = i;
+			}
+		}
+		if (mainServiceIndex==-1)
+			throw new InvalidInputException("Main service must be included in the services");
+		ServiceCombo combo = getServiceCombo(comboName);
+		if (combo==null)
+			throw new InvalidInputException("Service combo " + comboName + " does not exist");
+		if (!newComboName.equals(comboName) && getBookableService(comboName)!=null)
+			throw new InvalidInputException("Service combo " + comboName + " already exists");
+		combo.setName(newComboName);
+		int n = combo.numberOfServices();
+		for (int i=0; i<comboServices.length; i++) {
+			ComboItem c = new ComboItem(mandatory[i], comboServices[i], combo);
+			if (i==mainServiceIndex)
+				combo.setMainService(c);
+		}
+		for (int i=0; i<n; i++) { // delete old services in combo
+			combo.getService(0).delete();
+		}
+	}
+	
+	/**
+	 * @author theodore
+	 * @category CRUD ServiceCombo
+	 * 
+	 * @param name of the ServiceCombo to be deleted
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static void deleteServiceCombo(String name) throws InvalidInputException {
+		checkUser("owner");
+		ServiceCombo combo = getServiceCombo(name);
+		if (combo==null)
+			throw new InvalidInputException("Service combo " + name + " does not exist");
+		for (Appointment a : combo.getAppointments())
+			if (false) // TODO, check if future apptments with service combo -- waiting for date time utils
+				throw new InvalidInputException("Service combo " + name + " has future appointments");
+		combo.delete();
+	}
+	/**
+	 * @author theodore
+	 * @category CRUD BookableService
+	 * 
+	 * @param name of the BookableService
+	 * @return BookableSeervice with that name, or null if not found
+	 */
+	private static BookableService getBookableService(String name) {
+		for (BookableService b : FlexiBookApplication.getFlexiBook().getBookableServices())
+			if (b.getName().equals(name))
+				return b;
+		return null;
+	}
+	/**
+	 * @author theodore
+	 * @category CRUD Service
+	 * 
+	 * @param name of the Service
+	 * @return Service with that name, or null if not found
+	 */
+	private static Service getService(String name) {
+		for (BookableService b : FlexiBookApplication.getFlexiBook().getBookableServices())
+			if (b instanceof Service && b.getName().equals(name))
+				return (Service) b;
+		return null;
+	}
+	/**
+	 * @author theodore
+	 * @category CRUD ServiceCombo
+	 * 
+	 * @param name of the ServiceCombo
+	 * @return ServiceCombo with that name, or null if not found
+	 */
+	private static ServiceCombo getServiceCombo(String name) {
+		for (BookableService b : FlexiBookApplication.getFlexiBook().getBookableServices())
+			if (b instanceof ServiceCombo && b.getName().equals(name))
+				return (ServiceCombo) b;
+		return null;
+	}
+	
 	private static void deleteAppointment(Appointment appointment) {
 		appointment.getTimeSlot().delete();
 		appointment.delete();
@@ -191,7 +345,10 @@ public class FlexiBookController {
 			deleteAppointment(appointment);
 		}
 	}
-	
+	private static void checkUser(String username) throws InvalidInputException {
+		if (!FlexiBookApplication.getCurrentUser().getUsername().equals(username))
+			throw new InvalidInputException("You are not authorized to perform this operation");
+	}
 	public static void logout() {
 		FlexiBookApplication.unsetCurrentUser();
 	}

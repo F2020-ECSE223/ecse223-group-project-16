@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.sql.Date;
 import java.sql.Time;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
@@ -268,8 +270,10 @@ public class FlexiBookController {
 		ServiceCombo combo = getServiceCombo(comboName);
 		if (combo==null)
 			throw new InvalidInputException("Service combo " + comboName + " does not exist");
-		if (!newComboName.equals(comboName) && getBookableService(name)!=null)
-			throw new InvalidInputException("Service combo " + name + " already exists");
+		if (!newComboName.equals(comboName) && getBookableService(comboName)!=null)
+			throw new InvalidInputException("Service combo " + comboName + " already exists");
+		if (!newComboName.equals(comboName) && getBookableService(comboName)!=null)
+			throw new InvalidInputException("Service combo " + comboName + " already exists");
 		combo.setName(newComboName);
 		int n = combo.numberOfServices();
 		for (int i=0; i<comboServices.length; i++) {
@@ -350,21 +354,12 @@ public class FlexiBookController {
 			deleteAppointment(appointment);
 		}
 	}
-	
+
 	private static void checkUser(String username) throws InvalidInputException {
 		if (!FlexiBookApplication.getCurrentUser().getUsername().equals(username))
 			throw new InvalidInputException("You are not authorized to perform this operation");
 	}
-	
-	
-	public static void logout() throws InvalidInputException {
-		if (FlexiBookApplication.getCurrentUser() == null ) {
-			throw new InvalidInputException ("The user is already logged out");
-		}
-		FlexiBookApplication.unsetCurrentUser();
-	}
 		
-	
 	/**
 	 * @author sarah
 	 * @category Login/Logout
@@ -397,24 +392,35 @@ public class FlexiBookController {
 	
 	/**
 	 * @author sarah
-	 * @category View Appointment Calendar
+	 * @category Login/Logout
 	 * 
-	 * @param String username of the User account being logged in 
-	 * @param String date requested
 	 * @throws InvalidInputException 
 	 */
-	public static List<TimeSlot> viewAppointmentCalendar (String username, String day) throws InvalidInputException {
+	public static void logout() throws InvalidInputException {
+		if (FlexiBookApplication.getCurrentUser() == null ) {
+			throw new InvalidInputException ("The user is already logged out");
+		}
+		FlexiBookApplication.unsetCurrentUser();
+	}
+	
+	/**
+	 * @author sarah
+	 * @category View Appointment Calendar
+	 * 
+	 * @param username username of the User account being logged in 
+	 * @param day date requested
+	 * @param isWeek if the user is requesting for all the appointments of the week of the day
+	 * @throws InvalidInputException 
+	 */
+	public static List<TimeSlot> viewAppointmentCalendar (String username, String day, boolean isWeek) throws InvalidInputException {
 		if (!isDateValid(day)) {
 			throw new InvalidInputException (day + " is not a valid date");
 		}
-		
 		
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 		List<TimeSlot> busyTSlots = new ArrayList<TimeSlot>();
 		List<Appointment> daysAppointments = new ArrayList<Appointment>();
 		TimeSlot firstTS, secondTS;
-		
-		
 		
 		for (Appointment a : flexiBook.getAppointments()) {
 			if (a.getTimeSlot().getStartDate() == Date.valueOf(day)) {
@@ -422,6 +428,17 @@ public class FlexiBookController {
 			}
 		}
 		
+		if (isWeek) {
+			for (int i = 1; i <= 7; i++) {
+				for (Appointment a : flexiBook.getAppointments()) {
+					if (a.getTimeSlot().getStartDate() == addDayToDate(Date.valueOf(day), i)) {
+						daysAppointments.add(a);
+					}
+				}
+			}
+			
+			
+		}
 		
 		
 		for (Appointment a : daysAppointments) {
@@ -429,26 +446,42 @@ public class FlexiBookController {
 				BookableService aptBService = a.getBookableService();
 				
 				if (aptBService instanceof Service) {
-					firstTS = new TimeSlot(aptTS.getStartDate(), aptTS.getStartTime(), aptTS.getEndDate(), 
-										   addMinToTime(aptTS.getStartTime(), ((Service) aptBService).getDowntimeStart()), flexiBook);
-					secondTS = new TimeSlot(aptTS.getStartDate(), 
-							                addMinToTime(aptTS.getStartTime(), ((Service) aptBService).getDowntimeStart() + ((Service) aptBService).getDowntimeDuration()),
-							                aptTS.getEndDate(), aptTS.getEndTime(), flexiBook);
+					firstTS = new TimeSlot(
+							aptTS.getStartDate(), 
+							aptTS.getStartTime(), 
+							aptTS.getEndDate(), 
+							addMinToTime(aptTS.getStartTime(), ((Service) aptBService).getDowntimeStart()), 
+							flexiBook);
+					
+					secondTS = new TimeSlot(
+							aptTS.getStartDate(), 
+							addMinToTime(aptTS.getStartTime(), ((Service) aptBService).getDowntimeStart() + ((Service) aptBService).getDowntimeDuration()),
+							aptTS.getEndDate(), 
+							aptTS.getEndTime(), 
+							flexiBook);
 				
 					busyTSlots.add(firstTS);
 					busyTSlots.add(secondTS);
 				}
-				else {
+				else { 
 					
 					Time lastServiceEndTime = aptTS.getStartTime();
 					for (ComboItem c : ((ServiceCombo) aptBService).getServices()) {
 						Service service = c.getService();
 						
-						firstTS = new TimeSlot(aptTS.getStartDate(), addMinToTime(addMinToTime(lastServiceEndTime, service.getDowntimeStart()), service.getDowntimeDuration()), 
-								aptTS.getEndDate(), addMinToTime(lastServiceEndTime, service.getDowntimeStart()), flexiBook);
+						firstTS = new TimeSlot(
+								aptTS.getStartDate(), 
+								lastServiceEndTime, 
+								aptTS.getEndDate(), 
+								addMinToTime(lastServiceEndTime, service.getDowntimeStart()),
+								flexiBook);
 						
-						secondTS = new TimeSlot(aptTS.getStartDate(), lastServiceEndTime, 
-								aptTS.getEndDate(), addMinToTime(lastServiceEndTime, service.getDuration()), flexiBook);
+						secondTS = new TimeSlot(
+								aptTS.getStartDate(), 
+								addMinToTime(addMinToTime(lastServiceEndTime, service.getDowntimeStart()), service.getDowntimeDuration()), 
+								aptTS.getEndDate(), 
+								addMinToTime(lastServiceEndTime, service.getDuration()), 
+								flexiBook);
 						
 						busyTSlots.add(firstTS);
 						busyTSlots.add(secondTS);
@@ -466,8 +499,8 @@ public class FlexiBookController {
 	
 	/**
 	 * @author sarah
-	 * @param Time time to add minutes to
-	 * @param Int number of minutes
+	 * @param time time to add minutes to
+	 * @param minutes number of minutes
 	 */	
 	private static Time addMinToTime (Time time, int minutes) {
 		 LocalTime lTime = time.toLocalTime();
@@ -476,19 +509,30 @@ public class FlexiBookController {
 		 return Time.valueOf(lTime);
 	}
 	
+	/**
+	 * @author sarah
+	 * @param date date to check
+	 * @param days number of days
+	 */	
+	private static Date addDayToDate (Date date, int days) {
+		 LocalDate lDate = date.toLocalDate();
+		 lDate.plusDays(days);
+		 
+		 return Date.valueOf(lDate);
+	}
 	
 	/**
 	 * @author sarah
-	 * @param String date to check
+	 * @param date date to check
 	 */	
 	private static Boolean isDateValid (String date) {
-		SimpleDateFormat sdf = new SimpleDateFormat("YYYY/MM/DD");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		sdf.setLenient(false);
 		
 		try {
 			sdf.parse(date);
 		}
-		catch (Exception e) { // ParseException?
+		catch (ParseException e) { 
 			return false;
 		}
 	

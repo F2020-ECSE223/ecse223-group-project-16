@@ -10,6 +10,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.sql.Date;
 import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +20,8 @@ import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOBusinessHour.DayOfWeek;
 import ca.mcgill.ecse.flexibook.model.*;
-
+import ca.mcgill.ecse.flexibook.util.FlexiBookUtil;
+import ca.mcgill.ecse.flexibook.util.SystemTime;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 import io.cucumber.java.After;
@@ -367,42 +370,66 @@ public class CucumberStepDefinitions {
     // ViewAppointmentCalendar
     //================================================================================
 
-	// TODO 
 	@Given("the system's time and date is {string}")
 	public void the_system_s_time_and_date_is(String string) {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
+		String[] dateTime = string.split("\\+");
+		Date date = null;
+		Time time = null;
+		try {
+			date = FlexiBookUtil.getDateFromString(dateTime[0]);
+			time = FlexiBookUtil.getTimeFromString(dateTime[1]);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		SystemTime.setTesting(date, time);
 	}
 	/** @author sarah
-	 *  @param DataTable data table of opening hours in the system
+	 *  @param dataTable data table of opening hours in the system
 	 */
 	@Given("the business has the following opening hours:")
 	public void the_business_has_the_following_opening_hours(io.cucumber.datatable.DataTable dataTable) {
 		 List<Map<String, String>> rows = dataTable.asMaps();
 		 
 		 for (Map<String, String> columns : rows) {
-			ca.mcgill.ecse.flexibook.model.BusinessHour.DayOfWeek day = ca.mcgill.ecse.flexibook.model.BusinessHour.DayOfWeek.valueOf(columns.get("day"));
-			Time startTime = Time.valueOf(columns.get("startTime"));
-			Time endTime = Time.valueOf(columns.get("endTime"));
-			
-			flexiBook.getBusiness().addBusinessHour(new BusinessHour(day, startTime, endTime, flexiBook));
+			 try {
+				 flexiBook.getBusiness().addBusinessHour(new BusinessHour(
+						 FlexiBookUtil.getDayOfWeek(columns.get("day")),
+						 FlexiBookUtil.getTimeFromString(columns.get("startTime")),
+						 FlexiBookUtil.getTimeFromString(columns.get("endTime")), 
+						 flexiBook));
+			 }
+			 catch (ParseException e) {
+				 exception = e;
+			 }
 		 }
 	}  
 	/** @author sarah
-	 *  @param DataTable data table of holidays in the system
+	 *  @param dataTable data table of holidays in the system
 	 */
 	@Given("the business has the following holidays:")
 	public void the_business_has_the_following_holidays(io.cucumber.datatable.DataTable dataTable) {
 		 List<Map<String, String>> rows = dataTable.asMaps();
+		 //SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
 		    
 		 for (Map<String, String> columns : rows) {
-			 flexiBook.getBusiness().addHoliday(new TimeSlot(Date.valueOf(columns.get("startDate")), 
-					Time.valueOf(columns.get("startTime")), Date.valueOf(columns.get("endDate")), 
-					Time.valueOf(columns.get("endTime")), flexiBook));
+			 try {
+			 /*flexiBook.getBusiness().addHoliday(new TimeSlot(Date.valueOf(columns.get("startDate")), 
+					 new Time(formatter.parse(columns.get("startTime")).getTime()), Date.valueOf(columns.get("endDate")), 
+					new Time(formatter.parse(columns.get("endTime")).getTime()), flexiBook));*/
+				 flexiBook.getBusiness().addHoliday(new TimeSlot(
+						 FlexiBookUtil.getDateFromString(columns.get("startDate")),
+						 FlexiBookUtil.getTimeFromString(columns.get("startTime")),
+						 FlexiBookUtil.getDateFromString(columns.get("endDate")),
+						 FlexiBookUtil.getTimeFromString(columns.get("endTime")), 
+						 flexiBook));
+			 }
+			 catch (ParseException e) {
+				 exception = e;
+			 }
 		 }
 	}
 	/** @author sarah
-	 *  @param DataTable data table of appointments in the system
+	 *  @param dataTable data table of appointments in the system
 	 */
 	@Given("the following appointments exist in the system:")
 	public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
@@ -410,8 +437,9 @@ public class CucumberStepDefinitions {
 		Customer customer = null;
 		BookableService bookableService = null;
 		TimeSlot timeSlot = null;
+		//SimpleDateFormat tFormatter = new SimpleDateFormat("HH:mm");
+		//SimpleDateFormat dFormatter = new SimpleDateFormat("yyyy-MM-dd");
 		
-	 
 		for (Map<String, String> columns : rows) {
 			
 			for (Customer c : flexiBook.getCustomers()) {
@@ -426,15 +454,25 @@ public class CucumberStepDefinitions {
 		    	}
 		    }
 			
-			timeSlot = new TimeSlot(Date.valueOf(columns.get("startDate")), Time.valueOf(columns.get("startTime")),
-					Date.valueOf(columns.get("startDate")), Time.valueOf(columns.get("endTime")), flexiBook);
-			
+			try {
+				//timeSlot = new TimeSlot(new Date(dFormatter.parse(columns.get("startDate")).getTime()), new Time(tFormatter.parse(columns.get("startTime")).getTime()),
+				//		new Date(dFormatter.parse(columns.get("startDate")).getTime()), new Time(tFormatter.parse(columns.get("endTime")).getTime()), flexiBook);
+				 timeSlot = new TimeSlot(
+						 FlexiBookUtil.getDateFromString(columns.get("date")),
+						 FlexiBookUtil.getTimeFromString(columns.get("startTime")),
+						 FlexiBookUtil.getDateFromString(columns.get("date")),
+						 FlexiBookUtil.getTimeFromString(columns.get("endTime")), 
+						 flexiBook);
+			}
+			catch (ParseException e) {
+				exception = e;
+			}
 				
 			new Appointment(customer, bookableService, timeSlot, flexiBook);
 		}
 	}
 	/** @author sarah
-	 *  @param String username of user
+	 *  @param string username of user
 	 */
 	@Given("{string} is logged in to their account") 
 	public void is_logged_in_to_their_account(String string) {
@@ -453,41 +491,33 @@ public class CucumberStepDefinitions {
 	List<TimeSlot> unavailableTimeSlots;
 	
 	/** @author sarah
-	 *  @param String username of user 
-	 *  @param String date requested
+	 *  @param string username of user 
+	 *  @param string2 date requested
 	 */
 	@When("{string} requests the appointment calendar for the day of {string}")
 	public void requests_the_appointment_calendar_for_the_day_of(String string, String string2) {
 		try {
-			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2);
+			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2, false);
 		}
 		catch (InvalidInputException e) { 
 			exception = e;
 		}
 	}
 	/** @author sarah
-	 *  @param  DataTable data table of unavailable slots in the system
+	 *  @param string username of user 
+	 *  @param string2 date requested
 	 */
-	@Then("the following slots shall be unavailable:")
-	public void the_following_slots_shall_be_unavailable(io.cucumber.datatable.DataTable dataTable) {
-		List<Map<String, String>> rows = dataTable.asMaps();
-		
-		boolean isMatch = false;
-		for (Map<String, String> columns : rows) {
-			for (TimeSlot t: unavailableTimeSlots) {
-				if (columns.get("date").equals(t.getStartDate().toString())) {
-					 if (columns.get("startTime").equals(t.getStartTime().toString()) && columns.get("endTime").equals(t.getEndTime().toString())) {
-						 isMatch = true;
-						 break;
-					 }
-				 }
-			}
+	@When("{string} requests the appointment calendar for the week starting on {string}")
+	public void requests_the_appointment_calendar_for_the_week_starting_on(String string, String string2) {
+		try {
+			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2, true);
 		}
-		
-		assertTrue(isMatch);
+		catch (InvalidInputException e) { 
+			exception = e;
+		}
 	}
 	/** @author sarah
-	 *  @param  DataTable data table of available slots in the system
+	 *  @param  dataTable data table of available slots in the system
 	 */
 	@Then("the following slots shall be available:")
 	public void the_following_slots_shall_be_available(io.cucumber.datatable.DataTable dataTable) {
@@ -506,6 +536,32 @@ public class CucumberStepDefinitions {
 
 	}
 
+	/** @author sarah
+	 *  @param  dataTable data table of unavailable slots in the system
+	 */
+	@Then("the following slots shall be unavailable:")
+	public void the_following_slots_shall_be_unavailable(io.cucumber.datatable.DataTable dataTable) {
+		List<Map<String, String>> rows = dataTable.asMaps();
+
+		for (Map<String, String> columns : rows) {
+			for (TimeSlot t: unavailableTimeSlots) {
+				 if (columns.get("date").equals(t.getStartDate().toString())) {
+					 boolean endTimes = t.getEndTime().before(Time.valueOf(columns.get("endTime")));
+					 boolean startTimes = t.getStartTime().after(Time.valueOf(columns.get("startTime")));
+					 assertTrue(!(endTimes || startTimes));
+				 }
+			}
+		}
+		
+	}
+    /** @author sarah
+     * 
+     * @param string message
+     */
+	@Then("the system shall report {string}")
+	public void the_system_shall_report(String string) {
+	    assertEquals(string, exception.getMessage());
+	}
 
 
 	
@@ -514,6 +570,7 @@ public class CucumberStepDefinitions {
 	
 	
 	
+
 
 
 	//================================================================================

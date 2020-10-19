@@ -49,20 +49,4 @@ public class FlexiBookApplication {
     public static void unsetCurrentUser() {
     	currentUser = null;
     }
-
-    public static SystemTime getSystemTime(){
-        if(systemTime == null){
-            systemTime = new SystemTime();
-        }
-        return systemTime;
-    }
-
-    public static void setSystemTime(boolean isTesting, Date date, Time time){
-        if(isTesting){
-            SystemTime.setTesting(date, time);
-        }
-        else{
-            systemTime = new SystemTime();
-        }
-    }
 }

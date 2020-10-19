@@ -293,7 +293,6 @@ public class CucumberStepDefinitions {
 	    assertEquals(priorPassword, FlexiBookApplication.getCurrentUser().getPassword());
 	}
 
-<<<<<<< HEAD
 	// tested
 	@Given("the system's time and date is {string}")
 	public void the_system_s_time_and_date_is(String string) {
@@ -308,7 +307,6 @@ public class CucumberStepDefinitions {
 		}
 		SystemTime.setTesting(date, time);
 	}
-=======
 	//================================================================================
     // DefineServiceCombo
     //================================================================================
@@ -597,5 +595,4 @@ public class CucumberStepDefinitions {
     		the_service_combo_shall_not_exist_in_the_system(oldComboName);
     }
     
->>>>>>> master
 }

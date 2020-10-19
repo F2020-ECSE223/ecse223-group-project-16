@@ -10,6 +10,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.sql.Date;
 import java.sql.Time;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,8 @@ import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.model.*;
-
+import ca.mcgill.ecse.flexibook.util.FlexiBookUtil;
+import ca.mcgill.ecse.flexibook.util.SystemTime;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 import io.cucumber.java.After;
@@ -291,6 +293,20 @@ public class CucumberStepDefinitions {
 	    assertEquals(priorPassword, FlexiBookApplication.getCurrentUser().getPassword());
 	}
 
+	// tested
+	@Given("the system's time and date is {string}")
+	public void the_system_s_time_and_date_is(String string) {
+		String[] dateTime = string.split("\\+");
+		Date date = null;
+		Time time = null;
+		try {
+			date = FlexiBookUtil.getDateFromString(dateTime[0]);
+			time = FlexiBookUtil.getTimeFromString(dateTime[1]);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		SystemTime.setTesting(date, time);
+	}
 	//================================================================================
     // DefineServiceCombo
     //================================================================================

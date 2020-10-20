@@ -258,22 +258,16 @@ public class FlexiBookController {
 	/**
 	 * @author: Julie
 	 */
-	public static void addNewTimeSlot(String vacationOrHoliday, String startDate, String startTime, String endDate, String endTime) {
+	public static void addNewTimeSlot(String vacationOrHoliday, String startDate, String startTime, String endDate, String endTime) throws InvalidInputException {
 		if (Integer.parseInt(startTime.substring(0,2)+startTime.substring(3,5)) >= Integer.parseInt(endTime.substring(0,2)+endTime.substring(3,5))) {
 			throw new InvalidInputException("Start time must be before end time");
 		}
+		// there is probably a more efficient way to do this
 		if (vacationOrHoliday.equals("vacation")) {
 			for (TimeSlot ts : FlexiBookApplication.getFlexiBook().getBusiness().getVacation()) {
-				if (startDate.equals(ts.getStartDate().toString()) && endDate.equals(ts.getEndDate().toString())) {
-					throw new InvalidInputException("Vacation times cannot overlap");
-				}
-			}
-		}
-		if (vacationOrHoliday.equals("holiday")) {
-			for (TimeSlot ts : FlexiBookApplication.getFlexiBook().getBusiness().getHolidays()) {
-				if (startDate.equals(ts.getStartDate().toString()) && endDate.equals(ts.getEndDate().toString())) {
-					throw new InvalidInputException("Vacation times cannot overlap");
-				}
+		// if start date of string is lesser than ts end date OR if end date of string is greater than ts start date (convert to int)
+		// if string end date = ts start date OR string start dates = ts end date: check if string endTime > ts start time OR string start time < ts end time
+		// still need to add holiday/vacation in the past (depends on system current time)
 			}
 		}
 	}

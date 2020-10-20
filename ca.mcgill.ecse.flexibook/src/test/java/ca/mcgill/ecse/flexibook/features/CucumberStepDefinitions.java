@@ -376,11 +376,10 @@ public class CucumberStepDefinitions {
 				Time.valueOf(LocalTime.of(Integer.valueOf(string3.substring(0,2)), Integer.valueOf(string3.substring(3,5)))), 
 				flexiBook);
 	}
-	
-	int numberOfBusinessHours;
 	/**
 	 * @author Julie
 	 */
+	int numberOfBusinessHours;
 	@When("the user tries to add a new business hour on {string} with start time {string} and end time {string}")
 	public void the_user_tries_to_add_a_new_business_hour_on_with_start_time_and_end_time(String string, String string2, String string3) {
 		numberOfBusinessHours = flexiBook.getBusiness().getBusinessHours().size();
@@ -442,8 +441,27 @@ public class CucumberStepDefinitions {
 			exception = e;
 		}	
 	}
+	int numberOfVacationSlots;
+	int numberOfHolidaySlots;
 	@Then("a new {string} shall {string} be added with start date {string} at {string} and end date {string} at {string}")
 	public void a_new_shall_be_added_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5, String string6) {
-
+		numberOfVacationSlots = flexiBook.getBusiness().getVacation().size();
+		numberOfHolidaySlots = flexiBook.getBusiness().getHolidays().size();
+		if (string2.equals("be")) {
+			if (string.equals("vacation")) {
+					assertEquals(numberOfVacationSlots + 1, flexiBook.getBusiness().getVacation().size());
+			}
+			else {
+				assertEquals(numberOfHolidaySlots + 1, flexiBook.getBusiness().getHolidays().size());
+			}
+		}
+		else {
+			if (string.equals("vacation")) {
+				assertEquals(numberOfVacationSlots, flexiBook.getBusiness().getVacation().size());
+			}
+			else {
+				assertEquals(numberOfHolidaySlots, flexiBook.getBusiness().getHolidays().size());
+			}
+		}
 	}
 }

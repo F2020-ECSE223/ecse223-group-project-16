@@ -383,6 +383,27 @@ public class CucumberStepDefinitions {
 		}
 		SystemTime.setTesting(date, time);
 	}
+	@Given("an owner account exists in the system")
+	public void an_owner_account_exists_in_the_system() {
+	    if (!flexiBook.hasOwner()) {
+	    	new Owner ("owner", "ownerPass", flexiBook);
+	    }
+	}
+	@Given("a business exists in the system")
+	public void a_business_exists_in_the_system() {
+	    if (!flexiBook.hasBusiness()) {
+	    	new Business("businessName", "address", "phone", "email", flexiBook); 
+	    }
+	}	
+	@Given("the following services exist in the system:")
+	public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {			
+		List<Map<String, String>> rows = dataTable.asMaps();
+		
+		for (Map<String, String> columns : rows) {
+			new Service(columns.get("name"), flexiBook, Integer.parseInt(columns.get("duration")), 
+					Integer.parseInt(columns.get("downtimeDuration")), Integer.parseInt(columns.get("downtimeStart")));
+		}
+	}
 	/** @author sarah
 	 *  @param dataTable data table of opening hours in the system
 	 */
@@ -576,33 +597,6 @@ public class CucumberStepDefinitions {
 	//================================================================================
     // DefineServiceCombo
     //================================================================================
-	/**
-	 * @author theodore
-	 */
-	@Given("an owner account exists in the system")
-    public void an_owner_account_exists_in_the_system() {
-		if (!flexiBook.hasOwner())
-			new Owner("owner", "", flexiBook);
-    }
-	/**
-	 * @author theodore
-	 */
-    @Given("a business exists in the system")
-    public void a_business_exists_in_the_system() {
-        if (!flexiBook.hasBusiness())
-        	new Business("widget shop", "123 Street street", "1(800) 888-8888", "no-reply@google.com", flexiBook);
-    }
-    /**
-	 * @author theodore
-	 * @param dataTable data for services in the system
-	 */
-    @Given("the following services exist in the system:")
-    public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
-    	List<Map<String,String>> serviceData = dataTable.asMaps();
-    	System.out.println(serviceData);
-    	for (Map<String,String> e : serviceData)
-			new Service(e.get("name"), flexiBook, Integer.parseInt(e.get("duration")), Integer.parseInt(e.get("downtimeDuration")), Integer.parseInt(e.get("downtimeStart")));
-    }
     /**
 	 * @author theodore
 	 * @param dataTable data for service combos in the system

@@ -389,6 +389,9 @@ public class CucumberStepDefinitions {
 			exception = e;
 		}	
 	}
+	/**
+	 * @author Julie
+	 */
 	@Then("a new business hour shall {string} created")
 	public void a_new_business_hour_shall_created(String string) {
 		if (string.equals("be")) {
@@ -398,7 +401,9 @@ public class CucumberStepDefinitions {
 			assertEquals(numberOfBusinessHours, flexiBook.getBusiness().getBusinessHours().size());
 		}
 	}
-	
+	/**
+	 * @author Julie
+	 */
 	@When("the user tries to access the business information")
 	public void the_user_tries_to_access_the_business_information() {
 		try {
@@ -407,6 +412,9 @@ public class CucumberStepDefinitions {
 			exception = e;
 		}	
 	}
+	/**
+	 * @author Julie
+	 */
 	@Then("the {string} and {string} and {string} and {string} shall be provided to the user")
 	public void the_and_and_and_shall_be_provided_to_the_user(String string, String string2, String string3, String string4) {
 		assertTrue(string != null);
@@ -414,6 +422,9 @@ public class CucumberStepDefinitions {
 		assertTrue(string3 != null);
 		assertTrue(string4 != null);
 	}
+	/**
+	 * @author Julie
+	 */
 	@Given("a {string} time slot exists with start time {string} at {string} and end time {string} at {string}")
 	public void a_time_slot_exists_with_start_time_at_and_end_time_at(String string, String string2, String string3, String string4, String string5) {
 		if (string.equals("vacation")) {
@@ -425,14 +436,26 @@ public class CucumberStepDefinitions {
 					return;
 				}
 			}
-			new TimeSlot(Date.valueOf(LocalDate.of(Integer.valueOf(string2.substring(0,4)), Month.of(Integer.valueOf(string2.substring(5,7))), Integer.valueOf(string2.substring(8,10)))), 
-					Time.valueOf(LocalTime.of(Integer.valueOf(string2.substring(0,2)), Integer.valueOf(string2.substring(3,5)))), 
-					Date.valueOf(LocalDate.of(Integer.valueOf(string3.substring(0,4)), Month.of(Integer.valueOf(string3.substring(5,7))), Integer.valueOf(string3.substring(8,10)))),
-					Time.valueOf(LocalTime.of(Integer.valueOf(string3.substring(0,2)), Integer.valueOf(string2.substring(3,5)))),
-					flexiBook);
 		}
+		if (string.equals("holiday")) {
+			for (TimeSlot v : flexiBook.getBusiness().getHolidays()) {
+				if (string.equals(v.getStartDate().toString()) && 
+						v.getStartTime().toString().substring(0,5).equals(string2) && 
+						string3.equals(v.getEndDate().toString()) && 
+						v.getEndTime().toString().substring(0,5).equals(string4)) {
+					return;
+				}
+			}
+		}
+		new TimeSlot(Date.valueOf(LocalDate.of(Integer.parseInt(string2.substring(0,4)), Month.of(Integer.parseInt(string2.substring(5,7))), Integer.parseInt(string2.substring(8,10)))), 
+				Time.valueOf(LocalTime.of(Integer.parseInt(string2.substring(0,2)), Integer.parseInt(string2.substring(3,5)))), 
+				Date.valueOf(LocalDate.of(Integer.parseInt(string3.substring(0,4)), Month.of(Integer.parseInt(string3.substring(5,7))), Integer.parseInt(string3.substring(8,10)))),
+				Time.valueOf(LocalTime.of(Integer.parseInt(string3.substring(0,2)), Integer.parseInt(string2.substring(3,5)))),
+				flexiBook);
 	}
-
+	/**
+	 * @author Julie
+	 */
 	@When("the user tries to add a new {string} with start date {string} at {string} and end date {string} at {string}")
 	public void the_user_tries_to_add_a_new_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5) {
 		try {
@@ -441,6 +464,9 @@ public class CucumberStepDefinitions {
 			exception = e;
 		}	
 	}
+	/**
+	 * @author Julie
+	 */
 	int numberOfVacationSlots;
 	int numberOfHolidaySlots;
 	@Then("a new {string} shall {string} be added with start date {string} at {string} and end date {string} at {string}")
@@ -449,7 +475,7 @@ public class CucumberStepDefinitions {
 		numberOfHolidaySlots = flexiBook.getBusiness().getHolidays().size();
 		if (string2.equals("be")) {
 			if (string.equals("vacation")) {
-					assertEquals(numberOfVacationSlots + 1, flexiBook.getBusiness().getVacation().size());
+				assertEquals(numberOfVacationSlots + 1, flexiBook.getBusiness().getVacation().size());
 			}
 			else {
 				assertEquals(numberOfHolidaySlots + 1, flexiBook.getBusiness().getHolidays().size());

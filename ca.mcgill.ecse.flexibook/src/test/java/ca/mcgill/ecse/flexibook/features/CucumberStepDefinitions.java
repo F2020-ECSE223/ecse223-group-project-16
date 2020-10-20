@@ -297,6 +297,10 @@ public class CucumberStepDefinitions {
 	//================================================================================
     // SetUpBusinessInfo
     //================================================================================
+	@Given("the system's time and date is {string}")
+	public void the_system_s_time_and_date_is(String string) {
+	    // Write code here that turns the phrase above into concrete actions
+	}
 	/**
 	 * @author Julie
 	 */
@@ -316,11 +320,6 @@ public class CucumberStepDefinitions {
 		} catch (InvalidInputException e) {
 			exception = e;
 		}	
-	}
-	
-	@Given("the system's time and date is {string}")
-	public void the_system_s_time_and_date_is(String string) {
-	    // Write code here that turns the phrase above into concrete actions
 	}
 	/**
 	 * @author Julie
@@ -437,7 +436,11 @@ public class CucumberStepDefinitions {
 
 	@When("the user tries to add a new {string} with start date {string} at {string} and end date {string} at {string}")
 	public void the_user_tries_to_add_a_new_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5) {
-		
+		try {
+			FlexiBookController.addNewTimeSlot(string, string2, string3, string4, string5);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}	
 	}
 	@Then("a new {string} shall {string} be added with start date {string} at {string} and end date {string} at {string}")
 	public void a_new_shall_be_added_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5, String string6) {

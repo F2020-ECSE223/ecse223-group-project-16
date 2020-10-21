@@ -499,9 +499,10 @@ public class FlexiBookController {
 			foundAppointment.delete();
 
 			// throw new InvalidInputException(c.getUsername() + startDate.toString() + startTime.toString() + s.getName());
-			
+			// Appointment ap = FlexiBookApplication.getFlexiBook().getAppointment(2);
+			// throw new InvalidInputException("" + ap.getBookableService() + ap.getTimeSlot().toString());
 			try{
-				// throw new InvalidInputException(c.getUsername() + startDate.toString() + s.getName() + startTime.toString());
+				// throw new InvalidInputException(c.getUsername() + startDate.toString() + s.getName() + startTime.toString() + s.getDowntimeDuration());
 				makeAppointment(c.getUsername(), startDate.toString(), s.getName(), startTime.toString());
 				return true;
 			}
@@ -601,7 +602,7 @@ public class FlexiBookController {
 	}
 
 	private static boolean validateConflictingAppointments(Date finalStartDate, Time finalStartTime, Time finalEndTimeWithDownTime, 
-		Time finalEndTimeWithNoDownTime, long totalDuration){
+		Time finalEndTimeWithNoDownTime, long totalDuration) throws InvalidInputException {
 		for(Appointment app: FlexiBookApplication.getFlexiBook().getAppointments()){
 			if(app.getTimeSlot().getStartDate().equals(finalStartDate)){
 				int downtime = 0;
@@ -629,15 +630,16 @@ public class FlexiBookController {
 					}
 				}
 
+				
 				Time appEndNoDowntime = new Time(app.getTimeSlot().getEndTime().getTime() 
 				- downtime * 60 * 1000);
 
-				if((app.getTimeSlot().getStartTime().equals(finalEndTimeWithDownTime) ||
-				appEndNoDowntime.equals(finalStartTime))){
-					return true;
-				}
-				else if((app.getTimeSlot().getStartTime().before(finalEndTimeWithNoDownTime)
-				|| appEndNoDowntime.after(finalStartTime))){
+				// if((app.getTimeSlot().getStartTime().equals(finalEndTimeWithDownTime) ||
+				// appEndNoDowntime.equals(finalStartTime))){
+				// 	return true;
+				// }
+				if((app.getTimeSlot().getStartTime().before(finalEndTimeWithNoDownTime)
+				&& appEndNoDowntime.after(finalStartTime))){
 					boolean fitsInDowntime = false;
 					if(app.getBookableService() instanceof Service){
 						fitsInDowntime = ((Service) app.getBookableService()).getDowntimeDuration() >= totalDuration;

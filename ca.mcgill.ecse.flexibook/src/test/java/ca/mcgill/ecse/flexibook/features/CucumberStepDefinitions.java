@@ -134,7 +134,7 @@ public class CucumberStepDefinitions {
 			if (flexiBook.hasOwner()) {
 				FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
 			} else {
-				FlexiBookApplication.setCurrentUser(new Owner("owner", "ownerPass", flexiBook));
+				FlexiBookApplication.setCurrentUser(new Owner(string, "ownerPass", flexiBook));
 			}
 		} else {
 			for (Customer customer : flexiBook.getCustomers()) {
@@ -143,7 +143,7 @@ public class CucumberStepDefinitions {
 					return;
 				}
 			}
-			FlexiBookApplication.setCurrentUser(new Customer("customer", "customerPass", flexiBook));
+			FlexiBookApplication.setCurrentUser(new Customer(string, "customerPass", flexiBook));
 		}
 	}
 	

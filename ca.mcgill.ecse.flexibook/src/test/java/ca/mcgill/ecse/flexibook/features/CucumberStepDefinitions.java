@@ -131,13 +131,19 @@ public class CucumberStepDefinitions {
 	@Given("the user is logged in to an account with username {string}")
 	public void the_user_is_logged_in_to_an_account_with_username(String string) {
 		if (string.equals("owner")) {
-			FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
+			if (flexiBook.hasOwner()) {
+				FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
+			} else {
+				FlexiBookApplication.setCurrentUser(new Owner(string, "ownerPass", flexiBook));
+			}
 		} else {
 			for (Customer customer : flexiBook.getCustomers()) {
 				if (customer.getUsername().equals(string)) {
 					FlexiBookApplication.setCurrentUser(customer);
+					return;
 				}
 			}
+			FlexiBookApplication.setCurrentUser(new Customer(string, "customerPass", flexiBook));
 		}
 	}
 	

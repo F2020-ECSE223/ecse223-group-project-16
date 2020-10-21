@@ -36,6 +36,7 @@ Feature: Update Service Combo
       | name       | duration | downtimeStart | downtimeDuration |
       | wash       |      100 |             0 |                0 |
       | extensions |       50 |             0 |                0 |
+      | highlights |       90 |            50 |               40 |
       | color      |       75 |            45 |               30 |
       | cut        |       20 |             0 |                0 |
       | dry        |       10 |             0 |                0 |
@@ -64,6 +65,14 @@ Feature: Update Service Combo
       | username  | password |
       | customer1 |  1234567 |
       | customer2 |  8901234 |
+    Given the following services exist in the system:
+      | name       | duration | downtimeStart | downtimeDuration |
+      | wash       |      100 |             0 |                0 |
+      | extensions |       50 |             0 |                0 |
+      | color      |       75 |            45 |               30 |
+      | highlights |       90 |            50 |               40 |
+      | cut        |       20 |             0 |                0 |
+      | dry        |       10 |             0 |                0 |
     Given the following service combos exist in the system:
       | name       | mainService | services     | mandatory        |
       | Cut-Normal | cut         | wash,cut,dry | false,true,false |

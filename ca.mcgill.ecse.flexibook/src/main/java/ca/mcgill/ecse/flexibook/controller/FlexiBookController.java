@@ -186,6 +186,184 @@ public class FlexiBookController {
 		return true;
 	}
 	
+	/**
+	 * @author theodore
+	 * @category CRUD ServiceCombo
+	 * 
+	 * @param name of the new ServiceCombo
+	 * @param array of names of Service s
+	 * @param name of main Service
+	 * @param array of booleans for whether each service is mandatory
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static void defineServiceCombo(String name, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException {
+		checkUser("owner");
+		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
+		if (services.length < 2) {
+			throw new InvalidInputException("A service Combo must contain at least 2 services");
+		}
+		if (getService(mainService) == null) { // redundant check here b/c defining w/ a main service that doesnt exist AND is not included in list of combos should throw doesnt exist, not isnt included
+			throw new InvalidInputException(String.format("Service %s does not exist", mainService));
+		}
+		Service[] comboServices = new Service[services.length]; // could use array lists but not very necessary & just adds bloat
+		int mainServiceIndex = -1;
+		for (int i = 0; i < services.length; i++) {
+			Service s = getService(services[i]);
+			if (s == null) {
+				throw new InvalidInputException(String.format("Service %s does not exist", services[i]));
+			} else { 
+				comboServices[i] = s;
+			}
+			if (services[i].equals(mainService)) {
+				if (!mandatory[i]) {
+					throw new InvalidInputException("Main service must be mandatory");
+				}
+				mainServiceIndex = i;
+			}
+		}
+		if (mainServiceIndex == -1) {
+			throw new InvalidInputException("Main service must be included in the services");
+		}
+		if (getBookableService(name) != null) {
+			throw new InvalidInputException(String.format("Service combo %s already exists", name));
+		}
+		ServiceCombo newServiceCombo = new ServiceCombo(name, flexiBook);
+		newServiceCombo.setName(name);
+		for (int i = 0; i < comboServices.length; i++) {
+			ComboItem c = new ComboItem(mandatory[i], comboServices[i], newServiceCombo);
+			if (i == mainServiceIndex) {
+				newServiceCombo.setMainService(c);
+			}
+		}
+	}
+	
+	/**
+	 * @author theodore
+	 * @category CRUD ServiceCombo
+	 * 
+	 * @param ServiceCombo to update
+	 * @param name of the updated ServiceCombo
+	 * @param array of names of Service s
+	 * @param name of main Service
+	 * @param array of booleans for whether each service is mandatory
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static void updateServiceCombo(String comboName, String newComboName, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException {
+		checkUser("owner");
+		if (services.length < 2) {
+			throw new InvalidInputException("A service Combo must have at least 2 services");
+		}
+		if (getService(mainService) == null) {
+			throw new InvalidInputException(String.format("Service %s does not exist", mainService));
+		}
+		Service[] comboServices = new Service[services.length];
+		int mainServiceIndex = -1;
+		for (int i = 0; i < services.length; i++) {
+			Service s = getService(services[i]);
+			if (s == null) {
+				throw new InvalidInputException(String.format("Service %s does not exist", services[i]));
+			} else {
+				comboServices[i] = s;
+			}
+			if (services[i].equals(mainService)) {
+				if (!mandatory[i]) {
+					throw new InvalidInputException("Main service must be mandatory");
+				}
+				mainServiceIndex = i;
+			}
+		}
+		if (mainServiceIndex == -1) {
+			throw new InvalidInputException("Main service must be included in the services");
+		}
+		ServiceCombo combo = getServiceCombo(comboName);
+		if (combo == null) {
+			throw new InvalidInputException(String.format("Service combo %s does not exist", comboName));
+		}
+		if (!newComboName.equals(comboName) && getBookableService(newComboName) != null) {
+			throw new InvalidInputException(String.format("Service combo %s already exists", newComboName));
+		}
+		combo.setName(newComboName);
+		int n = combo.numberOfServices();
+		for (int i = 0; i < comboServices.length; i++) {
+			ComboItem c = new ComboItem(mandatory[i], comboServices[i], combo);
+			if (i == mainServiceIndex) {
+				combo.setMainService(c);
+			}
+		}
+		for (int i = 0; i < n; i++) { // delete old services in combo
+			combo.getService(0).delete();
+		}
+	}
+	
+	/**
+	 * @author theodore
+	 * @category CRUD ServiceCombo
+	 * 
+	 * @param name of the ServiceCombo to be deleted
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static void deleteServiceCombo(String name) throws InvalidInputException {
+		checkUser("owner");
+		ServiceCombo combo = getServiceCombo(name);
+		if (combo == null) {
+			throw new InvalidInputException(String.format("Service combo %s does not exist", name));
+		}
+		for (Appointment a : combo.getAppointments()) {
+			if (false) { // TODO, check if future apptments with service combo -- waiting for date time utils
+				throw new InvalidInputException(String.format("Service combo %s has future appointments", name));
+			}
+		}
+		combo.delete();
+	}
+	/**
+	 * @author theodore
+	 * @category CRUD BookableService
+	 * 
+	 * @param name of the BookableService
+	 * @return BookableSeervice with that name, or null if not found
+	 */
+	private static BookableService getBookableService(String name) {
+		for (BookableService b : FlexiBookApplication.getFlexiBook().getBookableServices()) {
+			if (b.getName().equals(name)) {
+				return b;
+			}
+		}
+		return null;
+	}
+	/**
+	 * @author theodore
+	 * @category CRUD Service
+	 * 
+	 * @param name of the Service
+	 * @return Service with that name, or null if not found
+	 */
+	private static Service getService(String name) {
+		for (BookableService b : FlexiBookApplication.getFlexiBook().getBookableServices()) {
+			if (b instanceof Service && b.getName().equals(name)) {
+				return (Service) b;
+			}
+		}
+		return null;
+	}
+	/**
+	 * @author theodore
+	 * @category CRUD ServiceCombo
+	 * 
+	 * @param name of the ServiceCombo
+	 * @return ServiceCombo with that name, or null if not found
+	 */
+	private static ServiceCombo getServiceCombo(String name) {
+		for (BookableService b : FlexiBookApplication.getFlexiBook().getBookableServices()) {
+			if (b instanceof ServiceCombo && b.getName().equals(name)) {
+				return (ServiceCombo) b;
+			}
+		}
+		return null;
+	}
+	
 	private static void deleteAppointment(Appointment appointment) {
 		appointment.getTimeSlot().delete();
 		appointment.delete();
@@ -196,7 +374,10 @@ public class FlexiBookController {
 			deleteAppointment(appointment);
 		}
 	}
-	
+	private static void checkUser(String username) throws InvalidInputException {
+		if (!FlexiBookApplication.getCurrentUser().getUsername().equals(username))
+			throw new InvalidInputException("You are not authorized to perform this operation");
+	}
 	public static void logout() {
 		FlexiBookApplication.unsetCurrentUser();
 	}
@@ -238,13 +419,16 @@ public class FlexiBookController {
 	 */
 	public static void addNewBusinessHour(String day, String startTime, String endTime) throws InvalidInputException {
 		if (FlexiBookApplication.getFlexiBook().getOwner() == null) {
+			System.out.print("permission");
 			throw new InvalidInputException("No permission to update business information");
 		}
-		if (Integer.parseInt(startTime.substring(0,2)+startTime.substring(3,5)) <= Integer.parseInt(endTime.substring(0,2)+endTime.substring(3,5))) {
+		if (Integer.parseInt(startTime.substring(0,2)+startTime.substring(3,5)) >= Integer.parseInt(endTime.substring(0,2)+endTime.substring(3,5))) {
+			System.out.print("time");
 			throw new InvalidInputException("Start time must be before end time");
 		}
 		for (BusinessHour bh : FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()) {
 			if (day.equals(bh.getDayOfWeek().toString())) {
+				System.out.print("overlap");
 				throw new InvalidInputException("The business hours cannot overlap");
 			}
 		}

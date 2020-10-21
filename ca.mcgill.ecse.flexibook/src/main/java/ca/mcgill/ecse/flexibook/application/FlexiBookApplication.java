@@ -8,7 +8,7 @@ import ca.mcgill.ecse.flexibook.model.User;
 
 public class FlexiBookApplication {
 	private static FlexiBook flexiBook;
-	private static User currentUser;
+    private static User currentUser;
 	
     public String getGreeting() {
         return "Hello world.";

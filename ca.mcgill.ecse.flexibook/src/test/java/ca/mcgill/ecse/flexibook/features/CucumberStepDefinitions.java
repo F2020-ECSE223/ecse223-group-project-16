@@ -566,8 +566,10 @@ public class CucumberStepDefinitions {
 		List<ComboItem> chosenItems = new ArrayList<>();	
 		for(ComboItem ci: sc.getServices()){
 			if(ci.getService().getName().equals(string3) || (ci.isMandatory())){
-				chosenItems.add(ci);
 				duration += ci.getService().getDuration();
+				if(!ci.getService().getName().equals(sc.getMainService().getService().getName())){
+					chosenItems.add(ci);
+				}
 			}
 		}
 
@@ -589,7 +591,7 @@ public class CucumberStepDefinitions {
 		appointmentCount = flexiBook.getAppointments().size();
 		result = false;
 		try {
-			result = FlexiBookController.updateAppointment(string, string2.equals("add"), string3, string4, string5, string6);	
+			result = FlexiBookController.updateAppointment(string, string2, string3, string4, string5, string6);	
 		} 
 		catch (InvalidInputException e) {
 			exception = e;
@@ -597,16 +599,17 @@ public class CucumberStepDefinitions {
 	}
 
 	@When("{string} attempts to {string} {string} from their {string} appointment on {string} at {string}")
-	public void attempts_to_from_their_appointment_on_at(String string, String string2, String string3, String string4, String string5, String string6) {
+	public void attempts_to_from_their_appointment_on_at(String string, String string2, String string3, String string4, String string5, String string6)
+			throws InvalidInputException {
 		appointmentCount = flexiBook.getAppointments().size();
 		result = false;
-		try {
-			result = FlexiBookController.updateAppointment(string, string2, string3, string4, string5, string6);
+		// try {
+			result = FlexiBookController.updateAppointment(string, string2.equals("add"), string3, string4, string5, string6);
 			
-		} 
-		catch (InvalidInputException e) {
-			exception = e;
-		}
+		// } 
+		// catch (InvalidInputException e) {
+		// 	exception = e;
+		// }
 	}
 
 	@Then("the system shall report that the update was {string}")
@@ -618,7 +621,6 @@ public class CucumberStepDefinitions {
 			assertEquals("unsuccessful", string);
 		}
 	}
-
 	
 	//================================================================================
     // CancelAppointments

@@ -553,12 +553,78 @@ public class FlexiBookController {
 		String dateString, String startTimeString) throws InvalidInputException{
 
 		// 1. find appointment
-		// 2. delete that appointment but save a copy, then if things go south, reinstate that copy
-		// 3. make new appointment? with try/catch on make()
-		
+		// 2. changes can only add to the end, not to beginning.
+		// 3. changes will only be about adding services to the list of chosen services.
+		// 4. order of services must be maintained
 
+		if(FlexiBookApplication.getCurrentUser().getUsername().equals("owner")){
+			throw new InvalidInputException("An owner cannot cancel an appointment");
+		}
 
-		return true;
+		if(!FlexiBookApplication.getCurrentUser().getUsername().equals(customerString)){
+			throw new InvalidInputException("A customer can only update their own appointments");
+		}
+
+		Date startDate = null;
+		Time startTime = null;
+		try {
+			startDate = FlexiBookUtil.getDateFromString(dateString);
+			startTime = FlexiBookUtil.getTimeFromString(startTimeString);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		Customer c = (Customer) FlexiBookApplication.getCurrentUser();
+
+		Appointment foundAppointment = null;
+
+		for(Appointment a : new ArrayList<Appointment>(c.getAppointments())){
+			if(a.getBookableService().getName().equals(serviceName) 
+				&& a.getTimeSlot().getStartDate().equals(startDate)
+				&& a.getTimeSlot().getStartTime().equals(startTime)){
+					foundAppointment = a;
+			}
+		}
+
+		ServiceCombo sc = (ServiceCombo) foundAppointment.getBookableService();
+		ComboItem cI = sc.getServices().stream().filter(x -> x.getService().getName().equals(comboItemName)).findFirst().get();
+
+		if(isAdd){
+
+			return true;
+		}
+		else{
+			if(cI.getMandatory()){
+				return false;
+			}
+			if(sc.getMainService().getService().getName().equals(comboItemName)){
+				return false;
+			}
+			List<ComboItem> listCI = new ArrayList<>();
+
+			for(ComboItem ci : foundAppointment.getChosenItems()){
+				if(!ci.getService().getName().equals(comboItemName)){
+					listCI.add(ci);
+				}
+			}
+
+			StringBuilder sb = new StringBuilder();
+			for(ComboItem ci : listCI){
+				sb.append(ci.getService().getName());
+				sb.append(",");
+			}
+			
+			foundAppointment.delete();
+			// throw new InvalidInputException("" + sb.toString());
+
+			try{
+				makeAppointment(c.getUsername(), dateString, sc.getName(), sb.substring(0, sb.length() - 1), startTimeString);
+				return true;
+			}
+			catch(InvalidInputException e){
+				throw new InvalidInputException(e.getMessage());
+			}
+		}
 	}
 
 	/**

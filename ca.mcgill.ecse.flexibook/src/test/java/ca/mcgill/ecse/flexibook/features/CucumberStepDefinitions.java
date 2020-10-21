@@ -545,8 +545,41 @@ public class CucumberStepDefinitions {
 	//================================================================================	
 	
 	@Given("{string} has a {string} appointment with optional sevices {string} on {string} at {string}")
-	public void has_a_appointment_with_optional_sevices_on_at(String string, String string2, String string3, String string4, String string5) {
-    	
+	public void has_a_appointment_with_optional_sevices_on_at(String string, String string2, String string3, String string4, String string5)
+			throws InvalidInputException {
+		Customer c = flexiBook.getCustomers().stream().filter(x -> x.getUsername().equals(string)).findFirst().get();
+		ServiceCombo sc = (ServiceCombo) flexiBook.getBookableServices().stream().filter(x -> x.getName().equals(string2)).findFirst().get();
+		
+		Date aStartDate = null;
+		Time aStartTime = null;
+		
+		try{
+			aStartDate = FlexiBookUtil.getDateFromString(string4);
+			aStartTime =  FlexiBookUtil.getTimeFromString(string5);
+		}
+		catch (ParseException e){
+			e.printStackTrace();
+		}
+		
+		int duration = 0;
+
+		List<ComboItem> chosenItems = new ArrayList<>();	
+		for(ComboItem ci: sc.getServices()){
+			if(ci.getService().getName().equals(string3) || (ci.isMandatory())){
+				chosenItems.add(ci);
+				duration += ci.getService().getDuration();
+			}
+		}
+
+		Date aEndDate =  aStartDate;
+		Time aEndTime = new Time(aStartTime.getTime() + duration * 60 * 1000);
+
+		Appointment app = new Appointment(c, sc, new TimeSlot(aStartDate, aStartTime, aEndDate, aEndTime, flexiBook), flexiBook);
+
+		for(ComboItem ci : chosenItems){
+			app.addChosenItem(ci);
+		}
+		c.addAppointment(app);
 	}
 	
 	boolean result;
@@ -556,17 +589,24 @@ public class CucumberStepDefinitions {
 		appointmentCount = flexiBook.getAppointments().size();
 		result = false;
 		try {
-			
-			result = FlexiBookController.updateAppointment(string, string2, string3, string4, string5, string6);
-			
-		} catch (InvalidInputException e) {
+			result = FlexiBookController.updateAppointment(string, string2.equals("add"), string3, string4, string5, string6);	
+		} 
+		catch (InvalidInputException e) {
 			exception = e;
 		}
 	}
 
 	@When("{string} attempts to {string} {string} from their {string} appointment on {string} at {string}")
 	public void attempts_to_from_their_appointment_on_at(String string, String string2, String string3, String string4, String string5, String string6) {
-		
+		appointmentCount = flexiBook.getAppointments().size();
+		result = false;
+		try {
+			result = FlexiBookController.updateAppointment(string, string2, string3, string4, string5, string6);
+			
+		} 
+		catch (InvalidInputException e) {
+			exception = e;
+		}
 	}
 
 	@Then("the system shall report that the update was {string}")

@@ -549,8 +549,8 @@ public class FlexiBookController {
 		return false;
 	}
 	
-	public static boolean updateAppointment(String customerString, boolean action, String comboItemName, String serviceName, 
-		String dateString, String startTimeString){
+	public static boolean updateAppointment(String customerString, boolean isAdd, String comboItemName, String serviceName, 
+		String dateString, String startTimeString) throws InvalidInputException{
 
 		// 1. find appointment
 		// 2. delete that appointment but save a copy, then if things go south, reinstate that copy

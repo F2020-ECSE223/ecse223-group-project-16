@@ -447,11 +447,11 @@ public class FlexiBookController {
 		// 3. make new appointment? with try/catch on make()
 
 		if(FlexiBookApplication.getCurrentUser().getUsername().equals("owner")){
-			throw new InvalidInputException("An owner cannot cancel an appointment");
+			throw new InvalidInputException("Error: An owner cannot update a customer's appointment");
 		}
 
 		if(!FlexiBookApplication.getCurrentUser().getUsername().equals(customerString)){
-			throw new InvalidInputException("A customer can only update their own appointments");
+			throw new InvalidInputException("Error: A customer can only update their own appointments");
 		}
 
 		Customer c = (Customer) FlexiBookApplication.getCurrentUser();
@@ -558,11 +558,11 @@ public class FlexiBookController {
 		// 4. order of services must be maintained
 
 		if(FlexiBookApplication.getCurrentUser().getUsername().equals("owner")){
-			throw new InvalidInputException("An owner cannot cancel an appointment");
+			throw new InvalidInputException("Error: An owner cannot update a customer's appointment");
 		}
 
 		if(!FlexiBookApplication.getCurrentUser().getUsername().equals(customerString)){
-			throw new InvalidInputException("A customer can only update their own appointments");
+			throw new InvalidInputException("Error: A customer can only update their own appointments");
 		}
 
 		Date startDate = null;
@@ -590,8 +590,38 @@ public class FlexiBookController {
 		ComboItem cI = sc.getServices().stream().filter(x -> x.getService().getName().equals(comboItemName)).findFirst().get();
 
 		if(isAdd){
+			Date oldDateStart = foundAppointment.getTimeSlot().getStartDate();
+			Time oldTimeStart = foundAppointment.getTimeSlot().getStartTime();
+			Time oldEndTimeWithDownTime = foundAppointment.getTimeSlot().getEndTime();
+			List<ComboItem> oldListCI = foundAppointment.getChosenItems();
+			StringBuilder sb = new StringBuilder();
 
-			return true;
+			List<ComboItem> newListCI = new ArrayList<>(oldListCI);
+			newListCI.add(cI);
+
+			for(ComboItem ci : newListCI){
+				sb.append(ci.getService().getName());
+				sb.append(",");
+			}
+
+			foundAppointment.delete();
+			try{
+				makeAppointment(c.getUsername(), startDate.toString(), sc.getName(), sb.substring(0, sb.length() - 1), startTime.toString());
+				return true;
+			}
+			catch(InvalidInputException e){
+				Appointment a = new Appointment((Customer) FlexiBookApplication.getCurrentUser(), sc, 
+					new TimeSlot(oldDateStart, oldTimeStart, oldDateStart, oldEndTimeWithDownTime, FlexiBookApplication.getFlexiBook()), 
+					FlexiBookApplication.getFlexiBook());
+				
+				for(ComboItem ci : oldListCI){
+					a.addChosenItem(ci);
+				}
+
+				FlexiBookApplication.getFlexiBook().addAppointment(a);
+
+				return false;
+			}
 		}
 		else{
 			if(cI.getMandatory()){
@@ -622,7 +652,7 @@ public class FlexiBookController {
 				return true;
 			}
 			catch(InvalidInputException e){
-				throw new InvalidInputException(e.getMessage());
+				return false;
 			}
 		}
 	}

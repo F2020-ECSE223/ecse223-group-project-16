@@ -603,13 +603,21 @@ public class CucumberStepDefinitions {
 			throws InvalidInputException {
 		appointmentCount = flexiBook.getAppointments().size();
 		result = false;
-		// try {
+		try {
 			result = FlexiBookController.updateAppointment(string, string2.equals("add"), string3, string4, string5, string6);
-			
-		// } 
-		// catch (InvalidInputException e) {
-		// 	exception = e;
-		// }
+		} 
+		catch (InvalidInputException e) {
+			exception = e;
+		}
+	}
+
+	@When("{string} attempts to update {string}'s {string} appointment on {string} at {string} to {string} at {string}")
+	public void attempts_to_update_s_appointment_on_at_to_at(String string, String string2, String string3, String string4, String string5, String string6, String string7) {
+		try {
+			FlexiBookController.updateAppointment(string2, string3, string4, string5, string6, string7);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}
 	}
 
 	@Then("the system shall report that the update was {string}")

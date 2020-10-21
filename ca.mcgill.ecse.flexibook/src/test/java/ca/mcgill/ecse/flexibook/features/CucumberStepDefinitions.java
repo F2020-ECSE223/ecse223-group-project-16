@@ -448,9 +448,9 @@ public class CucumberStepDefinitions {
 			}
 		}
 		new TimeSlot(Date.valueOf(LocalDate.of(Integer.parseInt(string2.substring(0,4)), Month.of(Integer.parseInt(string2.substring(5,7))), Integer.parseInt(string2.substring(8,10)))), 
-				Time.valueOf(LocalTime.of(Integer.parseInt(string2.substring(0,2)), Integer.parseInt(string2.substring(3,5)))), 
-				Date.valueOf(LocalDate.of(Integer.parseInt(string3.substring(0,4)), Month.of(Integer.parseInt(string3.substring(5,7))), Integer.parseInt(string3.substring(8,10)))),
-				Time.valueOf(LocalTime.of(Integer.parseInt(string3.substring(0,2)), Integer.parseInt(string2.substring(3,5)))),
+				Time.valueOf(LocalTime.of(Integer.parseInt(string3.substring(0,2)), Integer.parseInt(string3.substring(3,5)))), 
+				Date.valueOf(LocalDate.of(Integer.parseInt(string4.substring(0,4)), Month.of(Integer.parseInt(string4.substring(5,7))), Integer.parseInt(string4.substring(8,10)))),
+				Time.valueOf(LocalTime.of(Integer.parseInt(string5.substring(0,2)), Integer.parseInt(string5.substring(3,5)))),
 				flexiBook);
 	}
 	/**

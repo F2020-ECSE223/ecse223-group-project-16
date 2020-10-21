@@ -389,18 +389,25 @@ public class CucumberStepDefinitions {
 		}
 		SystemTime.setTesting(date, time);
 	}
+	/** @author sarah
+	 */
 	@Given("an owner account exists in the system")
 	public void an_owner_account_exists_in_the_system() {
 	    if (!flexiBook.hasOwner()) {
 	    	new Owner ("owner", "ownerPass", flexiBook);
 	    }
 	}
+	/** @author sarah
+	 */
 	@Given("a business exists in the system")
 	public void a_business_exists_in_the_system() {
 	    if (!flexiBook.hasBusiness()) {
 	    	new Business("businessName", "address", "phone", "email", flexiBook); 
 	    }
 	}	
+	/** @author sarah
+	 *  @param dataTable data table of services in the system
+	 */
 	@Given("the following services exist in the system:")
 	public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {			
 		List<Map<String, String>> rows = dataTable.asMaps();

@@ -61,7 +61,9 @@ public class CucumberStepDefinitions {
 		for (BookableService bookableService : new ArrayList<BookableService>(flexiBook.getBookableServices())) {
 			bookableService.delete();
 		}
-		
+		if (flexiBook.getBusiness() != null) {
+			flexiBook.getBusiness().delete();
+		}
 		exception = null;
 	}
 		
@@ -679,11 +681,11 @@ public class CucumberStepDefinitions {
 				return;
 			}
 		}
-
-		new BusinessHour(BusinessHour.DayOfWeek.valueOf(string), 
+		BusinessHour aBusinessHour = new BusinessHour(BusinessHour.DayOfWeek.valueOf(string), 
 				Time.valueOf(LocalTime.of(Integer.valueOf(string2.substring(0,2)), Integer.valueOf(string2.substring(3,5)))),
 				Time.valueOf(LocalTime.of(Integer.valueOf(string3.substring(0,2)), Integer.valueOf(string3.substring(3,5)))), 
 				flexiBook);
+		flexiBook.getBusiness().addBusinessHour(aBusinessHour);
 	}
 	/**
 	 * @author Julie
@@ -756,11 +758,22 @@ public class CucumberStepDefinitions {
 				}
 			}
 		}
-		new TimeSlot(Date.valueOf(LocalDate.of(Integer.parseInt(string2.substring(0,4)), Month.of(Integer.parseInt(string2.substring(5,7))), Integer.parseInt(string2.substring(8,10)))), 
-				Time.valueOf(LocalTime.of(Integer.parseInt(string3.substring(0,2)), Integer.parseInt(string3.substring(3,5)))), 
-				Date.valueOf(LocalDate.of(Integer.parseInt(string4.substring(0,4)), Month.of(Integer.parseInt(string4.substring(5,7))), Integer.parseInt(string4.substring(8,10)))),
-				Time.valueOf(LocalTime.of(Integer.parseInt(string5.substring(0,2)), Integer.parseInt(string5.substring(3,5)))),
-				flexiBook);
+		if (string.equals("vacation")) {
+			TimeSlot aTimeSlot  = new  TimeSlot(Date.valueOf(LocalDate.of(Integer.parseInt(string2.substring(0,4)), Month.of(Integer.parseInt(string2.substring(5,7))), Integer.parseInt(string2.substring(8,10)))), 
+					Time.valueOf(LocalTime.of(Integer.parseInt(string3.substring(0,2)), Integer.parseInt(string3.substring(3,5)))), 
+					Date.valueOf(LocalDate.of(Integer.parseInt(string4.substring(0,4)), Month.of(Integer.parseInt(string4.substring(5,7))), Integer.parseInt(string4.substring(8,10)))),
+					Time.valueOf(LocalTime.of(Integer.parseInt(string5.substring(0,2)), Integer.parseInt(string5.substring(3,5)))),
+					flexiBook);
+			flexiBook.getBusiness().addVacation(aTimeSlot);
+		}
+		if (string.equals("holiday")) {
+			TimeSlot aTimeSlot  = new  TimeSlot(Date.valueOf(LocalDate.of(Integer.parseInt(string2.substring(0,4)), Month.of(Integer.parseInt(string2.substring(5,7))), Integer.parseInt(string2.substring(8,10)))), 
+					Time.valueOf(LocalTime.of(Integer.parseInt(string3.substring(0,2)), Integer.parseInt(string3.substring(3,5)))), 
+					Date.valueOf(LocalDate.of(Integer.parseInt(string4.substring(0,4)), Month.of(Integer.parseInt(string4.substring(5,7))), Integer.parseInt(string4.substring(8,10)))),
+					Time.valueOf(LocalTime.of(Integer.parseInt(string5.substring(0,2)), Integer.parseInt(string5.substring(3,5)))),
+					flexiBook);
+			flexiBook.getBusiness().addHoliday(aTimeSlot);
+		}
 	}
 	/**
 	 * @author Julie

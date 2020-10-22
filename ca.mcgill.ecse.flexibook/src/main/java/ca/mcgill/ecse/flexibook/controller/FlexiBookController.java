@@ -268,8 +268,6 @@ public class FlexiBookController {
 		final Time finalEndTimeWithDownTime = endTimeWithDownTime;
 		final Time finalEndTimeWithNoDownTime = endTimeWithNoDowntime;
 
-		// throw new InvalidInputException(customerString + dateString + serviceName + startTimeString);
-		// throw new InvalidInputException(dayOfWeek + " ");
 		if(!(FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours().stream().anyMatch(x -> 
 			x.getDayOfWeek().equals(getDayOfWeek(dayOfWeek))
 			&& x.getStartTime().before(finalStartTime)
@@ -298,7 +296,8 @@ public class FlexiBookController {
 		}
 
 		if(!validateConflictingAppointments(finalStartDate, finalStartTime, finalEndTimeWithDownTime, 
-			finalEndTimeWithNoDownTime, totalDuration)){
+			finalEndTimeWithNoDownTime, totalDuration))
+		{
 			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
 			serviceName, dateString, startTimeString));
 		}
@@ -332,7 +331,6 @@ public class FlexiBookController {
 	
 			ServiceCombo serviceCombo = (ServiceCombo) possibleService.get();
 	
-			// now get the chosen services
 			int durationWithAllServices = serviceCombo.getMainService().getService().getDuration();
 			int lastDowntime = 0;
 			
@@ -362,8 +360,6 @@ public class FlexiBookController {
 	
 			Date startDate = null;
 	
-			// added shit here
-
 			try {
 				startDate = FlexiBookUtil.getDateFromString(dateString);
 			} catch (ParseException e) {
@@ -442,10 +438,6 @@ public class FlexiBookController {
 	public static boolean updateAppointment(String customerString, String serviceName, String dateString,
 			String startTimeString, String newdateString, String newStartTimeString) throws InvalidInputException {
 
-		// 1. find appointment
-		// 2. delete that appointment but save a copy, then if things go south, reinstate that copy
-		// 3. make new appointment? with try/catch on make()
-
 		if(FlexiBookApplication.getCurrentUser().getUsername().equals("owner")){
 			throw new InvalidInputException("Error: An owner cannot update a customer's appointment");
 		}
@@ -475,8 +467,6 @@ public class FlexiBookController {
 
 		Appointment foundAppointment = null;
 
-		// private Customer customer;
-
 		for(Appointment a : new ArrayList<Appointment>(c.getAppointments())){
 			if(a.getBookableService().getName().equals(serviceName) 
 				&& a.getTimeSlot().getStartDate().equals(oldStartDate)
@@ -484,11 +474,6 @@ public class FlexiBookController {
 					foundAppointment = a;
 			}
 		}
-
-		// throw new InvalidInputException(c.getAppointments().get(0).getBookableService().getName() 
-		// 	+ c.getAppointments().get(0).getTimeSlot().getEndDate()
-		// 	+ c.getAppointments().get(0).getTimeSlot().getStartTime()
-		// 	+ c.getAppointments().get(0).getTimeSlot().getEndTime());
 
 		if(foundAppointment.getBookableService() instanceof Service){
 			Service s = (Service) foundAppointment.getBookableService();
@@ -498,11 +483,7 @@ public class FlexiBookController {
 			
 			foundAppointment.delete();
 
-			// throw new InvalidInputException(c.getUsername() + startDate.toString() + startTime.toString() + s.getName());
-			// Appointment ap = FlexiBookApplication.getFlexiBook().getAppointment(2);
-			// throw new InvalidInputException("" + ap.getBookableService() + ap.getTimeSlot().toString());
 			try{
-				// throw new InvalidInputException(c.getUsername() + startDate.toString() + s.getName() + startTime.toString() + s.getDowntimeDuration());
 				makeAppointment(c.getUsername(), startDate.toString(), s.getName(), startTime.toString());
 				return true;
 			}
@@ -551,11 +532,6 @@ public class FlexiBookController {
 	
 	public static boolean updateAppointment(String customerString, boolean isAdd, String comboItemName, String serviceName, 
 		String dateString, String startTimeString) throws InvalidInputException{
-
-		// 1. find appointment
-		// 2. changes can only add to the end, not to beginning.
-		// 3. changes will only be about adding services to the list of chosen services.
-		// 4. order of services must be maintained
 
 		if(FlexiBookApplication.getCurrentUser().getUsername().equals("owner")){
 			throw new InvalidInputException("Error: An owner cannot update a customer's appointment");
@@ -645,8 +621,6 @@ public class FlexiBookController {
 			}
 			
 			foundAppointment.delete();
-			// throw new InvalidInputException("" + sb.toString());
-
 			try{
 				makeAppointment(c.getUsername(), dateString, sc.getName(), sb.substring(0, sb.length() - 1), startTimeString);
 				return true;

@@ -378,9 +378,6 @@ public class CucumberStepDefinitions {
 				);
 			}
 		);
-		// ServiceCombo sc1 = (ServiceCombo) flexiBook.getBookableServices().get(4);
-		// ServiceCombo sc2 = (ServiceCombo) flexiBook.getBookableServices().get(5);
-		// throw new Exception ("" + sc1.getServices().get(0).getMandatory() + sc2.getServices().get(0).getMandatory());
 	}
 
 	// Tested
@@ -399,8 +396,6 @@ public class CucumberStepDefinitions {
 				}
 			}
 		);
-		// BusinessHour bh = flexiBook.getBusiness().getBusinessHours().get(4);
-		// throw new Exception("" + bh.getDayOfWeek() + bh.getStartTime() + bh.getEndTime());
 	}
 
 	// tested and this works
@@ -421,8 +416,6 @@ public class CucumberStepDefinitions {
 				}
 			}
 		);
-		// TimeSlot holiday = flexiBook.getBusiness().getHolidays().get(0);
-		// throw new Exception("" + holiday.getStartDate() + holiday.getStartTime() + holiday.getEndDate() + holiday.getEndTime());
 	}
 
 	// tested and this works
@@ -457,8 +450,6 @@ public class CucumberStepDefinitions {
 				}
 			}
 		);
-		// Appointment a = flexiBook.getAppointments().get(2);
-		// throw new Exception("" + a.getCustomer().toString() + a.getTimeSlot().toString() + " chosen items : " +  a.getChosenItems().get(1).getService());
 	}
 
 
@@ -517,7 +508,6 @@ public class CucumberStepDefinitions {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		// throw new Exception("" + c.get().getAppointments().get(1).getBookableService().getName().equals(string2));
 
 		Appointment app = null;
 		for(Appointment a : c.get().getAppointments()){

@@ -90,8 +90,19 @@ public class CucumberStepDefinitions {
 	public void the_following_customers_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
 		List<Map<String, String>> rows = dataTable.asMaps();
 		
+		boolean customerExists;
 		for (Map<String, String> columns : rows) {
-			new Customer(columns.get("username"), columns.get("password"), flexiBook);
+			customerExists = false;
+			for (Customer c : flexiBook.getCustomers()) {
+				if (c.getUsername().equals(columns.get("username"))) {
+					customerExists = true;
+					break;
+				}
+			}
+			
+			if (!customerExists) {
+				new Customer(columns.get("username"), columns.get("password"), flexiBook);
+			}
 		}
 	}
 	/**

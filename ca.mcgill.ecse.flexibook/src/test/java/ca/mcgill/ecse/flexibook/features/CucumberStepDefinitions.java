@@ -21,8 +21,8 @@ import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.model.*;
-//import ca.mcgill.ecse.flexibook.util.FlexiBookUtil;
-//import ca.mcgill.ecse.flexibook.util.SystemTime;
+import ca.mcgill.ecse.flexibook.util.FlexiBookUtil;
+import ca.mcgill.ecse.flexibook.util.SystemTime;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 import io.cucumber.java.After;
@@ -307,7 +307,7 @@ public class CucumberStepDefinitions {
     //================================================================================
 	@Given("the system's time and date is {string}")
 	public void the_system_s_time_and_date_is(String string) {
-/*		String[] dateTime = string.split("\\+");
+	String[] dateTime = string.split("\\+");
 		Date date = null;
 		Time time = null;
 		try {
@@ -317,7 +317,6 @@ public class CucumberStepDefinitions {
 			e.printStackTrace();
 		}
 		SystemTime.setTesting(date, time);
-*/
 	}
 
 	//================================================================================
@@ -800,5 +799,20 @@ public class CucumberStepDefinitions {
 			}
 		}
 	}
- 
+	//================================================================================
+    // UpdateBusinessInfo (Julie)
+    //================================================================================
+	@When("the user tries to update the business information with new {string} and {string} and {string} and {string}")
+	public void the_user_tries_to_update_the_business_information_with_new_and_and_and(String string, String string2, String string3, String string4) {
+		try {
+			FlexiBookController.updateBusinessInfo(string, string2, string3, string4);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}	
+	}
+	@Then("the business information shall {string} updated with new {string} and {string} and {string} and {string}")
+	public void the_business_information_shall_updated_with_new_and_and_and(String string, String string2, String string3, String string4, String string5) {
+	    // Write code here that turns the phrase above into concrete actions
+	}
+	
 }

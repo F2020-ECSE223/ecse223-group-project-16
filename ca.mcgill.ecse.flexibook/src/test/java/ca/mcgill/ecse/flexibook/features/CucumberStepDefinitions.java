@@ -321,31 +321,32 @@ public class CucumberStepDefinitions {
 	 */
 	@Given("an owner account exists in the system")
     public void an_owner_account_exists_in_the_system() {
-		if (!flexiBook.hasOwner())
+		if (!flexiBook.hasOwner()) {
 			new Owner("owner", "", flexiBook);
+		}
     }
 	/**
 	 * @author theodore
 	 */
     @Given("a business exists in the system")
     public void a_business_exists_in_the_system() {
-        if (!flexiBook.hasBusiness())
+        if (!flexiBook.hasBusiness()) {
         	new Business("widget shop", "123 Street street", "1(800) 888-8888", "no-reply@google.com", flexiBook);
+        }
     }
     /**
 	 * @author theodore
-	 * @param dataTable data for services in the system
 	 */
     @Given("the following services exist in the system:")
     public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
     	List<Map<String,String>> serviceData = dataTable.asMaps();
     	System.out.println(serviceData);
-    	for (Map<String,String> e : serviceData)
+    	for (Map<String,String> e : serviceData) {
 			new Service(e.get("name"), flexiBook, Integer.parseInt(e.get("duration")), Integer.parseInt(e.get("downtimeDuration")), Integer.parseInt(e.get("downtimeStart")));
+    	}
     }
     /**
 	 * @author theodore
-	 * @param dataTable data for service combos in the system
 	 */
     @Given("the following service combos exist in the system:")
     public void the_following_service_combos_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
@@ -356,18 +357,20 @@ public class CucumberStepDefinitions {
 	    	String[] m = e.get("mandatory").split(",");
 	    	for (int i=0; i< m.length; i++) {
 	    		Service s = null;
-	    		for (BookableService j : flexiBook.getBookableServices())
-	    			if (j.getName().equals(services[i]))
+	    		for (BookableService j : flexiBook.getBookableServices()) {
+	    			if (j.getName().equals(services[i])) {
 	    				s = (Service) j;
+	    			}
+	    		}
 	    		ComboItem ci = new ComboItem(m[i].equals("true"), s, c);
-	    		if (services[i].equals(e.get("mainService")))
+	    		if (services[i].equals(e.get("mainService"))) {
 	    			c.setMainService(ci);
+	    		}
 	    	}
 		}
     }
     /**
 	 * @author theodore
-	 * @param string the owners username? should always be owner so idk why this is a param
 	 */
     @Given("the Owner with username {string} is logged in")
     public void the_owner_with_username_is_logged_in(String string) {
@@ -380,25 +383,23 @@ public class CucumberStepDefinitions {
 	 */
     @Given("Customer with username {string} is logged in")
     public void customer_with_username_is_logged_in(String string) {
-    	for (Customer customer : flexiBook.getCustomers())
-			if (customer.getUsername().equals(string))
+    	for (Customer customer : flexiBook.getCustomers()) {
+			if (customer.getUsername().equals(string)) {
 				FlexiBookApplication.setCurrentUser(customer);
+			}
+    	}
     }
     /**
 	 * @author theodore
-	 * @param user logged in user
-	 * @param name combo name
-	 * @param mainService main service
-	 * @param servicesS services
-	 * @param mandatoryS mandatory
 	 */
     @When("{string} initiates the definition of a service combo {string} with main service {string}, services {string} and mandatory setting {string}")
     public void initiates_the_definition_of_a_service_combo_with_main_service_services_and_mandatory_setting(String user, String name, String mainService, String servicesS, String mandatoryS) {
     	String[] services = servicesS.split(",");
     	String[] m = mandatoryS.split(",");
     	boolean[] mandatory = new boolean[m.length];
-    	for(int i=0; i<m.length; i++)
+    	for(int i=0; i<m.length; i++) {
     		mandatory[i] = m[i].equals("true");
+    	}
     	try {
     		FlexiBookController.defineServiceCombo(name, services, mainService, mandatory);
     	} catch (InvalidInputException e) {
@@ -407,28 +408,28 @@ public class CucumberStepDefinitions {
     }
     /**
 	 * @author theodore
-	 * @param name combo name
 	 */
     @Then("the service combo {string} shall exist in the system")
     public void the_service_combo_shall_exist_in_the_system(String name) {
         ServiceCombo newServiceCombo = null;
-    	for (BookableService b : flexiBook.getBookableServices())
-			if (b instanceof ServiceCombo && b.getName().equals(name))
+    	for (BookableService b : flexiBook.getBookableServices()) {
+			if (b instanceof ServiceCombo && b.getName().equals(name)) {
 				newServiceCombo = (ServiceCombo) b;
+			}
+    	}
 		assertTrue(newServiceCombo!=null);
     }
     /**
 	 * @author theodore
-	 * @param name combo name
-	 * @param servicesS services
-	 * @param mandatoryS mandatory
 	 */
     @Then("the service combo {string} shall contain the services {string} with mandatory setting {string}")
     public void the_service_combo_shall_contain_the_services_with_mandatory_setting(String name, String servicesS, String mandatoryS) {
     	ServiceCombo newServiceCombo = null;
-    	for (BookableService b : flexiBook.getBookableServices())
-			if (b instanceof ServiceCombo && b.getName().equals(name))
+    	for (BookableService b : flexiBook.getBookableServices()) {
+			if (b instanceof ServiceCombo && b.getName().equals(name)) {
 				newServiceCombo = (ServiceCombo) b;
+			}
+    	}
     	String[] services = servicesS.split(",");
     	String[] m = mandatoryS.split(",");
     	for (int i=0; i<newServiceCombo.numberOfServices(); i++) {
@@ -438,51 +439,52 @@ public class CucumberStepDefinitions {
     }
     /**
 	 * @author theodore
-	 * @param name combo name
-	 * @param mainService main service
 	 */
     @Then("the main service of the service combo {string} shall be {string}")
     public void the_main_service_of_the_service_combo_shall_be(String name, String mainService) {
     	ServiceCombo newServiceCombo = null;
-    	for (BookableService b : flexiBook.getBookableServices())
-			if (b instanceof ServiceCombo && b.getName().equals(name))
+    	for (BookableService b : flexiBook.getBookableServices()) {
+			if (b instanceof ServiceCombo && b.getName().equals(name)) {
 				newServiceCombo = (ServiceCombo) b;
+			}
+    	}
     	assertEquals(newServiceCombo.getMainService().getService().getName(), mainService);
     }
     /**
 	 * @author theodore
-	 * @param service name of service to check
-	 * @param name service combo name
 	 */
     @Then("the service {string} in service combo {string} shall be mandatory")
     public void the_service_in_service_combo_shall_be_mandatory(String service, String name) {
     	ServiceCombo newServiceCombo = null;
-    	for (BookableService b : flexiBook.getBookableServices())
-			if (b instanceof ServiceCombo && b.getName().equals(name))
+    	for (BookableService b : flexiBook.getBookableServices()) {
+			if (b instanceof ServiceCombo && b.getName().equals(name)) {
 				newServiceCombo = (ServiceCombo) b;
+			}
+    	}
     	boolean hasService = false;
-    	for (ComboItem c : newServiceCombo.getServices())
+    	for (ComboItem c : newServiceCombo.getServices()) {
     		if (c.getService().getName().equals(service)) {
     			assertTrue(c.getMandatory());
     			hasService = true;
     		}
+    	}
     	assertTrue(hasService);
     }
     /**
 	 * @author theodore
-	 * @param num number of combos
 	 */
     @Then("the number of service combos in the system shall be {string}")
     public void the_number_of_service_combos_in_the_system_shall_be(String num) {
     	int acc = 0;
-    	for (BookableService b : flexiBook.getBookableServices())
-    		if (b instanceof ServiceCombo)
+    	for (BookableService b : flexiBook.getBookableServices()) {
+    		if (b instanceof ServiceCombo) {
     			acc++;
+    		}
+    	}
         assertEquals(acc,Integer.parseInt(num));
     }
     /**
 	 * @author theodore
-	 * @param string error content
 	 */
     @Then("an error message with content {string} shall be raised")
     public void an_error_message_with_content_shall_be_raised(String string) {
@@ -490,20 +492,19 @@ public class CucumberStepDefinitions {
     }
     /**
 	 * @author theodore
-	 * @param name combo name
 	 */
     @Then("the service combo {string} shall not exist in the system")
     public void the_service_combo_shall_not_exist_in_the_system(String name) {
     	ServiceCombo newServiceCombo = null;
-    	for (BookableService b : flexiBook.getBookableServices())
-			if (b instanceof ServiceCombo && b.getName().equals(name))
+    	for (BookableService b : flexiBook.getBookableServices()) {
+			if (b instanceof ServiceCombo && b.getName().equals(name)) {
 				newServiceCombo = (ServiceCombo) b;
+			}
+    	}
 		assertEquals(newServiceCombo,null);
     }
     /**
 	 * @author theodore
-	 * @param name combo name
-	 * @param dataTable service combo data
 	 */
     @Then("the service combo {string} shall preserve the following properties:")
     public void the_service_combo_shall_preserve_the_following_properties(String name, io.cucumber.datatable.DataTable dataTable) {
@@ -511,9 +512,11 @@ public class CucumberStepDefinitions {
 		for (Map<String, String> e : serviceComboData) {
 			assertEquals(name, e.get("name"));
 			ServiceCombo c = null;
-			for (BookableService j : flexiBook.getBookableServices())
-				if(j.getName().equals(name))
+			for (BookableService j : flexiBook.getBookableServices()) {
+				if(j.getName().equals(name)) {
 					c = (ServiceCombo) j;
+				}
+			}
 			assertEquals(c.getMainService().getService().getName(), e.get("mainService"));
 			String[] services = e.get("services").split(",");
 	    	String[] m = e.get("mandatory").split(",");
@@ -529,9 +532,54 @@ public class CucumberStepDefinitions {
     //================================================================================
 	
     /**
+     * @author theodore
+     */
+    @Given("the following appointments exist in the system:")
+    public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+    	List<Map<String, String>> appointmentData = dataTable.asMaps();
+    	for (Map<String, String> a : appointmentData) {
+    		Customer cust = null;
+    		for (Customer cu : flexiBook.getCustomers()) {
+    			if (cu.getUsername().equals(a.get("customer"))) {
+    				cust = cu;
+    				break;
+    			}
+    		}
+    		BookableService bkable = null;
+    		for (BookableService b : flexiBook.getBookableServices()) {
+    			if (b.getName().equals(a.get("serviceName"))) {
+    				bkable = b;
+    			}
+    		}
+    		TimeSlot timeSlotSelected;
+    		try {
+    			Date date = FlexiBookUtil.getDateFromString(a.get("date"));
+    			Time startTime = FlexiBookUtil.getTimeFromString(a.get("startTime"));
+    			Time endTime = FlexiBookUtil.getTimeFromString(a.get("endTime"));
+    			timeSlotSelected = new TimeSlot(date, startTime, date, endTime, flexiBook);
+    		} catch (ParseException e) {
+    			return;
+    		}
+    		Appointment appt = new Appointment(cust, bkable, timeSlotSelected, flexiBook);
+    		if (bkable instanceof ServiceCombo) {
+    			ServiceCombo sc = (ServiceCombo) bkable;
+        		for (ComboItem c : sc.getServices()) {
+        			if (c.getMandatory()) {
+        				appt.addChosenItem(c);
+        			} else {
+        				for (String s : a.get("selectedComboItems").split(",")) {
+        					if (c.getService().getName().equals(s)) {
+        						appt.addChosenItem(c);
+        						break;
+        					}
+        				}
+        			}
+	    		}
+    		}
+    	}
+    }
+    /**
 	 * @author theodore
-	 * @param user username
-	 * @param name combo name
 	 */
     @When("{string} initiates the deletion of service combo {string}")
     public void initiates_the_deletion_of_service_combo(String user, String name) {
@@ -543,20 +591,19 @@ public class CucumberStepDefinitions {
     }
     /**
 	 * @author theodore
-	 * @param name combo name
-	 * @param num num appointments
 	 */
     @Then("the number of appointments in the system with service {string} shall be {string}")
     public void the_number_of_appointments_in_the_system_with_service_shall_be(String name, String num) {
     	int counter = 0;
-    	for (Appointment a : flexiBook.getAppointments())
-    		if (a.getBookableService().getName().equals(name))
+    	for (Appointment a : flexiBook.getAppointments()) {
+    		if (a.getBookableService().getName().equals(name)) {
     			counter++;
+    		}
+    	}
     	assertEquals(Integer.parseInt(num), counter);
     }
     /**
 	 * @author theodore
-	 * @param string num appointemnts
 	 */
     @Then("the number of appointments in the system shall be {string}")
     public void the_number_of_appointments_in_the_system_shall_be(String num) {
@@ -569,20 +616,15 @@ public class CucumberStepDefinitions {
 	
     /**
 	 * @author theodore
-	 * @param user logged in user
-	 * @param oldComboName old combo name, to be changed
-	 * @param name combo name
-	 * @param mainService main service
-	 * @param servicesS services
-	 * @param mandatoryS mandatory
 	 */
     @When("{string} initiates the update of service combo {string} to name {string}, main service {string} and services {string} and mandatory setting {string}")
     public void initiates_the_update_of_service_combo_to_name_main_service_and_services_and_mandatory_setting(String user, String oldComboName, String name, String mainService, String servicesS, String mandatoryS) {
     	String[] services = servicesS.split(",");
     	String[] m = mandatoryS.split(",");
     	boolean[] mandatory = new boolean[m.length];
-    	for(int i=0; i<m.length; i++)
+    	for(int i=0; i<m.length; i++) {
     		mandatory[i] = m[i].equals("true");
+    	}
     	try {
     	FlexiBookController.updateServiceCombo(oldComboName, name, services, mainService, mandatory);
     	} catch (InvalidInputException e) {
@@ -591,14 +633,13 @@ public class CucumberStepDefinitions {
     }
     /**
 	 * @author theodore
-	 * @param oldComboName combo name
-	 * @param name new combo name
 	 */
     @Then("the service combo {string} shall be updated to name {string}")
     public void the_service_combo_shall_be_updated_to_name(String oldComboName, String name) {
     	the_service_combo_shall_exist_in_the_system(name);
-    	if(!oldComboName.equals(name))
+    	if(!oldComboName.equals(name)) {
     		the_service_combo_shall_not_exist_in_the_system(oldComboName);
+    	}
     }
     
 }

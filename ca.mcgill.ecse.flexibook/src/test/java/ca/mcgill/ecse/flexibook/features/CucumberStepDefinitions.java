@@ -765,8 +765,12 @@ public class CucumberStepDefinitions {
 	/**
 	 * @author Julie
 	 */
+	int numberOfVacationSlots;
+	int numberOfHolidaySlots;
 	@When("the user tries to add a new {string} with start date {string} at {string} and end date {string} at {string}")
 	public void the_user_tries_to_add_a_new_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5) {
+		numberOfVacationSlots = flexiBook.getBusiness().getVacation().size();
+		numberOfHolidaySlots = flexiBook.getBusiness().getHolidays().size();
 		try {
 			FlexiBookController.addNewTimeSlot(string, string2, string3, string4, string5);
 		} catch (InvalidInputException e) {
@@ -776,12 +780,8 @@ public class CucumberStepDefinitions {
 	/**
 	 * @author Julie
 	 */
-	int numberOfVacationSlots;
-	int numberOfHolidaySlots;
 	@Then("a new {string} shall {string} be added with start date {string} at {string} and end date {string} at {string}")
 	public void a_new_shall_be_added_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5, String string6) {
-		numberOfVacationSlots = flexiBook.getBusiness().getVacation().size();
-		numberOfHolidaySlots = flexiBook.getBusiness().getHolidays().size();
 		if (string2.equals("be")) {
 			if (string.equals("vacation")) {
 				assertEquals(numberOfVacationSlots + 1, flexiBook.getBusiness().getVacation().size());

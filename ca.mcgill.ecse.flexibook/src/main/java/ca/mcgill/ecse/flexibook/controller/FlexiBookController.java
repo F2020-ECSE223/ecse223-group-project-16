@@ -4,6 +4,7 @@ import java.util.List;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.model.*;
+import ca.mcgill.ecse.flexibook.util.SystemTime;
 
 public class FlexiBookController {
 	/**
@@ -331,7 +332,7 @@ public class FlexiBookController {
 			throw new InvalidInputException(String.format("Service combo %s does not exist", name));
 		}
 		for (Appointment a : combo.getAppointments()) {
-			if (false) { // TODO, check if future apptments with service combo -- waiting for date time utils
+			if ((a.getTimeSlot().getEndDate()).after(SystemTime.getDate())) { 
 				throw new InvalidInputException(String.format("Service combo %s has future appointments", name));
 			}
 		}
@@ -339,10 +340,6 @@ public class FlexiBookController {
 	}
 	/**
 	 * @author theodore
-	 * @category CRUD BookableService
-	 * 
-	 * @param name of the BookableService
-	 * @return BookableSeervice with that name, or null if not found
 	 */
 	private static BookableService getBookableService(String name) {
 		for (BookableService b : FlexiBookApplication.getFlexiBook().getBookableServices()) {
@@ -354,10 +351,6 @@ public class FlexiBookController {
 	}
 	/**
 	 * @author theodore
-	 * @category CRUD Service
-	 * 
-	 * @param name of the Service
-	 * @return Service with that name, or null if not found
 	 */
 	private static Service getService(String name) {
 		for (BookableService b : FlexiBookApplication.getFlexiBook().getBookableServices()) {
@@ -369,10 +362,6 @@ public class FlexiBookController {
 	}
 	/**
 	 * @author theodore
-	 * @category CRUD ServiceCombo
-	 * 
-	 * @param name of the ServiceCombo
-	 * @return ServiceCombo with that name, or null if not found
 	 */
 	private static ServiceCombo getServiceCombo(String name) {
 		for (BookableService b : FlexiBookApplication.getFlexiBook().getBookableServices()) {

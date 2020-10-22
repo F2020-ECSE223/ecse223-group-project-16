@@ -61,7 +61,7 @@ public class CucumberStepDefinitions {
 		for (BookableService bookableService : new ArrayList<BookableService>(flexiBook.getBookableServices())) {
 			bookableService.delete();
 		}
-		if (flexiBook.getBusiness() != null) {
+		if (flexiBook.hasBusiness()) {
 			flexiBook.getBusiness().delete();
 		}
 		exception = null;
@@ -135,6 +135,7 @@ public class CucumberStepDefinitions {
 	 */
 	@Given("the user is logged in to an account with username {string}")
 	public void the_user_is_logged_in_to_an_account_with_username(String string) {
+		System.out.println(string);
 		if (string.equals("owner")) {
 			if (flexiBook.hasOwner()) {
  				FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
@@ -815,10 +816,11 @@ public class CucumberStepDefinitions {
 	//================================================================================
     // UpdateBusinessInfo (Julie)
     //================================================================================
+	/*
 	@When("the user tries to update the business information with new {string} and {string} and {string} and {string}")
 	public void the_user_tries_to_update_the_business_information_with_new_and_and_and(String string, String string2, String string3, String string4) {
 		try {
-			FlexiBookController.updateBusinessInfo(string, string2, string3, string4);
+			FlexiBookController.BusinessInfo(string, string2, string3, string4);
 		} catch (InvalidInputException e) {
 			exception = e;
 		}	
@@ -827,5 +829,6 @@ public class CucumberStepDefinitions {
 	public void the_business_information_shall_updated_with_new_and_and_and(String string, String string2, String string3, String string4, String string5) {
 	    // Write code here that turns the phrase above into concrete actions
 	}
+	*/
 	
 }

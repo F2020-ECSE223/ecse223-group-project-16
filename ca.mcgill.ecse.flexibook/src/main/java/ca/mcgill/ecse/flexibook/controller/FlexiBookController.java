@@ -387,6 +387,7 @@ public class FlexiBookController {
 	 * @author: Julie
 	 */
 	public static void setUpBusinessInfo(String name, String address, String phoneNumber, String email) throws InvalidInputException {
+		System.out.println(FlexiBookApplication.getFlexiBook().getOwner());
 		if (FlexiBookApplication.getFlexiBook().getOwner() == null) {
 			throw new InvalidInputException("No permission to set up business information");
 		}
@@ -411,7 +412,6 @@ public class FlexiBookController {
 				}
 			}
 		}
-
 	    Business aNewBusiness = new Business(name, address, phoneNumber, email, FlexiBookApplication.getFlexiBook());
 		FlexiBookApplication.getFlexiBook().setBusiness(aNewBusiness);
 	}
@@ -464,21 +464,8 @@ public class FlexiBookController {
 		if (Integer.parseInt(startDate.substring(0,4)+startDate.substring(5,7)+startDate.substring(8,10)) < Integer.parseInt(SystemTime.getDate().toString().substring(0,4)+SystemTime.getDate().toString().substring(5,7)+SystemTime.getDate().toString().substring(8,10))) {
 			throw new InvalidInputException(String.format("%s cannot start in the past", vacationOrHoliday));
 		}
-		/*
-		if (Integer.parseInt(startDate.substring(0,4)+startDate.substring(5,7)+startDate.substring(8,10)) > 
-		Integer.parseInt(SystemTime.getDate().toString().substring(0,4)+SystemTime.getDate().toString().substring(5,7)+SystemTime.getDate().toString().substring(8,10))) {
-			if (vacationOrHoliday.equals("holiday")) {
-				System.out.println("error past hol");
-				throw new InvalidInputException("Holiday cannot start in the past");
-			}
-			else {
-				System.out.println("error past vac");
-				throw new InvalidInputException("Vacation cannot start in the past");
-			}
-		}
-		*/
+
 		// there is probably a more efficient way to do this
-		// SOMETHING WRONG WITH FOR LOOP
 		for (TimeSlot ts : FlexiBookApplication.getFlexiBook().getBusiness().getVacation()) {;
 			if (Integer.parseInt(endDate.substring(0,4)+endDate.substring(5,7)+endDate.substring(8,10)) > Integer.parseInt(ts.getStartDate().toString().substring(0,4)+ts.getStartDate().toString().substring(5,7)+ts.getStartDate().toString().substring(8,10)) &&
 					Integer.parseInt(startDate.substring(0,4)+startDate.substring(5,7)+startDate.substring(8,10)) < Integer.parseInt(ts.getEndDate().toString().substring(0,4)+ts.getEndDate().toString().substring(5,7)+ts.getEndDate().toString().substring(8,10))) {
@@ -573,7 +560,7 @@ public class FlexiBookController {
 			FlexiBookApplication.getFlexiBook().getBusiness().addVacation(aNewTimeSlot);
 		}
 		System.out.println("passed");
-		// still need to check if in the past (need system date/time)
+
 	}
 	public static void updateBusinessInfo(String name, String address, String phoneNumber, String email) throws InvalidInputException {
 		

@@ -166,9 +166,11 @@ public class CucumberStepDefinitions {
 	 */
 	@When("the user tries to delete account with the username {string}")
 	public void the_user_tries_to_delete_account_with_the_username(String string) {
-		User user = FlexiBookController.getUserByUsername(string);
-		if (user != null && user instanceof Customer) {
-			allAppointmentsOfDeletedCustomer = ((Customer) user).getAppointments();
+		for (Customer c : flexiBook.getCustomers()) {
+			if (c.getUsername().equals(string)) {
+				allAppointmentsOfDeletedCustomer = c.getAppointments();
+				break;
+			}
 		}
 		
 	    try {
@@ -183,7 +185,15 @@ public class CucumberStepDefinitions {
 	 */
 	@Then("the account with the username {string} does not exist")
 	public void the_account_with_the_username_does_not_exist(String string) {
-	    assertEquals(null, FlexiBookController.getCustomerByUsername(string));
+		if (string.equals("owner")) {
+			assertTrue(!flexiBook.hasOwner());
+		} else {
+			for (Customer c : flexiBook.getCustomers()) {
+				if (c.getUsername().equals(string)) {
+					fail();
+				}
+			}
+		}
 	}
 	/**
 	 * @author louca
@@ -208,7 +218,16 @@ public class CucumberStepDefinitions {
 	 */
 	@Then("the account with the username {string} exists")
 	public void the_account_with_the_username_exists(String string) {
-	    assertTrue(FlexiBookController.getUserByUsername(string) != null);
+		if (string.equals("owner")) {
+			assertTrue(flexiBook.hasOwner());
+		} else {
+			for (Customer c : flexiBook.getCustomers()) {
+				if (c.getUsername().equals(string)) {
+					return;
+				}
+			}
+			fail();
+		}
 	}
 	/**
 	 * @author louca

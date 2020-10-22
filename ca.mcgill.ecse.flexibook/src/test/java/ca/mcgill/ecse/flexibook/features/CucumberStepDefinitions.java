@@ -322,7 +322,7 @@ public class CucumberStepDefinitions {
 	@Given("an owner account exists in the system")
     public void an_owner_account_exists_in_the_system() {
 		if (!flexiBook.hasOwner()) {
-			new Owner("owner", "", flexiBook);
+			new Owner("owner", "owner", flexiBook);
 		}
     }
 	/**
@@ -360,6 +360,7 @@ public class CucumberStepDefinitions {
 	    		for (BookableService j : flexiBook.getBookableServices()) {
 	    			if (j.getName().equals(services[i])) {
 	    				s = (Service) j;
+	    				break;
 	    			}
 	    		}
 	    		ComboItem ci = new ComboItem(m[i].equals("true"), s, c);
@@ -386,6 +387,7 @@ public class CucumberStepDefinitions {
     	for (Customer customer : flexiBook.getCustomers()) {
 			if (customer.getUsername().equals(string)) {
 				FlexiBookApplication.setCurrentUser(customer);
+				return;
 			}
     	}
     }
@@ -415,9 +417,10 @@ public class CucumberStepDefinitions {
     	for (BookableService b : flexiBook.getBookableServices()) {
 			if (b instanceof ServiceCombo && b.getName().equals(name)) {
 				newServiceCombo = (ServiceCombo) b;
+				break;
 			}
     	}
-		assertTrue(newServiceCombo!=null);
+		assertTrue(newServiceCombo != null);
     }
     /**
 	 * @author theodore
@@ -428,6 +431,7 @@ public class CucumberStepDefinitions {
     	for (BookableService b : flexiBook.getBookableServices()) {
 			if (b instanceof ServiceCombo && b.getName().equals(name)) {
 				newServiceCombo = (ServiceCombo) b;
+				break;
 			}
     	}
     	String[] services = servicesS.split(",");
@@ -446,6 +450,7 @@ public class CucumberStepDefinitions {
     	for (BookableService b : flexiBook.getBookableServices()) {
 			if (b instanceof ServiceCombo && b.getName().equals(name)) {
 				newServiceCombo = (ServiceCombo) b;
+				break;
 			}
     	}
     	assertEquals(newServiceCombo.getMainService().getService().getName(), mainService);
@@ -459,6 +464,7 @@ public class CucumberStepDefinitions {
     	for (BookableService b : flexiBook.getBookableServices()) {
 			if (b instanceof ServiceCombo && b.getName().equals(name)) {
 				newServiceCombo = (ServiceCombo) b;
+				break;
 			}
     	}
     	boolean hasService = false;
@@ -499,6 +505,7 @@ public class CucumberStepDefinitions {
     	for (BookableService b : flexiBook.getBookableServices()) {
 			if (b instanceof ServiceCombo && b.getName().equals(name)) {
 				newServiceCombo = (ServiceCombo) b;
+				break;
 			}
     	}
 		assertEquals(newServiceCombo,null);
@@ -515,6 +522,7 @@ public class CucumberStepDefinitions {
 			for (BookableService j : flexiBook.getBookableServices()) {
 				if(j.getName().equals(name)) {
 					c = (ServiceCombo) j;
+					break;
 				}
 			}
 			assertEquals(c.getMainService().getService().getName(), e.get("mainService"));
@@ -549,16 +557,17 @@ public class CucumberStepDefinitions {
     		for (BookableService b : flexiBook.getBookableServices()) {
     			if (b.getName().equals(a.get("serviceName"))) {
     				bkable = b;
+    				break;
     			}
     		}
-    		TimeSlot timeSlotSelected;
+    		TimeSlot timeSlotSelected = null;
     		try {
     			Date date = FlexiBookUtil.getDateFromString(a.get("date"));
     			Time startTime = FlexiBookUtil.getTimeFromString(a.get("startTime"));
     			Time endTime = FlexiBookUtil.getTimeFromString(a.get("endTime"));
     			timeSlotSelected = new TimeSlot(date, startTime, date, endTime, flexiBook);
     		} catch (ParseException e) {
-    			return;
+    			fail();
     		}
     		Appointment appt = new Appointment(cust, bkable, timeSlotSelected, flexiBook);
     		if (bkable instanceof ServiceCombo) {

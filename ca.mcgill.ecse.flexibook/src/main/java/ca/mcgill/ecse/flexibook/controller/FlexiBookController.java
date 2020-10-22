@@ -308,7 +308,7 @@ public class FlexiBookController {
 			throw new InvalidInputException(String.format("Service combo %s does not exist", name));
 		}
 		for (Appointment a : combo.getAppointments()) {
-			if ((a.getTimeSlot().getEndDate()).after(SystemTime.getDate())) { // TODO, check if future apptments with service combo -- waiting for date time utils
+			if ((a.getTimeSlot().getEndDate()).after(SystemTime.getDate())) { 
 				throw new InvalidInputException(String.format("Service combo %s has future appointments", name));
 			}
 		}

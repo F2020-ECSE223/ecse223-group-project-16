@@ -33,6 +33,7 @@ public class CucumberStepDefinitions {
 	private Exception exception;
 	
 	/**
+	 * @author louca
 	 * Setup environment before each scenario
 	 */
 	@Before
@@ -41,6 +42,7 @@ public class CucumberStepDefinitions {
 	}
 	
 	/**
+	 * @author louca
 	 * Teardown environment after each scenario
 	 */
 	@After
@@ -61,7 +63,9 @@ public class CucumberStepDefinitions {
 		
 		exception = null;
 	}
-		
+	/**
+	 * @author louca
+	 */
 	@Given("a Flexibook system exists")
 	public void a_flexibook_system_exists() {
 	    assertTrue(FlexiBookApplication.getFlexiBook() != null);
@@ -73,18 +77,20 @@ public class CucumberStepDefinitions {
 
 	/**
 	 * @author louca
-	 * @param string username
-	 * @param string2 password
 	 */
 	@Given("an owner account exists in the system with username {string} and password {string}")
 	public void an_owner_account_exists_in_the_system_with_username_and_password(String string, String string2) {
-		if (!flexiBook.hasOwner()) {
-			new Owner(string, string2, flexiBook);
+		if (flexiBook.hasOwner()) {
+			if (flexiBook.getOwner().getPassword().equals(string2)) {
+				return;	
+			} else {
+				flexiBook.getOwner().delete();
+			}
 		}
+		new Owner(string, string2, flexiBook);
 	}
 	/**
 	 * @author louca
-	 * @param dataTable username, password rows
 	 */
 	@Given("the following customers exist in the system:")
 	public void the_following_customers_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
@@ -106,8 +112,7 @@ public class CucumberStepDefinitions {
 		}
 	}
 	/**
-	 * @@author louca
-	 * @param string username
+	 * @author louca
 	 */
 	@Given("the account with username {string} has pending appointments")
 	public void the_account_with_username_has_pending_appointments(String string) {
@@ -137,7 +142,6 @@ public class CucumberStepDefinitions {
 	}
 	/**
 	 * @author louca
-	 * @param string username
 	 */
 	@Given("the user is logged in to an account with username {string}")
 	public void the_user_is_logged_in_to_an_account_with_username(String string) {
@@ -162,7 +166,6 @@ public class CucumberStepDefinitions {
 	
 	/**
 	 * @author louca
-	 * @param string username
 	 */
 	@When("the user tries to delete account with the username {string}")
 	public void the_user_tries_to_delete_account_with_the_username(String string) {
@@ -181,7 +184,6 @@ public class CucumberStepDefinitions {
 	}
 	/**
 	 * @author louca
-	 * @param string username
 	 */
 	@Then("the account with the username {string} does not exist")
 	public void the_account_with_the_username_does_not_exist(String string) {
@@ -197,12 +199,18 @@ public class CucumberStepDefinitions {
 	}
 	/**
 	 * @author louca
-	 * @param string username
 	 */
 	@Then("all associated appointments of the account with the username {string} shall not exist")
 	public void all_associated_appointments_of_the_account_with_the_username_shall_not_exist(String string) {
 	    for (Appointment appointment : allAppointmentsOfDeletedCustomer) {
 	    	assertEquals(null, appointment);
+	    }
+	    
+	    for (Customer c : flexiBook.getCustomers()) {
+	    	if (c.getUsername().equals(string)) {
+	    		assertTrue(!c.hasAppointments());
+	    		break;
+	    	}
 	    }
 	}
 	/**
@@ -210,11 +218,10 @@ public class CucumberStepDefinitions {
 	 */
 	@Then("the user shall be logged out")
 	public void the_user_shall_be_logged_out() {
-	    assertEquals(null, FlexiBookApplication.getCurrentUser());
+	    assertTrue(!FlexiBookApplication.hasCurrentUser());
 	}
 	/**
 	 * @author louca
-	 * @param string username
 	 */
 	@Then("the account with the username {string} exists")
 	public void the_account_with_the_username_exists(String string) {
@@ -231,7 +238,6 @@ public class CucumberStepDefinitions {
 	}
 	/**
 	 * @author louca
-	 * @param string error message
 	 */
 	@Then("an error message {string} shall be raised")
 	public void an_error_message_shall_be_raised(String string) {
@@ -242,19 +248,30 @@ public class CucumberStepDefinitions {
     // SignUpCustomerAccount
     //================================================================================
 	
+	/**
+	 * @author louca
+	 */
 	@Given("there is no existing username {string}")
 	public void there_is_no_existing_username(String string) {
 		if (string.equals("owner")) {
-			assertTrue(!flexiBook.hasOwner());
+			if (flexiBook.hasOwner()) {
+				flexiBook.getOwner().delete();
+			}
 		} else {
-			for (Customer customer : flexiBook.getCustomers()) {
-		    	assertTrue(!customer.getUsername().equals(string));
+			for (Customer c : new ArrayList<Customer>(flexiBook.getCustomers())) {
+				if (c.getUsername().equals(string)) {
+					c.delete();
+					break; // uniqueness
+				}
 		    }
 		}
 	}
 	
 	int priorCustomersCount;
 	
+	/**
+	 * @author louca
+	 */
 	@When("the user provides a new username {string} and a password {string}")
 	public void the_user_provides_a_new_username_and_a_password(String string, String string2) {
 		priorCustomersCount = flexiBook.getCustomers().size();
@@ -265,10 +282,16 @@ public class CucumberStepDefinitions {
 			exception = e;
 		}
 	}
+	/**
+	 * @author louca
+	 */
 	@Then("a new customer account shall be created")
 	public void a_new_customer_account_shall_be_created() {
 	    assertEquals(priorCustomersCount + 1, flexiBook.getCustomers().size());
 	}
+	/**
+	 * @author louca
+	 */
 	@Then("the account shall have username {string} and password {string}")
 	public void the_account_shall_have_username_and_password(String string, String string2) {
 		if (string.equals("owner")) {
@@ -276,15 +299,18 @@ public class CucumberStepDefinitions {
 			assertEquals(string, owner.getUsername());
 			assertEquals(string2, owner.getPassword());
 		} else {
-			Customer customer = null;
 		    for (Customer c : flexiBook.getCustomers()) {
-		    	if (c.getUsername().equals(string) && c.getPassword().equals(string2)) {
-		    		customer = c;
+		    	if (c.getUsername().equals(string)) {
+		    		assertEquals(string2, c.getPassword());
+		    		return;
 		    	}
 		    }
-		    assertTrue(customer != null);
+		    fail();
 		}
 	}
+	/**
+	 * @author louca
+	 */
 	@Given("there is an existing username {string}")
 	public void there_is_an_existing_username(String string) {
 		if (string.equals("owner")) {
@@ -300,6 +326,9 @@ public class CucumberStepDefinitions {
 		    new Customer(string, "customerPass", flexiBook);
 		}
 	}
+	/**
+	 * @author louca
+	 */
 	@Then("no new account shall be created")
 	public void no_new_account_shall_be_created() {
 	    assertEquals(priorCustomersCount, flexiBook.getCustomers().size());
@@ -312,6 +341,9 @@ public class CucumberStepDefinitions {
 	String priorUsername;
 	String priorPassword;
 	
+	/**
+	 * @author louca
+	 */
 	@When("the user tries to update account with a new username {string} and password {string}")
 	public void the_user_tries_to_update_account_with_a_new_username_and_password(String string, String string2) {
 		priorUsername = FlexiBookApplication.getCurrentUser().getUsername();
@@ -323,6 +355,9 @@ public class CucumberStepDefinitions {
 			exception = e;
 		}
 	}
+	/**
+	 * @author louca
+	 */
 	@Then("the account shall not be updated")
 	public void the_account_shall_not_be_updated() {
 	    assertEquals(priorUsername, FlexiBookApplication.getCurrentUser().getUsername());
@@ -343,9 +378,11 @@ public class CucumberStepDefinitions {
 		}
 		SystemTime.setTesting(date, time);
 	}
+	
 	//================================================================================
     // DefineServiceCombo
     //================================================================================
+	
 	/**
 	 * @author theodore
 	 */

@@ -8,7 +8,7 @@ import ca.mcgill.ecse.flexibook.model.*;
 public class FlexiBookController {
 	/**
 	 * @author louca
-	 * @category CRUD Account
+	 * @category Feature set 1
 	 * 
 	 * @param username to give to the created Customer account
 	 * @param password to give to the created Customer account
@@ -33,12 +33,23 @@ public class FlexiBookController {
 		
 		try {
 			return new Customer(username, password, flexiBook);
-		} catch (RuntimeException e) { // conceals other RuntimeExceptions that may occur during Customer construction
-			// TODO, check e.message() against Umple message, otherwise bubble the Runtime Exception
-			throw new InvalidInputException("The username already exists");
+		} catch (RuntimeException e) {
+			if (e.getMessage().startsWith("Cannot create due to duplicate username.")) {
+				throw new InvalidInputException("The username already exists");
+			}
+			throw e;
 		}
 	}
 
+	/**
+	 * @author louca
+	 * @category Feature set 1
+	 * 
+	 * @param username to validate
+	 * 
+	 * @throws IllegalArgumentException if the username is null
+	 * @throws InvalidInputException if the username is empty or whitespace
+	 */
 	private static void validateCustomerAccountUsername(String username) throws InvalidInputException {
 		if (username == null) {
 			throw new IllegalArgumentException("The username cannot be null");
@@ -48,6 +59,15 @@ public class FlexiBookController {
 		}
 	}
 	
+	/**
+	 * @author louca
+	 * @category Feature set 1
+	 * 
+	 * @param password to validate
+	 * 
+	 * @throws IllegalArgumentException if the password is null
+	 * @throws InvalidInputException if the password is empty or whitespace
+	 */
 	private static void validateUserAccountPassword(String password) throws InvalidInputException {
 		if (password == null) {
 			throw new IllegalArgumentException("The password cannot be null");
@@ -59,12 +79,12 @@ public class FlexiBookController {
 	
 	/**
 	 * @author louca
-	 * @category CRUD Account
+	 * @category Feature set 1
 	 * 
 	 * @param username of the User account to retrieve
 	 * @return the retrieved User account (null if no User account with that username exists)
 	 */
-	public static User getUserByUsername(String username) {
+	private static User getUserByUsername(String username) {
 		if (username.equals("owner")) {
 			return FlexiBookApplication.getFlexiBook().getOwner();
 		}
@@ -73,11 +93,14 @@ public class FlexiBookController {
 	
 	/**
 	 * @author louca
+	 * @category Feature set 1
 	 * 
 	 * @param username of the Customer account to retrieve
 	 * @return the retrieved Customer account (null if no User account with that username exists)
+	 * 
+	 * @throws IllegalArgumentException if the username is null
 	 */
-	public static Customer getCustomerByUsername(String username) {
+	private static Customer getCustomerByUsername(String username) {
 		if (username.equals(null)) {
 			throw new IllegalArgumentException("The username cannot be null");
 		}
@@ -91,9 +114,9 @@ public class FlexiBookController {
 	
 	/**
 	 * @author louca
-	 * @category CRUD Account
+	 * @category Feature set 1
 	 * 
-	 * @param user of the User account to update
+	 * @param username of the User account to update
 	 * @param newUsername with which to update the User account
 	 * @param newPassword with which to update the User account
 	 * @return whether or not the User account was updated
@@ -124,11 +147,11 @@ public class FlexiBookController {
 	
 	/**
 	 * @author louca
-	 * @category CRUD Account
+	 * @category Feature set 1
 	 * 
 	 * @param customer to update
 	 * @param newUsername with which to update the Customer account
-	 * @return whether or not the Customer account username was updated
+	 * @return whether or not the Customer account's username was updated
 	 * 
 	 * @throws InvalidInputException if the newUsername is empty or whitespace, or if the newUsername is not available
 	 */
@@ -142,11 +165,11 @@ public class FlexiBookController {
 	
 	/**
 	 * @author louca
-	 * @category CRUD Account
+	 * @category Feature set 1
 	 * 
 	 * @param user to update
 	 * @param newPassword with which to update the User account
-	 * @return whether or not the User account password was updated
+	 * @return whether or not the User account's password was updated
 	 * 
 	 * @throws InvalidInputException if the newPassword is empty or whitespace
 	 */
@@ -157,12 +180,12 @@ public class FlexiBookController {
 	
 	/**
 	 * @author louca
-	 * @category CRUD Account
+	 * @category Feature set 1
 	 * 
 	 * @param username of the Customer account to delete
 	 * @return whether or not the Customer account was deleted
 	 * 
-	 * @throws InvalidInputException 
+	 * @throws InvalidInputException if the Customer account to delete is the current user, or is the username is the Owner account username
 	 */
 	public static boolean deleteCustomerAccount(String username) throws InvalidInputException {
 		Customer customerToDelete = getCustomerByUsername(username);
@@ -178,6 +201,7 @@ public class FlexiBookController {
 		logout();
 		deleteAllCustomerAppointments(customerToDelete);
 		customerToDelete.delete();
+		
 		return true;
 	}
 	

@@ -13,7 +13,6 @@ public class FlexiBookController {
 	 * 
 	 * @param username to give to the created Customer account
 	 * @param password to give to the created Customer account
-	 * @return the created Customer account
 	 * 
 	 * @throws IllegalArgumentException if any of the username or password are null
 	 * @throws InvalidInputException if:
@@ -21,7 +20,7 @@ public class FlexiBookController {
 	 * - the logged in User account is the Owner account
 	 * - the username already exists
 	 */
-	public static Customer createCustomerAccount(String username, String password) throws InvalidInputException {
+	public static void createCustomerAccount(String username, String password) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 		
 		validateCustomerAccountUsername(username);
@@ -33,7 +32,7 @@ public class FlexiBookController {
 		}
 		
 		try {
-			return new Customer(username, password, flexiBook);
+			new Customer(username, password, flexiBook);
 		} catch (RuntimeException e) {
 			if (e.getMessage().startsWith("Cannot create due to duplicate username.")) {
 				throw new InvalidInputException("The username already exists");
@@ -120,7 +119,6 @@ public class FlexiBookController {
 	 * @param username of the User account to update
 	 * @param newUsername with which to update the User account
 	 * @param newPassword with which to update the User account
-	 * @return whether or not the User account was updated
 	 * 
 	 * @throws InvalidInputException if 
 	 * - the newUsername is empty or whitespace
@@ -128,21 +126,22 @@ public class FlexiBookController {
 	 * - the newUsername is not available
 	 * - the User by the given username is the Owner, and the newUsername is not "owner"
 	 */
-	public static boolean updateUserAccount(String username, String newUsername, String newPassword) throws InvalidInputException {
+	public static void updateUserAccount(String username, String newUsername, String newPassword) throws InvalidInputException {
 		if (username.equals("owner")) {
 			if (!newUsername.equals("owner")) {
 				throw new InvalidInputException("Changing username of owner is not allowed");
 			}
 			
-			return updateUserAccountPassword(FlexiBookApplication.getFlexiBook().getOwner(), newPassword);
+			updateUserAccountPassword(FlexiBookApplication.getFlexiBook().getOwner(), newPassword);
 		} else {
 			Customer customerToUpdate = getCustomerByUsername(username);
+			
 			if (customerToUpdate == null) {
-				return false;
+				return;
 			}
 			
-			return updateCustomerAccountUsername(customerToUpdate, newUsername) 
-					&& updateUserAccountPassword(customerToUpdate, newPassword);
+			updateCustomerAccountUsername(customerToUpdate, newUsername);
+			updateUserAccountPassword(customerToUpdate, newPassword);
 		}
 	}
 	
@@ -152,16 +151,14 @@ public class FlexiBookController {
 	 * 
 	 * @param customer to update
 	 * @param newUsername with which to update the Customer account
-	 * @return whether or not the Customer account's username was updated
 	 * 
 	 * @throws InvalidInputException if the newUsername is empty or whitespace, or if the newUsername is not available
 	 */
-	private static boolean updateCustomerAccountUsername(Customer customer, String newUsername) throws InvalidInputException {
+	private static void updateCustomerAccountUsername(Customer customer, String newUsername) throws InvalidInputException {
 		validateCustomerAccountUsername(newUsername);
-		if (customer.setUsername(newUsername)) {
-			return true;
+		if (!customer.setUsername(newUsername)) {
+			throw new InvalidInputException("Username not available");
 		}
-		throw new InvalidInputException("Username not available");
 	}
 	
 	/**
@@ -170,13 +167,12 @@ public class FlexiBookController {
 	 * 
 	 * @param user to update
 	 * @param newPassword with which to update the User account
-	 * @return whether or not the User account's password was updated
 	 * 
 	 * @throws InvalidInputException if the newPassword is empty or whitespace
 	 */
-	private static boolean updateUserAccountPassword(User user, String newPassword) throws InvalidInputException {
+	private static void updateUserAccountPassword(User user, String newPassword) throws InvalidInputException {
 		validateUserAccountPassword(newPassword);
-		return user.setPassword(newPassword);
+		user.setPassword(newPassword);
 	}
 	
 	/**
@@ -188,7 +184,7 @@ public class FlexiBookController {
 	 * 
 	 * @throws InvalidInputException if the Customer account to delete is the current user, or is the username is the Owner account username
 	 */
-	public static boolean deleteCustomerAccount(String username) throws InvalidInputException {
+	public static void deleteCustomerAccount(String username) throws InvalidInputException {
 		Customer customerToDelete = getCustomerByUsername(username);
 		
 		if (customerToDelete != FlexiBookApplication.getCurrentUser() || username.equals("owner")) {
@@ -196,14 +192,12 @@ public class FlexiBookController {
 		}
 		
 		if (customerToDelete == null) {
-			return false;
+			return;
 		}
 		
 		logout();
 		deleteAllCustomerAppointments(customerToDelete);
 		customerToDelete.delete();
-		
-		return true;
 	}
 	
 	/**

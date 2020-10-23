@@ -922,7 +922,7 @@ public class CucumberStepDefinitions {
 	@When("the user tries to change the {string} on {string} at {string} to be with start date {string} at {string} and end date {string} at {string}")
 	public void the_user_tries_to_change_the_on_at_to_be_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5, String string6, String string7) {
 		prevStartDate = string2;
-		prevStartTime2 = string3;
+		prevStartTime2 = string3+":00";
 		try {
 			FlexiBookController.updateTimeSlot(string, string2, string3, string4, string5, string6, string7);
 		} catch (InvalidInputException e) {
@@ -952,18 +952,18 @@ public class CucumberStepDefinitions {
 			if (string.equals("vacation")) {
 				for (TimeSlot ts : flexiBook.getBusiness().getVacation()) {
 					if (string3.equals(ts.getStartDate().toString())) {
-						assertTrue(string4.equals(ts.getStartTime().toString()));
+						assertTrue((string4+":00").equals(ts.getStartTime().toString()));
 						assertTrue(string5.equals(ts.getEndDate().toString()));
-						assertTrue(string6.equals(ts.getEndTime().toString()));
+						assertTrue((string6+":00").equals(ts.getEndTime().toString()));
 					}
 				}
 			}
 			else {
 				for (TimeSlot ts : flexiBook.getBusiness().getHolidays()) {
 					if (string3.equals(ts.getStartDate().toString())) {
-						assertTrue(string4.equals(ts.getStartTime().toString()));
+						assertTrue((string4+":00").equals(ts.getStartTime().toString()));
 						assertTrue(string5.equals(ts.getEndDate().toString()));
-						assertTrue(string6.equals(ts.getEndTime().toString()));
+						assertTrue((string6+":00").equals(ts.getEndTime().toString()));
 					}
 				}
 			}

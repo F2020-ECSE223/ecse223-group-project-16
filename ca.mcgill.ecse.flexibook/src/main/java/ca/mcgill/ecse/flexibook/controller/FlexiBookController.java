@@ -681,7 +681,7 @@ public class FlexiBookController {
 		if (vacationOrHoliday.equals("holiday")) {
 			for(TimeSlot ts: FlexiBookApplication.getFlexiBook().getBusiness().getHolidays()) {	
 				if (startDate.equals(ts.getStartDate().toString())) {
-					if (startTime.equals(ts.getStartTime().toString())) {
+					if ((startTime+":00").equals(ts.getStartTime().toString())) {
 						System.out.println("delete");
 						ts.delete();
 					}
@@ -692,7 +692,7 @@ public class FlexiBookController {
 			for(TimeSlot ts: FlexiBookApplication.getFlexiBook().getBusiness().getVacation()) {
 				System.out.println("delete");
 				if (startDate.equals(ts.getStartDate().toString())) {
-					if (startTime.equals(ts.getStartTime().toString())) {
+					if ((startTime+":00").equals(ts.getStartTime().toString())) {
 						System.out.println("delete");
 						ts.delete();
 					}

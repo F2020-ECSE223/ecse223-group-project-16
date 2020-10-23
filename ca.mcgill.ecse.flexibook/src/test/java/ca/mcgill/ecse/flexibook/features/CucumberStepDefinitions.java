@@ -405,7 +405,6 @@ public class CucumberStepDefinitions {
 	    }
 	}	
 	/** @author sarah
-	 *  @param dataTable data table of services in the system
 	 */
 	@Given("the following services exist in the system:")
 	public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {			
@@ -417,7 +416,6 @@ public class CucumberStepDefinitions {
 		}
 	}
 	/** @author sarah
-	 *  @param dataTable data table of opening hours in the system
 	 */
 	@Given("the business has the following opening hours:")
 	public void the_business_has_the_following_opening_hours(io.cucumber.datatable.DataTable dataTable) {
@@ -437,18 +435,12 @@ public class CucumberStepDefinitions {
 		 }
 	}  
 	/** @author sarah
-	 *  @param dataTable data table of holidays in the system
 	 */
 	@Given("the business has the following holidays:")
 	public void the_business_has_the_following_holidays(io.cucumber.datatable.DataTable dataTable) {
 		 List<Map<String, String>> rows = dataTable.asMaps();
-		 //SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
-		    
 		 for (Map<String, String> columns : rows) {
 			 try {
-			 /*flexiBook.getBusiness().addHoliday(new TimeSlot(Date.valueOf(columns.get("startDate")), 
-					 new Time(formatter.parse(columns.get("startTime")).getTime()), Date.valueOf(columns.get("endDate")), 
-					new Time(formatter.parse(columns.get("endTime")).getTime()), flexiBook));*/
 				 flexiBook.getBusiness().addHoliday(new TimeSlot(
 						 FlexiBookUtil.getDateFromString(columns.get("startDate")),
 						 FlexiBookUtil.getTimeFromString(columns.get("startTime")),
@@ -462,7 +454,6 @@ public class CucumberStepDefinitions {
 		 }
 	}
 	/** @author sarah
-	 *  @param dataTable data table of appointments in the system
 	 */
 	@Given("the following appointments exist in the system:")
 	public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
@@ -470,8 +461,6 @@ public class CucumberStepDefinitions {
 		Customer customer = null;
 		BookableService bookableService = null;
 		TimeSlot timeSlot = null;
-		//SimpleDateFormat tFormatter = new SimpleDateFormat("HH:mm");
-		//SimpleDateFormat dFormatter = new SimpleDateFormat("yyyy-MM-dd");
 		
 		for (Map<String, String> columns : rows) {
 			
@@ -488,8 +477,6 @@ public class CucumberStepDefinitions {
 		    }
 			
 			try {
-				//timeSlot = new TimeSlot(new Date(dFormatter.parse(columns.get("startDate")).getTime()), new Time(tFormatter.parse(columns.get("startTime")).getTime()),
-				//		new Date(dFormatter.parse(columns.get("startDate")).getTime()), new Time(tFormatter.parse(columns.get("endTime")).getTime()), flexiBook);
 				 timeSlot = new TimeSlot(
 						 FlexiBookUtil.getDateFromString(columns.get("date")),
 						 FlexiBookUtil.getTimeFromString(columns.get("startTime")),
@@ -505,7 +492,6 @@ public class CucumberStepDefinitions {
 		}
 	}
 	/** @author sarah
-	 *  @param string username of user
 	 */
 	@Given("{string} is logged in to their account") 
 	public void is_logged_in_to_their_account(String string) {
@@ -524,21 +510,17 @@ public class CucumberStepDefinitions {
 	List<TimeSlot> unavailableTimeSlots;
 	
 	/** @author sarah
-	 *  @param string username of user 
-	 *  @param string2 date requested
 	 */
 	@When("{string} requests the appointment calendar for the day of {string}")
 	public void requests_the_appointment_calendar_for_the_day_of(String string, String string2) {
 		try {
-			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2, null);
+			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendarBusy(string, string2, null);
 		}
 		catch (InvalidInputException e) { 
 			exception = e;
 		}
 	}
 	/** @author sarah
-	 *  @param string username of user 
-	 *  @param string2 date requested
 	 */
 	@When("{string} requests the appointment calendar for the week starting on {string}")
 	public void requests_the_appointment_calendar_for_the_week_starting_on(String string, String string2) {
@@ -549,7 +531,7 @@ public class CucumberStepDefinitions {
 			 c.add(Calendar.DATE, 7);  // number of days to add
 			 String endDate = sdf.format(c.getTime());  
 			 
-			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2, endDate);
+			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendarBusy(string, string2, endDate);
 		}
 		catch (InvalidInputException e) { 
 			exception = e;
@@ -558,7 +540,6 @@ public class CucumberStepDefinitions {
 		}
 	}
 	/** @author sarah
-	 *  @param  dataTable data table of available slots in the system
 	 */
 	@Then("the following slots shall be available:")
 	public void the_following_slots_shall_be_available(io.cucumber.datatable.DataTable dataTable) {
@@ -584,7 +565,6 @@ public class CucumberStepDefinitions {
 	}
 
 	/** @author sarah
-	 *  @param  dataTable data table of unavailable slots in the system
 	 */
 	@Then("the following slots shall be unavailable:")
 	public void the_following_slots_shall_be_unavailable(io.cucumber.datatable.DataTable dataTable) {
@@ -614,8 +594,6 @@ public class CucumberStepDefinitions {
 		
 	}
     /** @author sarah
-     * 
-     * @param string message
      */
 	@Then("the system shall report {string}")
 	public void the_system_shall_report(String string) {

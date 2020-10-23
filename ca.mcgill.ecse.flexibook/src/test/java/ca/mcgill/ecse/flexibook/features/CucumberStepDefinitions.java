@@ -306,7 +306,6 @@ public class CucumberStepDefinitions {
     //================================================================================
 	
 	User currentUser;
-	boolean initialHasOwner;
 	
 	 /** @author sarah
 	  *  @param String username of user
@@ -315,7 +314,6 @@ public class CucumberStepDefinitions {
 	@When("the user tries to log in with username {string} and password {string}")
 	public void the_user_tries_to_log_in_with_username_and_password(String string, String string2) {
 		try {
-			initialHasOwner = flexiBook.hasOwner();
 			currentUser = FlexiBookController.login(string, string2);
 		} catch (InvalidInputException e) {
 			exception = e;
@@ -331,7 +329,7 @@ public class CucumberStepDefinitions {
 	 */
 	@Then("the user should not be logged in")
 	public void the_user_should_not_be_logged_in() {
-		assertEquals(null, FlexiBookApplication.getCurrentUser());
+		assertTrue(!FlexiBookApplication.hasCurrentUser());
 	}
 	/** @author sarah
 	 */
@@ -343,7 +341,7 @@ public class CucumberStepDefinitions {
 	 */
 	@Then("a new account shall be created")
 	public void a_new_account_shall_be_created() {
-		assertEquals(true, !initialHasOwner);
+		assertTrue(flexiBook.hasOwner());
 	}
 	
 	
@@ -355,7 +353,7 @@ public class CucumberStepDefinitions {
 	 */	
 	@Given("the user is logged out")
 	public void the_user_is_logged_out() {
-		if (FlexiBookApplication.getCurrentUser() != null) {
+		if (FlexiBookApplication.hasCurrentUser()) {
 			FlexiBookApplication.unsetCurrentUser();
 		}
 	}
@@ -531,7 +529,7 @@ public class CucumberStepDefinitions {
 	@When("{string} requests the appointment calendar for the day of {string}")
 	public void requests_the_appointment_calendar_for_the_day_of(String string, String string2) {
 		try {
-			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2, false);
+			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2, null);
 		}
 		catch (InvalidInputException e) { 
 			exception = e;
@@ -544,7 +542,10 @@ public class CucumberStepDefinitions {
 	@When("{string} requests the appointment calendar for the week starting on {string}")
 	public void requests_the_appointment_calendar_for_the_week_starting_on(String string, String string2) {
 		try {
-			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2, true);
+			 LocalDate lDate = LocalDate.parse(string);
+			 lDate.plusDays(7);
+			 
+			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2, lDate.toString());
 		}
 		catch (InvalidInputException e) { 
 			exception = e;
@@ -596,15 +597,6 @@ public class CucumberStepDefinitions {
 	public void the_system_shall_report(String string) {
 	    assertEquals(string, exception.getMessage());
 	}
-
-
-	
-	
-	
-	
-	
-	
-
 
 
 	//================================================================================

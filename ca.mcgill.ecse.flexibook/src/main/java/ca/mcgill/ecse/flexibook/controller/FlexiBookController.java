@@ -386,8 +386,8 @@ public class FlexiBookController {
 	 * @author sarah
 	 * @category Login/Logout
 	 * 
-	 * @param String username of the User account being logged in 
-	 * @param String password of the User account being logged in
+	 * @param username username of the User account being logged in 
+	 * @param password password of the User account being logged in
 	 * @throws InvalidInputException 
 	 */
 	public static User login(String username, String password) throws InvalidInputException {
@@ -407,9 +407,11 @@ public class FlexiBookController {
 					return FlexiBookApplication.getCurrentUser();
 				}
 			}
+			
 		}
 		
 		throw new InvalidInputException ("Username/password not found");
+		
 	}
 	
 	/**
@@ -434,36 +436,46 @@ public class FlexiBookController {
 	 * @param isWeek if the user is requesting for all the appointments of the week of the day
 	 * @throws InvalidInputException 
 	 */
-	public static List<TimeSlot> viewAppointmentCalendar (String username, String day, boolean isWeek) throws InvalidInputException {
-		if (!isDateValid(day)) {
-			throw new InvalidInputException (day + " is not a valid date");
+	public static List<TimeSlot> viewAppointmentCalendar (String username, String startDate, String endDate) throws InvalidInputException {
+		// Check if dates are valid
+		if (!isDateValid(startDate)) {
+			throw new InvalidInputException (startDate + " is not a valid date");
+		}
+		
+		if (endDate != null && !isDateValid(endDate)) {
+			throw new InvalidInputException (startDate + " is not a valid date");
 		}
 		
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 		List<TimeSlot> busyTSlots = new ArrayList<TimeSlot>();
-		List<Appointment> daysAppointments = new ArrayList<Appointment>();
+		List<Appointment> appointmentsToView = new ArrayList<Appointment>();
+		List<Date> datesToView = new ArrayList<Date>();
+		Date currentDate;
 		TimeSlot firstTS, secondTS;
 		
-		for (Appointment a : flexiBook.getAppointments()) {
-			if (a.getTimeSlot().getStartDate() == Date.valueOf(day)) {
-				daysAppointments.add(a);
+		// Get list of dates to view appointments for
+		datesToView.add(Date.valueOf(startDate));
+		
+		if (endDate != null) {
+			currentDate = Date.valueOf(startDate);
+			datesToView.add(currentDate);
+			while (!(currentDate.equals(Date.valueOf(endDate)))) { // extra brackets?
+				currentDate = addDayToDate(currentDate, 1);
+				datesToView.add(currentDate);
 			}
 		}
 		
-		if (isWeek) {
-			for (int i = 1; i <= 7; i++) {
-				for (Appointment a : flexiBook.getAppointments()) {
-					if (a.getTimeSlot().getStartDate() == addDayToDate(Date.valueOf(day), i)) {
-						daysAppointments.add(a);
-					}
+		// Get list of appointments
+		for (Appointment a : flexiBook.getAppointments()) {
+			for (Date d: datesToView) {
+				if (a.getTimeSlot().getStartDate().equals(d)) {
+					appointmentsToView.add(a);
 				}
 			}
 			
-			
 		}
 		
-		
-		for (Appointment a : daysAppointments) {
+		for (Appointment a : appointmentsToView) {
 				TimeSlot aptTS = a.getTimeSlot();
 				BookableService aptBService = a.getBookableService();
 				

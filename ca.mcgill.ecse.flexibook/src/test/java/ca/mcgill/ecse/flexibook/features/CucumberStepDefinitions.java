@@ -630,6 +630,7 @@ public class CucumberStepDefinitions {
 		try {
 			FlexiBookController.setUpBusinessInfo(string, string2, string3, string4);
 		} catch (InvalidInputException e) {
+			System.out.println(e);
 			exception = e;
 		}	
 	}
@@ -816,19 +817,187 @@ public class CucumberStepDefinitions {
 	//================================================================================
     // UpdateBusinessInfo (Julie)
     //================================================================================
-	/*
+	String prevName;
+	String prevAddress;
+	String prevPhoneNumber;
+	String prevEmail;
 	@When("the user tries to update the business information with new {string} and {string} and {string} and {string}")
 	public void the_user_tries_to_update_the_business_information_with_new_and_and_and(String string, String string2, String string3, String string4) {
+		prevName = flexiBook.getBusiness().getName();
+		prevAddress = flexiBook.getBusiness().getAddress();
+		prevPhoneNumber = flexiBook.getBusiness().getPhoneNumber();
+		prevEmail = flexiBook.getBusiness().getEmail();
 		try {
-			FlexiBookController.BusinessInfo(string, string2, string3, string4);
+			FlexiBookController.updateBusinessInfo(string, string2, string3, string4);
 		} catch (InvalidInputException e) {
 			exception = e;
 		}	
 	}
 	@Then("the business information shall {string} updated with new {string} and {string} and {string} and {string}")
 	public void the_business_information_shall_updated_with_new_and_and_and(String string, String string2, String string3, String string4, String string5) {
-	    // Write code here that turns the phrase above into concrete actions
+		if (string.equals("be")) {
+			assertEquals(string2,flexiBook.getBusiness().getName());
+			assertEquals(string3,flexiBook.getBusiness().getAddress());
+			assertEquals(string4,flexiBook.getBusiness().getPhoneNumber());
+			assertEquals(string5,flexiBook.getBusiness().getEmail());
+		}
+		else {
+			assertEquals(prevName,flexiBook.getBusiness().getName());
+			assertEquals(prevAddress,flexiBook.getBusiness().getAddress());
+			assertEquals(prevPhoneNumber,flexiBook.getBusiness().getPhoneNumber());
+			assertEquals(prevEmail,flexiBook.getBusiness().getEmail());
+		}
 	}
-	*/
-	
+	String prevDay;
+	String prevStartTime;
+	String prevEndTime;
+	String newDay;
+	String newStartTime;
+	String newEndTime;
+	@When("the user tries to change the business hour {string} at {string} to be on {string} starting at {string} and ending at {string}")
+	public void the_user_tries_to_change_the_business_hour_at_to_be_on_starting_at_and_ending_at(String string, String string2, String string3, String string4, String string5) {
+		for (BusinessHour bh : flexiBook.getBusiness().getBusinessHours()) {
+			if (string.equals(bh.getDayOfWeek().toString())) {
+				prevDay = bh.getDayOfWeek().toString();
+				prevStartTime = bh.getStartTime().toString();
+				prevEndTime = bh.getEndTime().toString();
+				newDay = string;
+				newStartTime = string4;
+				newEndTime = string5;
+			}
+		}
+		try {
+			FlexiBookController.updateBusinessHour(string, string2, string3, string4, string5);
+		} catch (InvalidInputException e) {
+			System.out.println(e);
+			exception = e;
+		}	
+	}
+	@Then("the business hour shall {string} be updated")
+	public void the_business_hour_shall_be_updated(String string) {
+		for (BusinessHour bh : flexiBook.getBusiness().getBusinessHours()) {
+			if (string.equals("be")) {
+				if (newDay.equals(bh.getDayOfWeek().toString())) {
+					assertTrue(newStartTime.equals(bh.getStartTime().toString()));
+					assertTrue(newEndTime.equals(bh.getEndTime().toString()));
+				}
+			}
+			else {
+				if (prevDay.equals(bh.getDayOfWeek().toString())) {
+					assertTrue(prevStartTime.equals(bh.getStartTime().toString()));
+					assertTrue(prevEndTime.equals(bh.getEndTime().toString()));
+				}
+			}
+		}
+	}
+	@When("the user tries to remove the business hour starting {string} at {string}")
+	public void the_user_tries_to_remove_the_business_hour_starting_at(String string, String string2) {
+		try {
+			FlexiBookController.removeBusinessHour(string, string2);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}	
+	}
+	@Then("the business hour starting {string} at {string} shall {string} exist")
+	public void the_business_hour_starting_at_shall_exist(String string, String string2, String string3) {
+		if (string3.equals("not")) {
+			for (BusinessHour bh : FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()) {
+				if (string.equals(bh.getDayOfWeek().toString())) {
+					assertEquals(null, bh.getDayOfWeek());
+				}
+			}
+		}
+	}
+	@Then("an error message {string} shall {string} be raised")
+	public void an_error_message_shall_be_raised(String string, String string2) {
+		boolean flag = false;
+		if (string2.equals("not") || string2.isEmpty()) {
+			flag = true;
+		}
+		assertTrue(flag);
+	}
+	String prevStartDate;
+	String prevStartTime2;
+	@When("the user tries to change the {string} on {string} at {string} to be with start date {string} at {string} and end date {string} at {string}")
+	public void the_user_tries_to_change_the_on_at_to_be_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5, String string6, String string7) {
+		prevStartDate = string2;
+		prevStartTime2 = string3;
+		try {
+			FlexiBookController.updateTimeSlot(string, string2, string3, string4, string5, string6, string7);
+		} catch (InvalidInputException e) {
+			System.out.println(e);
+			exception = e;
+		}	
+	}
+	@Then("the {string} shall {string} be updated with start date {string} at {string} and end date {string} at {string}")
+	public void the_shall_be_updated_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5, String string6) {
+		if (string2.equals("not")) {
+			if (string.equals("vacation")) {
+				for (TimeSlot ts : flexiBook.getBusiness().getVacation()) {
+					if (prevStartDate.equals(ts.getStartDate().toString())) {
+						assertTrue(prevStartTime2.equals(ts.getStartTime().toString()));
+					}
+				}
+			}
+			else {
+				for (TimeSlot ts : flexiBook.getBusiness().getHolidays()) {
+					if (prevStartDate.equals(ts.getStartDate().toString())) {
+						assertTrue(prevStartTime2.equals(ts.getStartTime().toString()));
+					}
+				}
+			}
+		}
+		else {
+			if (string.equals("vacation")) {
+				for (TimeSlot ts : flexiBook.getBusiness().getVacation()) {
+					if (string3.equals(ts.getStartDate().toString())) {
+						assertTrue(string4.equals(ts.getStartTime().toString()));
+						assertTrue(string5.equals(ts.getEndDate().toString()));
+						assertTrue(string6.equals(ts.getEndTime().toString()));
+					}
+				}
+			}
+			else {
+				for (TimeSlot ts : flexiBook.getBusiness().getHolidays()) {
+					if (string3.equals(ts.getStartDate().toString())) {
+						assertTrue(string4.equals(ts.getStartTime().toString()));
+						assertTrue(string5.equals(ts.getEndDate().toString()));
+						assertTrue(string6.equals(ts.getEndTime().toString()));
+					}
+				}
+			}
+		}
+	}
+	int numberOfHolidays;
+	int numberofVacations;
+	@When("the user tries to remove an existing {string} with start date {string} at {string} and end date {string} at {string}")
+	public void the_user_tries_to_remove_an_existing_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5) {
+		numberOfHolidays = flexiBook.getBusiness().getHolidays().size();
+		numberofVacations = flexiBook.getBusiness().getVacation().size();
+		try {
+			FlexiBookController.removeTimeSlot(string, string2, string3, string4, string5);
+		} catch (InvalidInputException e) {
+			System.out.println(e);
+			exception = e;
+		}	
+	}
+	@Then("the {string} with start date {string} at {string} shall {string} exist")
+	public void the_with_start_date_at_shall_exist(String string, String string2, String string3, String string4) {
+		if (string4.equals("not")) {
+			if (string.equals("holiday")) {
+				assertEquals(numberOfHolidays-1, flexiBook.getBusiness().getHolidays().size());
+			}
+			else {
+				assertEquals(numberofVacations-1, flexiBook.getBusiness().getVacation().size());
+			}
+		}
+		else {
+			if (string.equals("holidays")) {
+				assertEquals(numberOfHolidays, flexiBook.getBusiness().getHolidays().size());
+			}
+			else {
+				assertEquals(numberofVacations, flexiBook.getBusiness().getVacation().size());
+			}
+		}
+	}	
 }

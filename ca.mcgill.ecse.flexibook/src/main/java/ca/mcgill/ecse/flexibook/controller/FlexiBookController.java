@@ -15,11 +15,10 @@ import ca.mcgill.ecse.flexibook.util.SystemTime;
 public class FlexiBookController {
 	/**
 	 * @author louca
-	 * @category CRUD Account
+	 * @category Feature set 1
 	 * 
 	 * @param username to give to the created Customer account
 	 * @param password to give to the created Customer account
-	 * @return the created Customer account
 	 * 
 	 * @throws IllegalArgumentException if any of the username or password are null
 	 * @throws InvalidInputException if:
@@ -27,7 +26,7 @@ public class FlexiBookController {
 	 * - the logged in User account is the Owner account
 	 * - the username already exists
 	 */
-	public static Customer createCustomerAccount(String username, String password) throws InvalidInputException {
+	public static void createCustomerAccount(String username, String password) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 		
 		validateCustomerAccountUsername(username);
@@ -39,13 +38,24 @@ public class FlexiBookController {
 		}
 		
 		try {
-			return new Customer(username, password, flexiBook);
-		} catch (RuntimeException e) { // conceals other RuntimeExceptions that may occur during Customer construction
-			// TODO, check e.message() against Umple message, otherwise bubble the Runtime Exception
-			throw new InvalidInputException("The username already exists");
+			new Customer(username, password, flexiBook);
+		} catch (RuntimeException e) {
+			if (e.getMessage().startsWith("Cannot create due to duplicate username.")) {
+				throw new InvalidInputException("The username already exists");
+			}
+			throw e;
 		}
 	}
 
+	/**
+	 * @author louca
+	 * @category Feature set 1
+	 * 
+	 * @param username to validate
+	 * 
+	 * @throws IllegalArgumentException if the username is null
+	 * @throws InvalidInputException if the username is empty or whitespace
+	 */
 	private static void validateCustomerAccountUsername(String username) throws InvalidInputException {
 		if (username == null) {
 			throw new IllegalArgumentException("The username cannot be null");
@@ -55,6 +65,15 @@ public class FlexiBookController {
 		}
 	}
 	
+	/**
+	 * @author louca
+	 * @category Feature set 1
+	 * 
+	 * @param password to validate
+	 * 
+	 * @throws IllegalArgumentException if the password is null
+	 * @throws InvalidInputException if the password is empty or whitespace
+	 */
 	private static void validateUserAccountPassword(String password) throws InvalidInputException {
 		if (password == null) {
 			throw new IllegalArgumentException("The password cannot be null");
@@ -66,12 +85,12 @@ public class FlexiBookController {
 	
 	/**
 	 * @author louca
-	 * @category CRUD Account
+	 * @category Feature set 1
 	 * 
 	 * @param username of the User account to retrieve
 	 * @return the retrieved User account (null if no User account with that username exists)
 	 */
-	public static User getUserByUsername(String username) {
+	private static User getUserByUsername(String username) {
 		if (username.equals("owner")) {
 			return FlexiBookApplication.getFlexiBook().getOwner();
 		}
@@ -80,11 +99,14 @@ public class FlexiBookController {
 	
 	/**
 	 * @author louca
+	 * @category Feature set 1
 	 * 
 	 * @param username of the Customer account to retrieve
 	 * @return the retrieved Customer account (null if no User account with that username exists)
+	 * 
+	 * @throws IllegalArgumentException if the username is null
 	 */
-	public static Customer getCustomerByUsername(String username) {
+	private static Customer getCustomerByUsername(String username) {
 		if (username.equals(null)) {
 			throw new IllegalArgumentException("The username cannot be null");
 		}
@@ -98,12 +120,11 @@ public class FlexiBookController {
 	
 	/**
 	 * @author louca
-	 * @category CRUD Account
+	 * @category Feature set 1
 	 * 
-	 * @param user of the User account to update
+	 * @param username of the User account to update
 	 * @param newUsername with which to update the User account
 	 * @param newPassword with which to update the User account
-	 * @return whether or not the User account was updated
 	 * 
 	 * @throws InvalidInputException if 
 	 * - the newUsername is empty or whitespace
@@ -111,67 +132,65 @@ public class FlexiBookController {
 	 * - the newUsername is not available
 	 * - the User by the given username is the Owner, and the newUsername is not "owner"
 	 */
-	public static boolean updateUserAccount(String username, String newUsername, String newPassword) throws InvalidInputException {
+	public static void updateUserAccount(String username, String newUsername, String newPassword) throws InvalidInputException {
 		if (username.equals("owner")) {
 			if (!newUsername.equals("owner")) {
 				throw new InvalidInputException("Changing username of owner is not allowed");
 			}
 			
-			return updateUserAccountPassword(FlexiBookApplication.getFlexiBook().getOwner(), newPassword);
+			updateUserAccountPassword(FlexiBookApplication.getFlexiBook().getOwner(), newPassword);
 		} else {
 			Customer customerToUpdate = getCustomerByUsername(username);
+			
 			if (customerToUpdate == null) {
-				return false;
+				return;
 			}
 			
-			return updateCustomerAccountUsername(customerToUpdate, newUsername) 
-					&& updateUserAccountPassword(customerToUpdate, newPassword);
+			updateCustomerAccountUsername(customerToUpdate, newUsername);
+			updateUserAccountPassword(customerToUpdate, newPassword);
 		}
 	}
 	
 	/**
 	 * @author louca
-	 * @category CRUD Account
+	 * @category Feature set 1
 	 * 
 	 * @param customer to update
 	 * @param newUsername with which to update the Customer account
-	 * @return whether or not the Customer account username was updated
 	 * 
 	 * @throws InvalidInputException if the newUsername is empty or whitespace, or if the newUsername is not available
 	 */
-	private static boolean updateCustomerAccountUsername(Customer customer, String newUsername) throws InvalidInputException {
+	private static void updateCustomerAccountUsername(Customer customer, String newUsername) throws InvalidInputException {
 		validateCustomerAccountUsername(newUsername);
-		if (customer.setUsername(newUsername)) {
-			return true;
+		if (!customer.setUsername(newUsername)) {
+			throw new InvalidInputException("Username not available");
 		}
-		throw new InvalidInputException("Username not available");
 	}
 	
 	/**
 	 * @author louca
-	 * @category CRUD Account
+	 * @category Feature set 1
 	 * 
 	 * @param user to update
 	 * @param newPassword with which to update the User account
-	 * @return whether or not the User account password was updated
 	 * 
 	 * @throws InvalidInputException if the newPassword is empty or whitespace
 	 */
-	private static boolean updateUserAccountPassword(User user, String newPassword) throws InvalidInputException {
+	private static void updateUserAccountPassword(User user, String newPassword) throws InvalidInputException {
 		validateUserAccountPassword(newPassword);
-		return user.setPassword(newPassword);
+		user.setPassword(newPassword);
 	}
 	
 	/**
 	 * @author louca
-	 * @category CRUD Account
+	 * @category Feature set 1
 	 * 
 	 * @param username of the Customer account to delete
 	 * @return whether or not the Customer account was deleted
 	 * 
-	 * @throws InvalidInputException 
+	 * @throws InvalidInputException if the Customer account to delete is the current user, or is the username is the Owner account username
 	 */
-	public static boolean deleteCustomerAccount(String username) throws InvalidInputException {
+	public static void deleteCustomerAccount(String username) throws InvalidInputException {
 		Customer customerToDelete = getCustomerByUsername(username);
 		
 		if (customerToDelete != FlexiBookApplication.getCurrentUser() || username.equals("owner")) {
@@ -179,13 +198,12 @@ public class FlexiBookController {
 		}
 		
 		if (customerToDelete == null) {
-			return false;
+			return;
 		}
 		
 		logout();
 		deleteAllCustomerAppointments(customerToDelete);
 		customerToDelete.delete();
-		return true;
 	}
 	
 	/**
@@ -314,7 +332,7 @@ public class FlexiBookController {
 			throw new InvalidInputException(String.format("Service combo %s does not exist", name));
 		}
 		for (Appointment a : combo.getAppointments()) {
-			if (false) { // TODO, check if future apptments with service combo -- waiting for date time utils
+			if ((a.getTimeSlot().getEndDate()).after(SystemTime.getDate())) { 
 				throw new InvalidInputException(String.format("Service combo %s has future appointments", name));
 			}
 		}
@@ -322,10 +340,6 @@ public class FlexiBookController {
 	}
 	/**
 	 * @author theodore
-	 * @category CRUD BookableService
-	 * 
-	 * @param name of the BookableService
-	 * @return BookableSeervice with that name, or null if not found
 	 */
 	private static BookableService getBookableService(String name) {
 		for (BookableService b : FlexiBookApplication.getFlexiBook().getBookableServices()) {
@@ -337,10 +351,6 @@ public class FlexiBookController {
 	}
 	/**
 	 * @author theodore
-	 * @category CRUD Service
-	 * 
-	 * @param name of the Service
-	 * @return Service with that name, or null if not found
 	 */
 	private static Service getService(String name) {
 		for (BookableService b : FlexiBookApplication.getFlexiBook().getBookableServices()) {
@@ -352,10 +362,6 @@ public class FlexiBookController {
 	}
 	/**
 	 * @author theodore
-	 * @category CRUD ServiceCombo
-	 * 
-	 * @param name of the ServiceCombo
-	 * @return ServiceCombo with that name, or null if not found
 	 */
 	private static ServiceCombo getServiceCombo(String name) {
 		for (BookableService b : FlexiBookApplication.getFlexiBook().getBookableServices()) {

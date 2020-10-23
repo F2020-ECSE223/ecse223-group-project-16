@@ -747,7 +747,6 @@ public class CucumberStepDefinitions {
 		try {
 			FlexiBookController.setUpBusinessInfo(string, string2, string3, string4);
 		} catch (InvalidInputException e) {
-			System.out.println(e);
 			exception = e;
 		}	
 	}
@@ -996,7 +995,6 @@ public class CucumberStepDefinitions {
 		try {
 			FlexiBookController.updateBusinessHour(string, string2, string3, string4, string5);
 		} catch (InvalidInputException e) {
-			System.out.println(e);
 			exception = e;
 		}	
 	}
@@ -1067,7 +1065,6 @@ public class CucumberStepDefinitions {
 		try {
 			FlexiBookController.updateTimeSlot(string, string2, string3, string4, string5, string6, string7);
 		} catch (InvalidInputException e) {
-			System.out.println(e);
 			exception = e;
 		}	
 	}
@@ -1122,7 +1119,6 @@ public class CucumberStepDefinitions {
 	public void the_user_tries_to_remove_an_existing_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5) {
 		numberOfHolidays = flexiBook.getBusiness().getHolidays().size();
 		numberofVacations = flexiBook.getBusiness().getVacation().size();
-		System.out.println(numberofVacations);
 		try {
 			FlexiBookController.removeTimeSlot(string, string2, string3, string4, string5);
 		} catch (InvalidInputException e) {
@@ -1139,8 +1135,6 @@ public class CucumberStepDefinitions {
 				assertEquals(numberOfHolidays-1, flexiBook.getBusiness().getHolidays().size());
 			}
 			else {
-				System.out.println(numberofVacations-1);
-				System.out.println( flexiBook.getBusiness().getVacation().size());
 				assertEquals(numberofVacations-1, flexiBook.getBusiness().getVacation().size());
 			}
 		}

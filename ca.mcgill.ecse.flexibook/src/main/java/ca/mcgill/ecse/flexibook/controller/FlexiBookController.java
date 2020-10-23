@@ -394,7 +394,6 @@ public class FlexiBookController {
 	 * @author: Julie
 	 */
 	public static void setUpBusinessInfo(String name, String address, String phoneNumber, String email) throws InvalidInputException {
-		System.out.println(FlexiBookApplication.getFlexiBook().getOwner());
 		if (FlexiBookApplication.getFlexiBook().getOwner() != FlexiBookApplication.getCurrentUser()) {
 			throw new InvalidInputException("No permission to set up business information");
 		}
@@ -433,14 +432,10 @@ public class FlexiBookController {
 			throw new InvalidInputException("Start time must be before end time");
 		}
 		for (BusinessHour bh : FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()) {
-			System.out.print(day);
 			if (day.equals(bh.getDayOfWeek().toString())) {
-				System.out.print(bh.getDayOfWeek().toString());
-				System.out.print("overlap");
 				throw new InvalidInputException("The business hours cannot overlap");
 			}
 		}
-		System.out.print("new");
 		BusinessHour aNewBusinessHour = new BusinessHour(BusinessHour.DayOfWeek.valueOf(day), 
 				Time.valueOf(LocalTime.of(Integer.valueOf(startTime.substring(0,2)), Integer.valueOf(startTime.substring(3,5)))), 
 				Time.valueOf(LocalTime.of(Integer.valueOf(endTime.substring(0,2)), Integer.valueOf(endTime.substring(3,5)))), 

@@ -770,11 +770,12 @@ public class CucumberStepDefinitions {
 	 */
 	@Then("an error message {string} shall {string} raised")
 	public void an_error_message_shall_raised(String string, String string2) {
-		boolean flag = false;
-		if (string2.equals("be") || string2.equals("not be")) {
-			flag = true;
+		if (string2.equals("not be")) {
+			assertEquals(exception, null);
 		}
-		assertTrue(flag);
+		else { 
+			assertEquals(string, exception.getMessage());
+		}
 	}
 	/**
 	 * @author Julie
@@ -846,10 +847,10 @@ public class CucumberStepDefinitions {
 	 */
 	@Then("the {string} and {string} and {string} and {string} shall be provided to the user")
 	public void the_and_and_and_shall_be_provided_to_the_user(String string, String string2, String string3, String string4) {
-		assertTrue(string != null);
-		assertTrue(string2 != null);
-		assertTrue(string3 != null);
-		assertTrue(string4 != null);
+		assertEquals(string, flexiBook.getBusiness().getName());
+		assertEquals(string2, flexiBook.getBusiness().getAddress());
+		assertEquals(string3, flexiBook.getBusiness().getPhoneNumber());
+		assertEquals(string4, flexiBook.getBusiness().getEmail());
 	}
 	/**
 	 * @author Julie
@@ -1004,16 +1005,16 @@ public class CucumberStepDefinitions {
 	@Then("the business hour shall {string} be updated")
 	public void the_business_hour_shall_be_updated(String string) {
 		for (BusinessHour bh : flexiBook.getBusiness().getBusinessHours()) {
-			if (string.equals("be")) {
-				if (newDay.equals(bh.getDayOfWeek().toString())) {
-					assertTrue(newStartTime.equals(bh.getStartTime().toString()));
-					assertTrue(newEndTime.equals(bh.getEndTime().toString()));
-				}
-			}
-			else {
+			if (string.equals("not")) {
 				if (prevDay.equals(bh.getDayOfWeek().toString())) {
 					assertTrue(prevStartTime.equals(bh.getStartTime().toString()));
 					assertTrue(prevEndTime.equals(bh.getEndTime().toString()));
+				}
+			}
+			else {
+				if (newDay.equals(bh.getDayOfWeek().toString())) {
+					assertTrue(newStartTime.equals(bh.getStartTime().toString()));
+					assertTrue(newEndTime.equals(bh.getEndTime().toString()));
 				}
 			}
 		}
@@ -1047,11 +1048,12 @@ public class CucumberStepDefinitions {
 	 */
 	@Then("an error message {string} shall {string} be raised")
 	public void an_error_message_shall_be_raised(String string, String string2) {
-		boolean flag = false;
-		if (string2.equals("not") || string2.isEmpty()) {
-			flag = true;
+		if (string2.equals("not")) {
+			assertEquals(exception, null);
 		}
-		assertTrue(flag);
+		else { 
+			assertEquals(string, exception.getMessage());
+		}
 	}
 	/**
 	 * @author Julie

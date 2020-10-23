@@ -933,8 +933,11 @@ public class CucumberStepDefinitions {
 		}
 	}
 	//================================================================================
-    // UpdateBusinessInfo (Julie)
+    // UpdateBusinessInfo
     //================================================================================
+	/**
+	 * @author Julie
+	 */
 	String prevName;
 	String prevAddress;
 	String prevPhoneNumber;
@@ -951,6 +954,9 @@ public class CucumberStepDefinitions {
 			exception = e;
 		}	
 	}
+	/**
+	 * @author Julie
+	 */
 	@Then("the business information shall {string} updated with new {string} and {string} and {string} and {string}")
 	public void the_business_information_shall_updated_with_new_and_and_and(String string, String string2, String string3, String string4, String string5) {
 		if (string.equals("be")) {
@@ -966,6 +972,9 @@ public class CucumberStepDefinitions {
 			assertEquals(prevEmail,flexiBook.getBusiness().getEmail());
 		}
 	}
+	/**
+	 * @author Julie
+	 */
 	String prevDay;
 	String prevStartTime;
 	String prevEndTime;
@@ -991,6 +1000,9 @@ public class CucumberStepDefinitions {
 			exception = e;
 		}	
 	}
+	/**
+	 * @author Julie
+	 */
 	@Then("the business hour shall {string} be updated")
 	public void the_business_hour_shall_be_updated(String string) {
 		for (BusinessHour bh : flexiBook.getBusiness().getBusinessHours()) {
@@ -1008,6 +1020,9 @@ public class CucumberStepDefinitions {
 			}
 		}
 	}
+	/**
+	 * @author Julie
+	 */
 	@When("the user tries to remove the business hour starting {string} at {string}")
 	public void the_user_tries_to_remove_the_business_hour_starting_at(String string, String string2) {
 		try {
@@ -1016,6 +1031,9 @@ public class CucumberStepDefinitions {
 			exception = e;
 		}	
 	}
+	/**
+	 * @author Julie
+	 */
 	@Then("the business hour starting {string} at {string} shall {string} exist")
 	public void the_business_hour_starting_at_shall_exist(String string, String string2, String string3) {
 		if (string3.equals("not")) {
@@ -1026,6 +1044,9 @@ public class CucumberStepDefinitions {
 			}
 		}
 	}
+	/**
+	 * @author Julie
+	 */
 	@Then("an error message {string} shall {string} be raised")
 	public void an_error_message_shall_be_raised(String string, String string2) {
 		boolean flag = false;
@@ -1034,6 +1055,9 @@ public class CucumberStepDefinitions {
 		}
 		assertTrue(flag);
 	}
+	/**
+	 * @author Julie
+	 */
 	String prevStartDate;
 	String prevStartTime2;
 	@When("the user tries to change the {string} on {string} at {string} to be with start date {string} at {string} and end date {string} at {string}")
@@ -1047,6 +1071,9 @@ public class CucumberStepDefinitions {
 			exception = e;
 		}	
 	}
+	/**
+	 * @author Julie
+	 */
 	@Then("the {string} shall {string} be updated with start date {string} at {string} and end date {string} at {string}")
 	public void the_shall_be_updated_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5, String string6) {
 		if (string2.equals("not")) {
@@ -1086,18 +1113,25 @@ public class CucumberStepDefinitions {
 			}
 		}
 	}
+	/**
+	 * @author Julie
+	 */
 	int numberOfHolidays;
 	int numberofVacations;
 	@When("the user tries to remove an existing {string} with start date {string} at {string} and end date {string} at {string}")
 	public void the_user_tries_to_remove_an_existing_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5) {
 		numberOfHolidays = flexiBook.getBusiness().getHolidays().size();
 		numberofVacations = flexiBook.getBusiness().getVacation().size();
+		System.out.println(numberofVacations);
 		try {
 			FlexiBookController.removeTimeSlot(string, string2, string3, string4, string5);
 		} catch (InvalidInputException e) {
 			exception = e;
 		}	
 	}
+	/**
+	 * @author Julie
+	 */
 	@Then("the {string} with start date {string} at {string} shall {string} exist")
 	public void the_with_start_date_at_shall_exist(String string, String string2, String string3, String string4) {
 		if (string4.equals("not")) {
@@ -1105,6 +1139,8 @@ public class CucumberStepDefinitions {
 				assertEquals(numberOfHolidays-1, flexiBook.getBusiness().getHolidays().size());
 			}
 			else {
+				System.out.println(numberofVacations-1);
+				System.out.println( flexiBook.getBusiness().getVacation().size());
 				assertEquals(numberofVacations-1, flexiBook.getBusiness().getVacation().size());
 			}
 		}

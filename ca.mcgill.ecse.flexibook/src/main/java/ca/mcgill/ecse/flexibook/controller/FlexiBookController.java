@@ -547,6 +547,9 @@ public class FlexiBookController {
 			FlexiBookApplication.getFlexiBook().getBusiness().addVacation(aNewTimeSlot);
 		}
 	}
+	/**
+	 * @author Julie
+	 */
 	public static void updateBusinessInfo(String name, String address, String phoneNumber, String email) throws InvalidInputException {
 		if (FlexiBookApplication.getFlexiBook().getOwner() != FlexiBookApplication.getCurrentUser()) {
 			throw new InvalidInputException("No permission to update business information");
@@ -576,6 +579,9 @@ public class FlexiBookController {
 	    Business aNewBusiness = new Business(name, address, phoneNumber, email, FlexiBookApplication.getFlexiBook());
 		FlexiBookApplication.getFlexiBook().setBusiness(aNewBusiness);
 	}
+	/**
+	 * @author Julie
+	 */
 	public static void updateBusinessHour(String prevDay, String prevStartTime, String newDay, String newStartTime, String newEndTime) throws InvalidInputException {
 		if (FlexiBookApplication.getFlexiBook().getOwner() != FlexiBookApplication.getCurrentUser()) {
 			throw new InvalidInputException("No permission to update business information");
@@ -586,9 +592,9 @@ public class FlexiBookController {
 		if (!prevDay.equals(newDay)) {
 			throw new InvalidInputException("The business hours cannot overlap");
 		}
-		for (BusinessHour bh : FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()) {
+		for (BusinessHour bh : new ArrayList <> (FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours())) {
 			if (newDay.equals(bh.getDayOfWeek().toString())) {
-				bh.delete();
+				FlexiBookApplication.getFlexiBook().getBusiness().removeBusinessHour(bh);
 			}
 		}
 		BusinessHour aNewBusinessHour = new BusinessHour(BusinessHour.DayOfWeek.valueOf(newDay), 
@@ -597,16 +603,22 @@ public class FlexiBookController {
 				FlexiBookApplication.getFlexiBook());
 		FlexiBookApplication.getFlexiBook().getBusiness().addBusinessHour(aNewBusinessHour);
 	}
+	/**
+	 * @author Julie
+	 */
 	public static void removeBusinessHour(String day, String startTime) throws InvalidInputException {
 		if (FlexiBookApplication.getFlexiBook().getOwner() != FlexiBookApplication.getCurrentUser()) {
 			throw new InvalidInputException("No permission to update business information");
 		}
-		for (BusinessHour bh : FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()) {
+		for (BusinessHour bh : new ArrayList <> (FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours())) {
 			if (day.equals(bh.getDayOfWeek().toString())) {
-				bh.delete();
+				FlexiBookApplication.getFlexiBook().getBusiness().removeBusinessHour(bh);
 			}
 		}
 	}
+	/**
+	 * @author Julie
+	 */
 	public static void updateTimeSlot(String vacationOrHoliday, String prevStartDate, String prevStartTime, String newStartDate, String newStartTime, String newEndDate, String newEndTime) throws InvalidInputException {
 		int startDateInt;
 		int endDateInt;
@@ -653,9 +665,9 @@ public class FlexiBookController {
 			}
 		}
 		if (vacationOrHoliday.equals("holiday")) {
-			for(TimeSlot ts: FlexiBookApplication.getFlexiBook().getBusiness().getHolidays()) {
+			for(TimeSlot ts: new ArrayList <> (FlexiBookApplication.getFlexiBook().getBusiness().getHolidays())) {
 				if (prevStartDate.equals(ts.getStartDate().toString())) {
-					ts.delete();
+					FlexiBookApplication.getFlexiBook().getBusiness().removeHoliday(ts);
 				}
 			}
 			TimeSlot aNewTimeSlot = new TimeSlot(Date.valueOf(LocalDate.of(Integer.parseInt(newStartDate.substring(0,4)), Month.of(Integer.parseInt(newStartDate.substring(5,7))), Integer.parseInt(newStartDate.substring(8,10)))), 
@@ -666,9 +678,9 @@ public class FlexiBookController {
 			FlexiBookApplication.getFlexiBook().getBusiness().addHoliday(aNewTimeSlot);
 		}
 		else {
-			for(TimeSlot ts: FlexiBookApplication.getFlexiBook().getBusiness().getVacation()) {
+			for(TimeSlot ts: new ArrayList <> (FlexiBookApplication.getFlexiBook().getBusiness().getVacation())) {
 				if (prevStartDate.equals(ts.getStartDate().toString())) {
-					ts.delete();
+					FlexiBookApplication.getFlexiBook().getBusiness().removeVacation(ts);
 				}
 			}
 			TimeSlot aNewTimeSlot = new TimeSlot(Date.valueOf(LocalDate.of(Integer.parseInt(newStartDate.substring(0,4)), Month.of(Integer.parseInt(newStartDate.substring(5,7))), Integer.parseInt(newStartDate.substring(8,10)))), 
@@ -679,23 +691,24 @@ public class FlexiBookController {
 			FlexiBookApplication.getFlexiBook().getBusiness().addVacation(aNewTimeSlot);
 		}
 	}
+	/**
+	 * @author Julie
+	 */
 	public static void removeTimeSlot(String vacationOrHoliday, String startDate, String startTime, String endDate, String endTime) throws InvalidInputException {
 		if (FlexiBookApplication.getFlexiBook().getOwner() != FlexiBookApplication.getCurrentUser()) {
 			throw new InvalidInputException("No permission to update business information");
 		}
 		if (vacationOrHoliday.equals("holiday")) {
-			for(TimeSlot ts: FlexiBookApplication.getFlexiBook().getBusiness().getHolidays()) {	
+			for(TimeSlot ts: new ArrayList <> (FlexiBookApplication.getFlexiBook().getBusiness().getHolidays())) {	
 				if (startDate.equals(ts.getStartDate().toString())) {
-					System.out.println("delete");
-					ts.delete();
+					FlexiBookApplication.getFlexiBook().getBusiness().removeHoliday(ts);
 				}
 			}
 		}
 		else {
-			for(TimeSlot ts: FlexiBookApplication.getFlexiBook().getBusiness().getVacation()) {
+			for(TimeSlot ts: new ArrayList<> (FlexiBookApplication.getFlexiBook().getBusiness().getVacation())) {
 				if (startDate.equals(ts.getStartDate().toString())) {
-					System.out.println("delete");
-					ts.delete();
+					FlexiBookApplication.getFlexiBook().getBusiness().removeVacation(ts);
 				}
 			}
 		}

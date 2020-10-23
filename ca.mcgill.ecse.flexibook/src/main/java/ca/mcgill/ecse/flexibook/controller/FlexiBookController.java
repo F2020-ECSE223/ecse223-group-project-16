@@ -2,6 +2,7 @@ package ca.mcgill.ecse.flexibook.controller;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.ParseException;
@@ -11,6 +12,7 @@ import java.time.LocalTime;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.model.*;
+import ca.mcgill.ecse.flexibook.util.FlexiBookUtil;
 
 public class FlexiBookController {
 	/**
@@ -442,44 +444,107 @@ public class FlexiBookController {
 			throw new InvalidInputException (startDate + " is not a valid date");
 		}
 		
-		if (endDate != null && !isDateValid(endDate)) {
-			throw new InvalidInputException (startDate + " is not a valid date");
-		}
-		
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
-		List<TimeSlot> busyTSlots = new ArrayList<TimeSlot>();
+		List<BusinessHour> businessHours = flexiBook.getBusiness().getBusinessHours();
+		
+		
 		List<Appointment> appointmentsToView = new ArrayList<Appointment>();
 		List<Date> datesToView = new ArrayList<Date>();
-		Date currentDate;
+		
+		List<TimeSlot> availableTSlots = new ArrayList<TimeSlot>();
+		List<TimeSlot> busyTSlots = new ArrayList<TimeSlot>();
+		
 		TimeSlot firstTS, secondTS;
 		
-		// Get list of dates to view appointments for
+		// Get list of dates to view appointments for 
 		datesToView.add(Date.valueOf(startDate));
-		
 		if (endDate != null) {
-			currentDate = Date.valueOf(startDate);
-			datesToView.add(currentDate);
-			while (!(currentDate.equals(Date.valueOf(endDate)))) { // extra brackets?
+			Date currentDate = Date.valueOf(startDate);
+			while (!isDatesEqual(currentDate, Date.valueOf(endDate))) { 
 				currentDate = addDayToDate(currentDate, 1);
 				datesToView.add(currentDate);
 			}
 		}
 		
 		// Get list of appointments
-		for (Appointment a : flexiBook.getAppointments()) {
-			for (Date d: datesToView) {
-				if (a.getTimeSlot().getStartDate().equals(d)) {
-					appointmentsToView.add(a);
+		for (Date d: datesToView) {
+			for (Appointment a : flexiBook.getAppointments()) {
+					if (isDatesEqual(a.getTimeSlot().getStartDate(), d)) {
+						appointmentsToView.add(a);
+					}
+					
+				
+				
+			}
+		}
+		
+		// Get available time slots from business hours
+		for (BusinessHour b: businessHours) {
+			if (getWeekdayFromDate(Date.valueOf(startDate)) == b.getDayOfWeek()) {
+				availableTSlots.add(new TimeSlot(
+										Date.valueOf(startDate), 
+										b.getStartTime(),
+										Date.valueOf(startDate),
+										b.getEndTime(),
+										flexiBook));
+				
+			}
+		}
+		
+		
+		if (endDate != null) {
+			Date currentDate = Date.valueOf(startDate);
+			for (BusinessHour b: businessHours) {
+				if (getWeekdayFromDate(Date.valueOf(startDate)) == b.getDayOfWeek()) {
+					availableTSlots.add(new TimeSlot(
+											Date.valueOf(startDate), 
+											b.getStartTime(),
+											Date.valueOf(startDate),
+											b.getEndTime(),
+											flexiBook));
 				}
 			}
 			
+			
+			while (!isDatesEqual(currentDate, Date.valueOf(endDate))) { 
+				currentDate = addDayToDate(currentDate, 1);
+				for (BusinessHour b: businessHours) {
+					if (getWeekdayFromDate(Date.valueOf(startDate)) == b.getDayOfWeek()) {
+						availableTSlots.add(new TimeSlot(
+												Date.valueOf(startDate), 
+												b.getStartTime(),
+												Date.valueOf(startDate),
+												b.getEndTime(),
+												flexiBook));
+					}
+				}
+				
+			}
 		}
+		
+		
+		for (TimeSlot t: availableTSlots) {
+			System.out.println("***" + t.getStartDate()+ " " + t.getEndDate() + " " + t.getStartTime() + " " + t.getEndTime());
+		}
+		
+		/* Find available time slots
+		for (Appointment a : appointmentsToView) {
+			
+			
+			
+			
+			
+		} */
+		
+		
+		/* try {
 		
 		for (Appointment a : appointmentsToView) {
 				TimeSlot aptTS = a.getTimeSlot();
 				BookableService aptBService = a.getBookableService();
 				
 				if (aptBService instanceof Service) {
+					System.out.println("A");
 					firstTS = new TimeSlot(
 							aptTS.getStartDate(), 
 							aptTS.getStartTime(), 
@@ -487,44 +552,62 @@ public class FlexiBookController {
 							addMinToTime(aptTS.getStartTime(), ((Service) aptBService).getDowntimeStart()), 
 							flexiBook);
 					
-					secondTS = new TimeSlot(
-							aptTS.getStartDate(), 
-							addMinToTime(aptTS.getStartTime(), ((Service) aptBService).getDowntimeStart() + ((Service) aptBService).getDowntimeDuration()),
-							aptTS.getEndDate(), 
-							aptTS.getEndTime(), 
-							flexiBook);
-				
 					busyTSlots.add(firstTS);
-					busyTSlots.add(secondTS);
+					
+					if (((Service) aptBService).getDowntimeStart() != 0) {
+						secondTS = new TimeSlot(
+								aptTS.getStartDate(), 
+								addMinToTime(aptTS.getStartTime(), ((Service) aptBService).getDowntimeStart() + ((Service) aptBService).getDowntimeDuration()),
+								aptTS.getEndDate(), 
+								aptTS.getEndTime(), 
+								flexiBook);
+						
+						busyTSlots.add(secondTS);
+					}
+					
+				
+					
+					
 				}
 				else { 
-					
+				System.out.println("B");
 					Time lastServiceEndTime = aptTS.getStartTime();
 					for (ComboItem c : ((ServiceCombo) aptBService).getServices()) {
 						Service service = c.getService();
 						
+						if (service.getDowntimeDuration() == 0) {
+							busyTSlots.add(new TimeSlot (aptTS.getStartDate(), lastServiceEndTime, aptTS.getEndDate(), addMinToTime(lastServiceEndTime, service.getDuration()), flexiBook));
+						}
+						else {
 						firstTS = new TimeSlot(
 								aptTS.getStartDate(), 
 								lastServiceEndTime, 
 								aptTS.getEndDate(), 
 								addMinToTime(lastServiceEndTime, service.getDowntimeStart()),
 								flexiBook);
-						
+						busyTSlots.add(firstTS);
+											
 						secondTS = new TimeSlot(
 								aptTS.getStartDate(), 
 								addMinToTime(addMinToTime(lastServiceEndTime, service.getDowntimeStart()), service.getDowntimeDuration()), 
 								aptTS.getEndDate(), 
 								addMinToTime(lastServiceEndTime, service.getDuration()), 
 								flexiBook);
-						
-						busyTSlots.add(firstTS);
+					
 						busyTSlots.add(secondTS);
+						}
 						
 						lastServiceEndTime = addMinToTime(lastServiceEndTime, service.getDuration());
 					}
 				
 				}
 		}
+		
+		}
+		catch (ParseException e) {
+			
+		} */
+		
 		
 		
 		return busyTSlots;
@@ -535,12 +618,18 @@ public class FlexiBookController {
 	 * @author sarah
 	 * @param time time to add minutes to
 	 * @param minutes number of minutes
+	 * @throws ParseException 
 	 */	
-	private static Time addMinToTime (Time time, int minutes) {
-		 LocalTime lTime = time.toLocalTime();
-		 lTime.plusMinutes(minutes);
+	private static Time addMinToTime (Time time, int minutes) throws ParseException {
+		 String sTime = time.toString();
+		 SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+		 Calendar c = Calendar.getInstance();
 		 
-		 return Time.valueOf(lTime);
+		 c.setTime(df.parse(sTime));
+		 c.add(Calendar.MINUTE, minutes);  
+		 sTime = df.format(c.getTime());  
+		 
+		 return FlexiBookUtil.getTimeFromString(sTime);
 	}
 	
 	/**
@@ -549,10 +638,19 @@ public class FlexiBookController {
 	 * @param days number of days
 	 */	
 	private static Date addDayToDate (Date date, int days) {
-		 LocalDate lDate = date.toLocalDate();
-		 lDate.plusDays(days);
+		 String sDate = date.toString();
+		 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		 Calendar c = Calendar.getInstance();
+		 try {
+			c.setTime(sdf.parse(sDate));
+		 } catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		 }
+		 c.add(Calendar.DATE, days);  // number of days to add
+		 sDate = sdf.format(c.getTime());  
 		 
-		 return Date.valueOf(lDate);
+		 return Date.valueOf(sDate);
 	}
 	
 	/**
@@ -571,6 +669,37 @@ public class FlexiBookController {
 		}
 	
 		return true;
+	}
+	
+	private static boolean isDatesEqual(Date date1, Date date2) {
+	    SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+	    return fmt.format(date1).equals(fmt.format(date2));
+	}
+	
+	private static BusinessHour.DayOfWeek getWeekdayFromDate (Date date) {
+        
+ 
+        SimpleDateFormat simpleDateformat = new SimpleDateFormat("EEEE"); // the day of the week spelled out completely
+        String weekday = simpleDateformat.format(date);
+        
+        switch (weekday) {
+        case "Monday":
+        	return BusinessHour.DayOfWeek.Monday;
+        case "Tuesday":
+        	return BusinessHour.DayOfWeek.Tuesday;
+        case "Wednesday":
+        	return BusinessHour.DayOfWeek.Wednesday;
+        case "Thursday":
+        	return BusinessHour.DayOfWeek.Thursday;
+        case "Friday":
+        	return BusinessHour.DayOfWeek.Friday;
+        case "Saturday":
+        	return BusinessHour.DayOfWeek.Saturday;
+        case "Sunday":
+        	return BusinessHour.DayOfWeek.Sunday;
+        default:
+        	return null;
+        }
 	}
 	
 }

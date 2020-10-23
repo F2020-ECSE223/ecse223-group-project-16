@@ -8,6 +8,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.ParseException;
@@ -542,12 +543,17 @@ public class CucumberStepDefinitions {
 	@When("{string} requests the appointment calendar for the week starting on {string}")
 	public void requests_the_appointment_calendar_for_the_week_starting_on(String string, String string2) {
 		try {
-			 LocalDate lDate = LocalDate.parse(string);
-			 lDate.plusDays(7);
+			 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			 Calendar c = Calendar.getInstance();
+			 c.setTime(sdf.parse(string2));
+			 c.add(Calendar.DATE, 7);  // number of days to add
+			 String endDate = sdf.format(c.getTime());  
 			 
-			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2, lDate.toString());
+			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2, endDate);
 		}
 		catch (InvalidInputException e) { 
+			exception = e;
+		} catch (ParseException e) {
 			exception = e;
 		}
 	}
@@ -562,9 +568,15 @@ public class CucumberStepDefinitions {
 		for (Map<String, String> columns : rows) {
 			for (TimeSlot t: unavailableTimeSlots) {
 				 if (columns.get("date").equals(t.getStartDate().toString())) {
-					 boolean endTimes = t.getEndTime().before(Time.valueOf(columns.get("endTime")));
-					 boolean startTimes = t.getStartTime().after(Time.valueOf(columns.get("startTime")));
-					 assertTrue(endTimes || startTimes);
+					 try {
+						 boolean endTimes = t.getEndTime().before(FlexiBookUtil.getTimeFromString(columns.get("endTime")));
+						 boolean startTimes = t.getStartTime().after(FlexiBookUtil.getTimeFromString(columns.get("startTime")));
+						 assertTrue(endTimes || startTimes);
+					 }
+					 catch (ParseException e) {
+						 exception = e;
+					 }
+					 
 				 }
 			}
 		}
@@ -581,9 +593,15 @@ public class CucumberStepDefinitions {
 		for (Map<String, String> columns : rows) {
 			for (TimeSlot t: unavailableTimeSlots) {
 				 if (columns.get("date").equals(t.getStartDate().toString())) {
-					 boolean endTimes = t.getEndTime().before(Time.valueOf(columns.get("endTime")));
-					 boolean startTimes = t.getStartTime().after(Time.valueOf(columns.get("startTime")));
-					 assertTrue(!(endTimes || startTimes));
+					 try {
+						 boolean endTimes = t.getEndTime().before(FlexiBookUtil.getTimeFromString(columns.get("endTime")));
+						 boolean startTimes = t.getStartTime().after(FlexiBookUtil.getTimeFromString(columns.get("startTime")));
+						 assertTrue(!(endTimes || startTimes));
+					 }
+					 catch (ParseException e) {
+						 exception = e;
+					 }
+					 
 				 }
 			}
 		}

@@ -978,7 +978,6 @@ public class CucumberStepDefinitions {
 		try {
 			FlexiBookController.removeTimeSlot(string, string2, string3, string4, string5);
 		} catch (InvalidInputException e) {
-			System.out.println(e);
 			exception = e;
 		}	
 	}
@@ -993,7 +992,7 @@ public class CucumberStepDefinitions {
 			}
 		}
 		else {
-			if (string.equals("holidays")) {
+			if (string.equals("holiday")) {
 				assertEquals(numberOfHolidays, flexiBook.getBusiness().getHolidays().size());
 			}
 			else {

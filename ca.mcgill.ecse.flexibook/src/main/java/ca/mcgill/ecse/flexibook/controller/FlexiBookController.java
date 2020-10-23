@@ -580,10 +580,9 @@ public class FlexiBookController {
 		if (!prevDay.equals(newDay)) {
 			throw new InvalidInputException("The business hours cannot overlap");
 		}
-		for (BusinessHour bh : new ArrayList<>(FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours())) {
+		for (BusinessHour bh : FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()) {
 			if (newDay.equals(bh.getDayOfWeek().toString())) {
-				FlexiBookApplication.getFlexiBook().getBusiness().removeBusinessHour(bh);
-				//bh.delete();
+				bh.delete();
 			}
 		}
 		BusinessHour aNewBusinessHour = new BusinessHour(BusinessHour.DayOfWeek.valueOf(newDay), 
@@ -681,21 +680,16 @@ public class FlexiBookController {
 		if (vacationOrHoliday.equals("holiday")) {
 			for(TimeSlot ts: FlexiBookApplication.getFlexiBook().getBusiness().getHolidays()) {	
 				if (startDate.equals(ts.getStartDate().toString())) {
-					if ((startTime+":00").equals(ts.getStartTime().toString())) {
-						System.out.println("delete");
-						ts.delete();
-					}
+					System.out.println("delete");
+					ts.delete();
 				}
 			}
 		}
 		else {
 			for(TimeSlot ts: FlexiBookApplication.getFlexiBook().getBusiness().getVacation()) {
-				System.out.println("delete");
 				if (startDate.equals(ts.getStartDate().toString())) {
-					if ((startTime+":00").equals(ts.getStartTime().toString())) {
-						System.out.println("delete");
-						ts.delete();
-					}
+					System.out.println("delete");
+					ts.delete();
 				}
 			}
 		}

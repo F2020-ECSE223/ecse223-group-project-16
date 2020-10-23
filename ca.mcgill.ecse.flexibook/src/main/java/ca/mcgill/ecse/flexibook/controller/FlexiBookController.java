@@ -5,6 +5,7 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.List;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
@@ -418,7 +419,6 @@ public class FlexiBookController {
 	/**
 	 * @author: Julie
 	 */
-	// SOMETHING WRONG WITH FOR LOOP
 	public static void addNewBusinessHour(String day, String startTime, String endTime) throws InvalidInputException {
 		if (FlexiBookApplication.getFlexiBook().getOwner() != FlexiBookApplication.getCurrentUser()) {
 			throw new InvalidInputException("No permission to update business information");
@@ -580,9 +580,10 @@ public class FlexiBookController {
 		if (!prevDay.equals(newDay)) {
 			throw new InvalidInputException("The business hours cannot overlap");
 		}
-		for (BusinessHour bh : FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()) {
+		for (BusinessHour bh : new ArrayList<>(FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours())) {
 			if (newDay.equals(bh.getDayOfWeek().toString())) {
-				bh.delete();
+				FlexiBookApplication.getFlexiBook().getBusiness().removeBusinessHour(bh);
+				//bh.delete();
 			}
 		}
 		BusinessHour aNewBusinessHour = new BusinessHour(BusinessHour.DayOfWeek.valueOf(newDay), 

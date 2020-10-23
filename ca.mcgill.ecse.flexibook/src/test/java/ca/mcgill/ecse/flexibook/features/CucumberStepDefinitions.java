@@ -767,6 +767,7 @@ public class CucumberStepDefinitions {
 					Time.valueOf(LocalTime.of(Integer.parseInt(string5.substring(0,2)), Integer.parseInt(string5.substring(3,5)))),
 					flexiBook);
 			flexiBook.getBusiness().addVacation(aTimeSlot);
+
 		}
 		if (string.equals("holiday")) {
 			TimeSlot aTimeSlot  = new  TimeSlot(Date.valueOf(LocalDate.of(Integer.parseInt(string2.substring(0,4)), Month.of(Integer.parseInt(string2.substring(5,7))), Integer.parseInt(string2.substring(8,10)))), 
@@ -861,9 +862,9 @@ public class CucumberStepDefinitions {
 				prevDay = bh.getDayOfWeek().toString();
 				prevStartTime = bh.getStartTime().toString();
 				prevEndTime = bh.getEndTime().toString();
-				newDay = string;
-				newStartTime = string4;
-				newEndTime = string5;
+				newDay = string+":00";
+				newStartTime = string4+":00";
+				newEndTime = string5+":00";
 			}
 		}
 		try {

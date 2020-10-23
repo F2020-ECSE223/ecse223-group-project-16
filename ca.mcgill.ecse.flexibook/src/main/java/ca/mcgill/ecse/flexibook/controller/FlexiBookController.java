@@ -478,7 +478,7 @@ public class FlexiBookController {
 			}
 		}
 		
-		// Get available time slots from business hours
+		/* Get available time slots from business hours
 		for (BusinessHour b: businessHours) {
 			if (getWeekdayFromDate(Date.valueOf(startDate)) == b.getDayOfWeek()) {
 				availableTSlots.add(new TimeSlot(
@@ -487,45 +487,81 @@ public class FlexiBookController {
 										Date.valueOf(startDate),
 										b.getEndTime(),
 										flexiBook));
-				
+				break; 
 			}
 		}
 		
-		
 		if (endDate != null) {
 			Date currentDate = Date.valueOf(startDate);
-			for (BusinessHour b: businessHours) {
-				if (getWeekdayFromDate(Date.valueOf(startDate)) == b.getDayOfWeek()) {
-					availableTSlots.add(new TimeSlot(
-											Date.valueOf(startDate), 
-											b.getStartTime(),
-											Date.valueOf(startDate),
-											b.getEndTime(),
-											flexiBook));
-				}
-			}
-			
-			
 			while (!isDatesEqual(currentDate, Date.valueOf(endDate))) { 
 				currentDate = addDayToDate(currentDate, 1);
 				for (BusinessHour b: businessHours) {
-					if (getWeekdayFromDate(Date.valueOf(startDate)) == b.getDayOfWeek()) {
+					if (getWeekdayFromDate(currentDate) == b.getDayOfWeek()) {
 						availableTSlots.add(new TimeSlot(
-												Date.valueOf(startDate), 
+												currentDate, 
 												b.getStartTime(),
-												Date.valueOf(startDate),
+												currentDate,
 												b.getEndTime(),
 												flexiBook));
+					    break;
 					}
 				}
 				
 			}
+		} */
+		
+		// Then subtract downtimes from the busy time slots
+		int newDuration = 0;
+		for (Appointment a: appointmentsToView) {
+			TimeSlot aptTS = a.getTimeSlot();
+			BookableService aptBService = a.getBookableService();
+			List<ComboItem> comboItems = ((ServiceCombo) aptBService).getServices();
+			int counter = 0;
+			
+			if (aptBService instanceof ServiceCombo) {
+				for (ComboItem c: comboItems) {
+					counter++;
+					Service service = c.getService();
+					if (service.getDowntimeDuration() == 0) {
+						if (counter == comboItems.size()) {
+							busyTSlots.add(new TimeSlot (aptTS.getStartDate(), aptTS.getStartTime(), aptTS.getEndDate(), aptTS.getEndTime(), flexiBook));
+						}
+						else {
+							newDuration += service.getDuration();
+						}
+						
+					}
+					else {
+						try {
+							busyTSlots.add(new TimeSlot (
+									           aptTS.getStartDate(),
+									           aptTS.getStartTime(),
+									           aptTS.getEndDate(), 
+									           addMinToTime(aptTS.getStartTime(), newDuration + service.getDowntimeStart()),
+									           flexiBook));
+							
+							busyTSlots.add(new TimeSlot (
+							           aptTS.getStartDate(),
+							           addMinToTime(addMinToTime(aptTS.getStartTime(), newDuration + service.getDowntimeStart()), 
+							        		   										   service.getDowntimeDuration()),
+							           aptTS.getEndDate(), 
+							           aptTS.getEndTime(),
+							           flexiBook));
+						    break;
+					
+							
+						}
+						catch (ParseException e) {
+							
+						}
+					}
+				}
+			} 
+			else {
+				
+			}
 		}
 		
-		
-		for (TimeSlot t: availableTSlots) {
-			System.out.println("***" + t.getStartDate()+ " " + t.getEndDate() + " " + t.getStartTime() + " " + t.getEndTime());
-		}
 		
 		/* Find available time slots
 		for (Appointment a : appointmentsToView) {
@@ -537,76 +573,94 @@ public class FlexiBookController {
 		} */
 		
 		
-		/* try {
+		//try {
+			
 		
-		for (Appointment a : appointmentsToView) {
-				TimeSlot aptTS = a.getTimeSlot();
-				BookableService aptBService = a.getBookableService();
-				
-				if (aptBService instanceof Service) {
-					System.out.println("A");
-					firstTS = new TimeSlot(
-							aptTS.getStartDate(), 
-							aptTS.getStartTime(), 
-							aptTS.getEndDate(), 
-							addMinToTime(aptTS.getStartTime(), ((Service) aptBService).getDowntimeStart()), 
-							flexiBook);
+		
+			/*for (Appointment a : appointmentsToView) {
+					TimeSlot aptTS = a.getTimeSlot();
+					BookableService aptBService = a.getBookableService();
 					
-					busyTSlots.add(firstTS);
-					
-					if (((Service) aptBService).getDowntimeStart() != 0) {
-						secondTS = new TimeSlot(
-								aptTS.getStartDate(), 
-								addMinToTime(aptTS.getStartTime(), ((Service) aptBService).getDowntimeStart() + ((Service) aptBService).getDowntimeDuration()),
-								aptTS.getEndDate(), 
-								aptTS.getEndTime(), 
-								flexiBook);
-						
-						busyTSlots.add(secondTS);
-					}
-					
-				
-					
-					
-				}
-				else { 
-				System.out.println("B");
-					Time lastServiceEndTime = aptTS.getStartTime();
-					for (ComboItem c : ((ServiceCombo) aptBService).getServices()) {
-						Service service = c.getService();
-						
-						if (service.getDowntimeDuration() == 0) {
-							busyTSlots.add(new TimeSlot (aptTS.getStartDate(), lastServiceEndTime, aptTS.getEndDate(), addMinToTime(lastServiceEndTime, service.getDuration()), flexiBook));
-						}
-						else {
+					if (aptBService instanceof Service) {
 						firstTS = new TimeSlot(
 								aptTS.getStartDate(), 
-								lastServiceEndTime, 
+								aptTS.getStartTime(), 
 								aptTS.getEndDate(), 
-								addMinToTime(lastServiceEndTime, service.getDowntimeStart()),
+								addMinToTime(aptTS.getStartTime(), ((Service) aptBService).getDowntimeStart()), 
 								flexiBook);
+						
 						busyTSlots.add(firstTS);
-											
-						secondTS = new TimeSlot(
-								aptTS.getStartDate(), 
-								addMinToTime(addMinToTime(lastServiceEndTime, service.getDowntimeStart()), service.getDowntimeDuration()), 
-								aptTS.getEndDate(), 
-								addMinToTime(lastServiceEndTime, service.getDuration()), 
-								flexiBook);
-					
-						busyTSlots.add(secondTS);
+						
+						if (((Service) aptBService).getDowntimeStart() != 0) {
+							secondTS = new TimeSlot(
+									aptTS.getStartDate(), 
+									addMinToTime(aptTS.getStartTime(), ((Service) aptBService).getDowntimeStart() + ((Service) aptBService).getDowntimeDuration()),
+									aptTS.getEndDate(), 
+									aptTS.getEndTime(), 
+									flexiBook);
+							
+							busyTSlots.add(secondTS);
 						}
 						
-						lastServiceEndTime = addMinToTime(lastServiceEndTime, service.getDuration());
+					
+						
+						
 					}
-				
-				}
-		}
+					else { 
+						Time lastServiceEndTime = aptTS.getStartTime();
+						for (ComboItem c : ((ServiceCombo) aptBService).getServices()) {
+							Service service = c.getService();
+							
+							busyTSlots.add(new TimeSlot (aptTS.getStartDate(), aptTS.getStartTime(), aptTS.getEndDate(), aptTS.getEndTime(), flexiBook));
+							
+							/*if (service.getDowntimeDuration() == 0) {
+								
+								//busyTSlots.add(new TimeSlot (aptTS.getStartDate(), lastServiceEndTime, aptTS.getEndDate(), addMinToTime(lastServiceEndTime, service.getDuration()), flexiBook));
+								//System.out.println("**" + aptTS.getStartDate() + " " + lastServiceEndTime + " " + aptTS.getEndDate() + " " + addMinToTime(lastServiceEndTime, service.getDuration()));
+							}
+							else {
+								firstTS = new TimeSlot(
+										aptTS.getStartDate(), 
+										lastServiceEndTime, 
+										aptTS.getEndDate(), 
+										addMinToTime(lastServiceEndTime, service.getDowntimeStart()),
+										flexiBook);
+								busyTSlots.add(firstTS);
+													
+								System.out.println("*" + firstTS.getStartDate() + " " + firstTS.getEndDate() + " " + firstTS.getStartTime() + " " + firstTS.getEndTime());
+								
+								secondTS = new TimeSlot(
+										aptTS.getStartDate(), 
+										addMinToTime(addMinToTime(lastServiceEndTime, service.getDowntimeStart()), service.getDowntimeDuration()), 
+										aptTS.getEndDate(), 
+										addMinToTime(lastServiceEndTime, service.getDuration()), 
+										flexiBook);
+							
+								busyTSlots.add(secondTS);
+							}
+							
+							T
+							
+							
+							lastServiceEndTime = addMinToTime(lastServiceEndTime, service.getDuration());
+						}
+					
+					}
+			       } 
+					
+			} */
 		
-		}
-		catch (ParseException e) {
+		//}
+		//catch (ParseException e) {
 			
-		} */
+		//} 
+		
+		/*for (TimeSlot t: availableTSlots) {
+			System.out.println("***" + t.getStartDate() + " " + t.getEndDate() + " " + t.getStartTime() + " " + t.getEndTime());
+		}*/
+		for (TimeSlot t: busyTSlots) {
+			System.out.println("*" + t.getStartDate() + " " + t.getEndDate() + " " + t.getStartTime() + " " + t.getEndTime());
+		}
 		
 		
 		
@@ -672,7 +726,7 @@ public class FlexiBookController {
 	}
 	
 	private static boolean isDatesEqual(Date date1, Date date2) {
-	    SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+	    SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
 	    return fmt.format(date1).equals(fmt.format(date2));
 	}
 	
@@ -700,6 +754,31 @@ public class FlexiBookController {
         default:
         	return null;
         }
+	}
+	
+	private static boolean isHoliday (Date date) {
+		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
+		List<Date> holidayDates = new ArrayList<Date>();
+		
+		
+			for (TimeSlot x: flexiBook.getBusiness().getHolidays()) {
+				holidayDates.add(x.getStartDate());
+				if (!isDatesEqual(x.getStartDate(), x.getEndDate())) {
+					holidayDates.add(x.getEndDate());
+				}
+			}
+			
+		
+		
+		for (Date d: holidayDates) {
+			System.out.println(d + " " + date);
+			System.out.println(isDatesEqual(d, date));
+			if (isDatesEqual(d, date)) {
+				return true;
+			}
+		}
+		return false;
+		
 	}
 	
 }

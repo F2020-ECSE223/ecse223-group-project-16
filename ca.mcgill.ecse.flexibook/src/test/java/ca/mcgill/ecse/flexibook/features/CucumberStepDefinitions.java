@@ -589,14 +589,19 @@ public class CucumberStepDefinitions {
 	@Then("the following slots shall be unavailable:")
 	public void the_following_slots_shall_be_unavailable(io.cucumber.datatable.DataTable dataTable) {
 		List<Map<String, String>> rows = dataTable.asMaps();
-
+		boolean isMatch;
+		
 		for (Map<String, String> columns : rows) {
+			isMatch = false;
 			for (TimeSlot t: unavailableTimeSlots) {
 				 if (columns.get("date").equals(t.getStartDate().toString())) {
 					 try {
-						 boolean endTimes = t.getEndTime().before(FlexiBookUtil.getTimeFromString(columns.get("endTime")));
-						 boolean startTimes = t.getStartTime().after(FlexiBookUtil.getTimeFromString(columns.get("startTime")));
-						 assertTrue(!(endTimes || startTimes));
+						 SimpleDateFormat fmt = new SimpleDateFormat("HH:mm");
+						 boolean endTimes = fmt.format(t.getEndTime()).equals(fmt.format(FlexiBookUtil.getTimeFromString(columns.get("endTime"))));
+						 boolean startTimes = fmt.format(t.getStartTime()).equals(fmt.format(FlexiBookUtil.getTimeFromString(columns.get("startTime"))));
+						 if (endTimes && startTimes) {
+							 isMatch = true;
+						 }
 					 }
 					 catch (ParseException e) {
 						 exception = e;
@@ -604,6 +609,7 @@ public class CucumberStepDefinitions {
 					 
 				 }
 			}
+			assertTrue(isMatch);
 		}
 		
 	}

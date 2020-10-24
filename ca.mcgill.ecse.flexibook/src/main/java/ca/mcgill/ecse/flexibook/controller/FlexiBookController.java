@@ -1,8 +1,11 @@
 package ca.mcgill.ecse.flexibook.controller;
 
+import java.sql.Date;
 import java.sql.Time;
 import java.text.ParseException;
-import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -946,7 +949,360 @@ public class FlexiBookController {
 	public static void logout() {
 		FlexiBookApplication.unsetCurrentUser();
 	}
-
+	/** 
+	 * @author Julie
+	 */
+	private static void validateBusinessInfo(String name, String address, String phoneNumber, String email) throws InvalidInputException{
+		if (name == null || name.isEmpty()) {
+			throw new InvalidInputException("Invalid business name");
+		}
+		if (address == null || address.isEmpty()) {
+			throw new InvalidInputException("Invalid address");
+		}
+		if (phoneNumber == null || phoneNumber.isEmpty()) {
+			throw new InvalidInputException("Invalid phone number");
+		}
+		if (email == null || email.isEmpty() || !email.contains("@") || !email.contains(".") || email.contains(" ")) {
+			throw new InvalidInputException("Invalid email");
+		}
+		// check that @ and . are in the correct order
+		String splitEmail[]= email.split("@", 2);
+		if (!splitEmail[1].contains(".")) {
+			throw new InvalidInputException("Invalid email");
+		}
+	}
+	/**
+	 * @author: Julie
+	 * 
+	 * @param name of business to be created
+	 * @param address of business to be created
+	 * @param phone number of business to be created
+	 * @param email of business to be created
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static void setUpBusinessInfo(String name, String address, String phoneNumber, String email) throws InvalidInputException {
+		if (FlexiBookApplication.getFlexiBook().getOwner() != FlexiBookApplication.getCurrentUser()) {
+			throw new InvalidInputException("No permission to set up business information");
+		}
+		validateBusinessInfo(name, address, phoneNumber, email);
+	    Business aNewBusiness = new Business(name, address, phoneNumber, email, FlexiBookApplication.getFlexiBook());
+		FlexiBookApplication.getFlexiBook().setBusiness(aNewBusiness);
+	}
+	/**
+	 * @author: Julie
+	 * 
+	 * @param day of business hour to be added
+	 * @param start time of business hour to be added
+	 * @param end time of business hour to be added
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static void addNewBusinessHour(String day, String startTime, String endTime) throws InvalidInputException {
+		if (FlexiBookApplication.getFlexiBook().getOwner() != FlexiBookApplication.getCurrentUser()) {
+			throw new InvalidInputException("No permission to update business information");
+		}
+		if (Integer.parseInt(startTime.substring(0,2)+startTime.substring(3,5)) >= Integer.parseInt(endTime.substring(0,2)+endTime.substring(3,5))) {
+			throw new InvalidInputException("Start time must be before end time");
+		}
+		for (BusinessHour bh : FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()) {
+			if (day.equals(bh.getDayOfWeek().toString())) {
+				throw new InvalidInputException("The business hours cannot overlap");
+			}
+		}
+		BusinessHour aNewBusinessHour = new BusinessHour(BusinessHour.DayOfWeek.valueOf(day), 
+				Time.valueOf(LocalTime.of(Integer.valueOf(startTime.substring(0,2)), Integer.valueOf(startTime.substring(3,5)))), 
+				Time.valueOf(LocalTime.of(Integer.valueOf(endTime.substring(0,2)), Integer.valueOf(endTime.substring(3,5)))), 
+				FlexiBookApplication.getFlexiBook());
+		FlexiBookApplication.getFlexiBook().getBusiness().addBusinessHour(aNewBusinessHour);
+	}
+	/**
+	 * @author: Julie
+	 * 
+	 * @return basic business information
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static Business viewBusinessInfo() {
+		return FlexiBookApplication.getFlexiBook().getBusiness();
+	}
+	/**
+	 * @author: Julie
+	 */
+	private static void validateTimeSlot(String vacationOrHoliday, String startDate, String startTime, String endDate, String endTime) throws InvalidInputException {
+		Date convertedStartDate = null;
+		Date convertedEndDate = null;
+		try {
+			convertedStartDate = FlexiBookUtil.getDateFromString(startDate);
+			convertedEndDate = FlexiBookUtil.getDateFromString(endDate);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (FlexiBookApplication.getFlexiBook().getOwner() != FlexiBookApplication.getCurrentUser()) {
+			throw new InvalidInputException("No permission to update business information");
+		}
+		if (convertedStartDate.after(convertedEndDate)) {
+			throw new InvalidInputException("Start time must be before end time");
+		}
+	}
+	/**
+	 * @author Julie
+	 * 
+	 * @param vacationOrHoliday
+	 * @param startDate
+	 * @param startTime
+	 * @param endDate
+	 * @param endTime
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static void addNewTimeSlot(String vacationOrHoliday, String startDate, String startTime, String endDate, String endTime) throws InvalidInputException {
+		Date convertedStartDate = null;
+		Time convertedStartTime = null;
+		Date convertedEndDate = null;
+		Time convertedEndTime = null;
+		try {
+			convertedStartDate = FlexiBookUtil.getDateFromString(startDate);
+			convertedStartTime = FlexiBookUtil.getTimeFromString(startTime);
+			convertedEndDate = FlexiBookUtil.getDateFromString(endDate);
+			convertedEndTime = FlexiBookUtil.getTimeFromString(endTime);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (convertedStartDate.before(SystemTime.getDate())) {
+			if (vacationOrHoliday.equals("vacation")) {
+				throw new InvalidInputException("Vacation cannot start in the past");
+			} else {
+				throw new InvalidInputException("Holiday cannot start in the past");
+			}
+		}
+		validateTimeSlot(vacationOrHoliday, startDate, startTime, endDate, endTime);
+		for (TimeSlot ts : FlexiBookApplication.getFlexiBook().getBusiness().getVacation()) {
+			if ((convertedEndDate.after(ts.getStartDate()) && convertedStartDate.before(ts.getEndDate())) ||
+				(convertedEndDate.equals(ts.getStartDate()) && convertedEndTime.after(ts.getStartTime())) ||
+				(convertedStartDate.equals(ts.getEndDate()) && convertedStartTime.before(ts.getEndTime()))) {
+				if (vacationOrHoliday.equals("vacation")) {
+					throw new InvalidInputException("Vacation times cannot overlap");
+				} else {
+					throw new InvalidInputException("Holiday and vacation times cannot overlap");
+				}
+			}
+		}
+		for (TimeSlot ts : FlexiBookApplication.getFlexiBook().getBusiness().getHolidays()) {
+			if ((convertedEndDate.after(ts.getStartDate()) && convertedStartDate.before(ts.getEndDate())) ||
+				(convertedStartDate.equals(ts.getStartDate()) && convertedStartTime.before(ts.getEndTime())) ||
+				(convertedEndDate.equals(ts.getEndDate()) && convertedEndTime.after(ts.getStartDate()))) {
+				if (vacationOrHoliday.equals("holiday")) {
+					throw new InvalidInputException("Holiday times cannot overlap");
+				} else {
+					throw new InvalidInputException("Holiday and vacation times cannot overlap");
+				}
+			}
+		}
+		TimeSlot aNewTimeSlot = new TimeSlot(Date.valueOf(LocalDate.of(Integer.parseInt(startDate.substring(0,4)), Month.of(Integer.parseInt(startDate.substring(5,7))), Integer.parseInt(startDate.substring(8,10)))), 
+				Time.valueOf(LocalTime.of(Integer.parseInt(startTime.substring(0,2)), Integer.parseInt(startTime.substring(3,5)))), 
+				Date.valueOf(LocalDate.of(Integer.parseInt(endDate.substring(0,4)), Month.of(Integer.parseInt(endDate.substring(5,7))), Integer.parseInt(endDate.substring(8,10)))),
+				Time.valueOf(LocalTime.of(Integer.parseInt(endTime.substring(0,2)), Integer.parseInt(endTime.substring(3,5)))),
+				FlexiBookApplication.getFlexiBook());
+		if (vacationOrHoliday.equals("holiday")) {
+			FlexiBookApplication.getFlexiBook().getBusiness().addHoliday(aNewTimeSlot);
+		}
+		else {
+			FlexiBookApplication.getFlexiBook().getBusiness().addVacation(aNewTimeSlot);
+		}
+	}
+	/**
+	 * @author Julie
+	 * 
+	 * @param business name to be updated
+	 * @param business address to be updated
+	 * @param business phoneNumber to be updated
+	 * @param business email to be updated
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static void updateBusinessInfo(String name, String address, String phoneNumber, String email) throws InvalidInputException {
+		if (FlexiBookApplication.getFlexiBook().getOwner() != FlexiBookApplication.getCurrentUser()) {
+			throw new InvalidInputException("No permission to update business information");
+		}
+		validateBusinessInfo(name, address, phoneNumber, email);
+		FlexiBookApplication.getFlexiBook().getBusiness().delete();
+	    Business aNewBusiness = new Business(name, address, phoneNumber, email, FlexiBookApplication.getFlexiBook());
+		FlexiBookApplication.getFlexiBook().setBusiness(aNewBusiness);
+	}
+	/**
+	 * @author Julie
+	 * 
+	 * @param previous day of a business hour
+	 * @param previous startTime of a business hour
+	 * @param new day of a business hour
+	 * @param new startTime of a business hour
+	 * @param new endTime of a business hour
+	 * 
+	 * @throws InvalidInputException
+	 * @throws ParseException
+	 */
+	public static void updateBusinessHour(String prevDay, String prevStartTime, String newDay, String newStartTime, String newEndTime) throws InvalidInputException {
+		if (FlexiBookApplication.getFlexiBook().getOwner() != FlexiBookApplication.getCurrentUser()) {
+			throw new InvalidInputException("No permission to update business information");
+		}
+		try {
+			if (FlexiBookUtil.getTimeFromString(newStartTime).after(FlexiBookUtil.getTimeFromString(newEndTime)) ||
+					FlexiBookUtil.getTimeFromString(newStartTime).equals(FlexiBookUtil.getTimeFromString(newEndTime))) {
+				throw new InvalidInputException("Start time must be before end time");
+			}
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (!prevDay.equals(newDay)) {
+			throw new InvalidInputException("The business hours cannot overlap");
+		}
+		for (BusinessHour bh : new ArrayList <> (FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours())) {
+			if (newDay.equals(bh.getDayOfWeek().toString())) {
+				FlexiBookApplication.getFlexiBook().getBusiness().removeBusinessHour(bh);
+			}
+		}
+		BusinessHour aNewBusinessHour = new BusinessHour(BusinessHour.DayOfWeek.valueOf(newDay), 
+				Time.valueOf(LocalTime.of(Integer.valueOf(newStartTime.substring(0,2)), Integer.valueOf(newStartTime.substring(3,5)))), 
+				Time.valueOf(LocalTime.of(Integer.valueOf(newEndTime.substring(0,2)), Integer.valueOf(newEndTime.substring(3,5)))), 
+				FlexiBookApplication.getFlexiBook());
+		FlexiBookApplication.getFlexiBook().getBusiness().addBusinessHour(aNewBusinessHour);
+	}
+	/**
+	 * @author Julie
+	 * 
+	 * @param day of business hour to be deleted
+	 * @param startTime of business hour to be deleted
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static void removeBusinessHour(String day, String startTime) throws InvalidInputException {
+		Time startTime2 = null;
+		try {
+			startTime2 = FlexiBookUtil.getTimeFromString(startTime);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (FlexiBookApplication.getFlexiBook().getOwner() != FlexiBookApplication.getCurrentUser()) {
+			throw new InvalidInputException("No permission to update business information");
+		}
+		for (BusinessHour bh : new ArrayList <> (FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours())) {
+			if (day.equals(bh.getDayOfWeek().toString()) && startTime2.equals(bh.getStartTime())) {
+				FlexiBookApplication.getFlexiBook().getBusiness().removeBusinessHour(bh);
+			}
+		}
+	}
+	/**
+	 * @author Julie
+	 * 
+	 * @param time slot type (vacation or holiday)
+	 * @param previous startDate of time slot
+	 * @param previous startTime of the time slot
+	 * @param new startDate of the time slot
+	 * @param new startTime of the time slot
+	 * @param new endDate of the time slot
+	 * @param new endTime of the time slot
+	 * 
+	 * @throws InvalidInputException
+	 * @throws ParseException
+	 */
+	public static void updateTimeSlot(String vacationOrHoliday, String prevStartDate, String prevStartTime, String newStartDate, String newStartTime, String newEndDate, String newEndTime) throws InvalidInputException {
+		Date convertedNewStartDate = null;
+		Time convertedNewStartTime = null;
+		Date convertedNewEndDate = null;
+		Time convertedNewEndTime = null;
+		try {
+			convertedNewStartDate = FlexiBookUtil.getDateFromString(newStartDate);
+			convertedNewStartTime = FlexiBookUtil.getTimeFromString(newStartTime);
+			convertedNewEndDate = FlexiBookUtil.getDateFromString(newEndDate);
+			convertedNewEndTime = FlexiBookUtil.getTimeFromString(newEndTime);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (convertedNewStartDate.before(SystemTime.getDate())) {
+			if (vacationOrHoliday.equals("vacation")) {
+				throw new InvalidInputException("Vacation cannot start in the past");
+			} else {
+				throw new InvalidInputException("Holiday cannot be in the past");
+			}
+		}
+		validateTimeSlot(vacationOrHoliday, newStartDate, newStartTime, newEndDate, newEndTime);
+		for (TimeSlot ts : FlexiBookApplication.getFlexiBook().getBusiness().getHolidays()) {
+			if ((convertedNewEndDate.after(ts.getStartDate()) && convertedNewStartDate.before(ts.getEndDate())) ||
+				(convertedNewStartDate.equals(ts.getStartDate()) && convertedNewStartTime.before(ts.getEndTime())) ||
+				(convertedNewEndDate.equals(ts.getEndDate()) && convertedNewEndTime.after(ts.getStartTime())) ) {
+				throw new InvalidInputException("Holiday and vacation times cannot overlap");
+			}
+		}
+		for (TimeSlot ts : FlexiBookApplication.getFlexiBook().getBusiness().getVacation()) {
+			if ((convertedNewEndDate.after(ts.getStartDate()) && convertedNewStartDate.before(ts.getEndDate())) ||
+				(convertedNewStartDate.equals(ts.getStartDate()) && convertedNewStartTime.before(ts.getEndTime())) ||
+				(convertedNewEndDate.equals(ts.getEndDate()) && convertedNewEndTime.after(ts.getStartTime()))) {
+				throw new InvalidInputException("Holiday and vacation times cannot overlap");
+			}
+		}
+		if (vacationOrHoliday.equals("holiday")) {
+			for(TimeSlot ts: new ArrayList <> (FlexiBookApplication.getFlexiBook().getBusiness().getHolidays())) {
+				if (prevStartDate.equals(ts.getStartDate().toString())) {
+					FlexiBookApplication.getFlexiBook().getBusiness().removeHoliday(ts);
+				}
+			}
+			TimeSlot aNewTimeSlot = new TimeSlot(Date.valueOf(LocalDate.of(Integer.parseInt(newStartDate.substring(0,4)), Month.of(Integer.parseInt(newStartDate.substring(5,7))), Integer.parseInt(newStartDate.substring(8,10)))), 
+					Time.valueOf(LocalTime.of(Integer.parseInt(newStartTime.substring(0,2)), Integer.parseInt(newStartTime.substring(3,5)))), 
+					Date.valueOf(LocalDate.of(Integer.parseInt(newEndDate.substring(0,4)), Month.of(Integer.parseInt(newEndDate.substring(5,7))), Integer.parseInt(newEndDate.substring(8,10)))),
+					Time.valueOf(LocalTime.of(Integer.parseInt(newEndTime.substring(0,2)), Integer.parseInt(newEndTime.substring(3,5)))),
+					FlexiBookApplication.getFlexiBook());
+			FlexiBookApplication.getFlexiBook().getBusiness().addHoliday(aNewTimeSlot);
+		}
+		else {
+			for(TimeSlot ts: new ArrayList <> (FlexiBookApplication.getFlexiBook().getBusiness().getVacation())) {
+				if (prevStartDate.equals(ts.getStartDate().toString())) {
+					FlexiBookApplication.getFlexiBook().getBusiness().removeVacation(ts);
+				}
+			}
+			TimeSlot aNewTimeSlot = new TimeSlot(Date.valueOf(LocalDate.of(Integer.parseInt(newStartDate.substring(0,4)), Month.of(Integer.parseInt(newStartDate.substring(5,7))), Integer.parseInt(newStartDate.substring(8,10)))), 
+					Time.valueOf(LocalTime.of(Integer.parseInt(newStartTime.substring(0,2)), Integer.parseInt(newStartTime.substring(3,5)))), 
+					Date.valueOf(LocalDate.of(Integer.parseInt(newEndDate.substring(0,4)), Month.of(Integer.parseInt(newEndDate.substring(5,7))), Integer.parseInt(newEndDate.substring(8,10)))),
+					Time.valueOf(LocalTime.of(Integer.parseInt(newEndTime.substring(0,2)), Integer.parseInt(newEndTime.substring(3,5)))),
+					FlexiBookApplication.getFlexiBook());
+			FlexiBookApplication.getFlexiBook().getBusiness().addVacation(aNewTimeSlot);
+		}
+	}
+	/**
+	 * @author Julie
+	 * 
+	 * @param time slot type (vacation or holiday)
+	 * @param startDate of time slot to be removed
+	 * @param startTime of time slot to be removed
+	 * @param endDate of time slot to be removed
+	 * @param endTIme of time slot to be removed
+	 * 
+	 * @throws InvalidInputException
+	 */
+	public static void removeTimeSlot(String vacationOrHoliday, String startDate, String startTime, String endDate, String endTime) throws InvalidInputException {
+		if (FlexiBookApplication.getFlexiBook().getOwner() != FlexiBookApplication.getCurrentUser()) {
+			throw new InvalidInputException("No permission to update business information");
+		}
+		if (vacationOrHoliday.equals("holiday")) {
+			for(TimeSlot ts: new ArrayList <> (FlexiBookApplication.getFlexiBook().getBusiness().getHolidays())) {	
+				if (startDate.equals(ts.getStartDate().toString())) {
+					FlexiBookApplication.getFlexiBook().getBusiness().removeHoliday(ts);
+				}
+			}
+		}
+		else {
+			for(TimeSlot ts: new ArrayList<> (FlexiBookApplication.getFlexiBook().getBusiness().getVacation())) {
+				if (startDate.equals(ts.getStartDate().toString())) {
+					FlexiBookApplication.getFlexiBook().getBusiness().removeVacation(ts);
+				}
+			}
+		}
+	}
 	private static BusinessHour.DayOfWeek getDayOfWeek(int day){
 		BusinessHour.DayOfWeek[] list = { 
 			BusinessHour.DayOfWeek.Sunday,
@@ -1105,6 +1461,3 @@ public class FlexiBookController {
 		serviceToDelete.delete();
 	}
 }
-
-
-

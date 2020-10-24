@@ -112,7 +112,7 @@ Feature: Update business information
       | owner    | 2020-08-05 | 16:00     | 2020-08-07 | 09:00   | not be | Holiday and vacation times cannot overlap    | be          |
       | User1    | 2020-09-01 | 09:30     | 2020-09-15 | 09:20   | not be | No permission to update business information | be          |
       | owner    | 2020-07-26 | 09:00     | 2020-07-25 | 09:00   | not be | Start time must be before end time           | be          |
-      | owner    | 2020-01-01 | 09:00     | 2020-06-02 | 09:00   | not be | Holiday cannot be in the past                | be          |
+      | owner    | 2020-01-01 | 09:00     | 2020-06-02 | 09:00   | not be | Holiday cannot be in the past             | be          |
 
   Scenario Outline: Remove existing time slot
     Given the user is logged in to an account with username "<username>"
@@ -121,6 +121,8 @@ Feature: Update business information
     Then an error message "No permission to update business information" shall "<result>" be raised
 
     Examples: 
-      | username | result |
-      | owner    | not    |
-      | User1    |        |
+      | username | type     | startDate  | startTime | endDate    | endTime | result |
+      | owner    | vacation | 2020-07-30 | 09:00     | 2020-08-10 | 16:00   | not    |
+      | User1    | vacation | 2020-07-30 | 09:00     | 2020-08-10 | 16:00   |        |
+      | owner    | holiday  | 2020-08-15 | 16:00     | 2020-08-17 | 09:00   | not    |
+      | User1    | holiday  | 2020-08-15 | 16:00     | 2020-08-17 | 09:00   |        |

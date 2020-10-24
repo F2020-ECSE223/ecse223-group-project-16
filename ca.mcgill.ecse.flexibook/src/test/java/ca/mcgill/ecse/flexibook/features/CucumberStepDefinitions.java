@@ -7,11 +7,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -102,14 +104,11 @@ public class CucumberStepDefinitions {
 	@Given("the following customers exist in the system:")
 	public void the_following_customers_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
 		List<Map<String, String>> rows = dataTable.asMaps();
-		System.out.println(flexiBook.getCustomers().size());
-		System.out.println(flexiBook.getOwner().getUsername());
 		boolean customerExists;
 		
 		for (Map<String, String> columns : rows) {
 			customerExists = false;
 			for (Customer c : flexiBook.getCustomers()) {
-				System.out.println(columns.get("username") + " " + c.getUsername());
 				if (c.getUsername().equals(columns.get("username"))) {
 					customerExists = true;
 					break;
@@ -375,6 +374,80 @@ public class CucumberStepDefinitions {
 	    assertEquals(priorUsername, FlexiBookApplication.getCurrentUser().getUsername());
 	    assertEquals(priorPassword, FlexiBookApplication.getCurrentUser().getPassword());
 	}
+	
+	//================================================================================
+    // Login
+    //================================================================================
+	
+	User currentUser;
+	
+	 /** @author sarah
+	  *  @param String username of user
+	  *  @param String password of user
+	  */
+	@When("the user tries to log in with username {string} and password {string}")
+	public void the_user_tries_to_log_in_with_username_and_password(String string, String string2) {
+		try {
+			currentUser = FlexiBookController.login(string, string2);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}
+	}
+	/** @author sarah
+	 */
+	@Then("the user should be successfully logged in")
+	public void the_user_should_be_successfully_logged_in() {
+		assertEquals(currentUser, FlexiBookApplication.getCurrentUser());
+	}
+	/** @author sarah
+	 */
+	@Then("the user should not be logged in")
+	public void the_user_should_not_be_logged_in() {
+		assertTrue(!FlexiBookApplication.hasCurrentUser());
+	}
+	/** @author sarah
+	 */
+	@Then("the user shall be successfully logged in")
+	public void the_user_shall_be_successfully_logged_in() {
+		assertEquals(flexiBook.getOwner(), FlexiBookApplication.getCurrentUser());
+	}
+	/** @author sarah
+	 */
+	@Then("a new account shall be created")
+	public void a_new_account_shall_be_created() {
+		assertTrue(flexiBook.hasOwner());
+	}
+	
+	
+	//================================================================================
+    // Logout
+    //================================================================================
+	
+	/** @author sarah
+	 */	
+	@Given("the user is logged out")
+	public void the_user_is_logged_out() {
+		if (FlexiBookApplication.hasCurrentUser()) {
+			FlexiBookApplication.unsetCurrentUser();
+		}
+	}
+	/** @author sarah
+	 */
+	@When("the user tries to log out")
+	public void the_user_tries_to_log_out() {
+		try {
+			FlexiBookController.logout();
+		}
+		catch (InvalidInputException e) { 
+			exception = e;
+		}
+	}
+
+
+	//================================================================================
+    // ViewAppointmentCalendar
+    //================================================================================
+
 	//================================================================================
     // MakeAppointments
     //================================================================================	
@@ -394,48 +467,227 @@ public class CucumberStepDefinitions {
 		}
 		SystemTime.setTesting(date, time);
 	}
-
-	/**
-	 * @author heqianw
+	/** @author sarah
 	 */
+	@Given("the business has the following opening hours:")
 	@Given("the business has the following opening hours")
 	public void the_business_has_the_following_opening_hours(io.cucumber.datatable.DataTable dataTable) {
-		dataTable.asMaps().stream().forEach(x -> 
-			{
-				try {
-					flexiBook.getBusiness().addBusinessHour(new BusinessHour(
-						FlexiBookUtil.getDayOfWeek(x.get("day")),
-						FlexiBookUtil.getTimeFromString(x.get("startTime")),
-						FlexiBookUtil.getTimeFromString(x.get("endTime")), 
-						flexiBook));
-				} catch (ParseException e) {
-					exception = e;
-				}
-			}
-		);
-	}
-
-	/**
-	 * @author heqianw
+		 List<Map<String, String>> rows = dataTable.asMaps();
+		 
+		 for (Map<String, String> columns : rows) {
+			 try {
+				 flexiBook.getBusiness().addBusinessHour(new BusinessHour(
+						 FlexiBookUtil.getDayOfWeek(columns.get("day")),
+						 FlexiBookUtil.getTimeFromString(columns.get("startTime")),
+						 FlexiBookUtil.getTimeFromString(columns.get("endTime")), 
+						 flexiBook));
+			 }
+			 catch (ParseException e) {
+				 exception = e;
+			 }
+		 }
+	}  
+	/** @author sarah
 	 */
+	@Given("the business has the following holidays:")
 	@Given("the business has the following holidays")
 	public void the_business_has_the_following_holidays(io.cucumber.datatable.DataTable dataTable) {
-		dataTable.asMaps().stream().forEach(x -> 
-			{
-				try {
-					flexiBook.getBusiness().addHoliday(new TimeSlot(
-						FlexiBookUtil.getDateFromString(x.get("startDate")),
-						FlexiBookUtil.getTimeFromString(x.get("startTime")),
-						FlexiBookUtil.getDateFromString(x.get("endDate")),
-						FlexiBookUtil.getTimeFromString(x.get("endTime")), 
-						flexiBook));
-				} 
-				catch (ParseException e) {	
-					e.printStackTrace();
+		 List<Map<String, String>> rows = dataTable.asMaps();
+		 for (Map<String, String> columns : rows) {
+			 try {
+				 flexiBook.getBusiness().addHoliday(new TimeSlot(
+						 FlexiBookUtil.getDateFromString(columns.get("startDate")),
+						 FlexiBookUtil.getTimeFromString(columns.get("startTime")),
+						 FlexiBookUtil.getDateFromString(columns.get("endDate")),
+						 FlexiBookUtil.getTimeFromString(columns.get("endTime")), 
+						 flexiBook));
+			 }
+			 catch (ParseException e) {
+				 exception = e;
+			 }
+		 }
+	}
+	/** @author sarah
+	 */
+	/*@Given("the following appointments exist in the system:")
+	public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+		List<Map<String, String>> rows = dataTable.asMaps();
+		Customer customer = null;
+		BookableService bookableService = null;
+		TimeSlot timeSlot = null;
+		
+		for (Map<String, String> columns : rows) {
+			
+			for (Customer c : flexiBook.getCustomers()) {
+		    	if (c.getUsername().equals(columns.get("customer"))) {
+		    		customer = c;
+		    	}
+		    }
+			
+			for (BookableService b : flexiBook.getBookableServices()) {
+		    	if (b.getName().equals(columns.get("serviceName"))) {
+		    		bookableService = b;
+		    	}
+		    }
+			
+			try {
+				 timeSlot = new TimeSlot(
+						 FlexiBookUtil.getDateFromString(columns.get("date")),
+						 FlexiBookUtil.getTimeFromString(columns.get("startTime")),
+						 FlexiBookUtil.getDateFromString(columns.get("date")),
+						 FlexiBookUtil.getTimeFromString(columns.get("endTime")), 
+						 flexiBook);
+			}
+			catch (ParseException e) {
+				exception = e;
+			}
+				
+			new Appointment(customer, bookableService, timeSlot, flexiBook);
+		}
+	} */
+	/** @author sarah
+	 */
+	@Given("{string} is logged in to their account") 
+	public void is_logged_in_to_their_account(String string) {
+		if (string.equals("owner")) {
+			FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
+		} 
+		else {
+			for (Customer customer : flexiBook.getCustomers()) {
+				if (customer.getUsername().equals(string)) {
+					FlexiBookApplication.setCurrentUser(customer);
 				}
 			}
-		);
+		}
 	}
+	
+	List<TimeSlot> unavailableTimeSlots;
+	List<TimeSlot> availableTimeSlots;
+	
+	/** @author sarah
+	 */
+	@When("{string} requests the appointment calendar for the day of {string}")
+	public void requests_the_appointment_calendar_for_the_day_of(String string, String string2) {
+		try {
+			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendarBusy(string, string2, null);
+			availableTimeSlots = FlexiBookController.viewAppointmentCalendarAvailable(string, string2, null); // ***
+		}
+		catch (InvalidInputException e) { 
+			exception = e;
+		}
+	}
+	/** @author sarah
+	 */
+	
+	@When("{string} requests the appointment calendar for the week starting on {string}")
+	public void requests_the_appointment_calendar_for_the_week_starting_on(String string, String string2) {
+		try {
+			 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			 Calendar c = Calendar.getInstance();
+			 c.setTime(sdf.parse(string2));
+			 c.add(Calendar.DATE, 7);  // number of days to add
+			 String endDate = sdf.format(c.getTime());  
+			 
+			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendarBusy(string, string2, endDate);
+			availableTimeSlots = FlexiBookController.viewAppointmentCalendarAvailable(string, string2, endDate); // ***
+		}
+		catch (InvalidInputException e) { 
+			exception = e;
+		} catch (ParseException e) {
+			exception = e;
+		}
+	}
+	/** @author sarah
+	 */
+	@Then("the following slots shall be available:")
+	public void the_following_slots_shall_be_available(io.cucumber.datatable.DataTable dataTable) {
+		List<Map<String, String>> rows = dataTable.asMaps();
+		
+		/* Unavailable and available time slots do not overlap
+		for (Map<String, String> columns : rows) {
+			for (TimeSlot t: unavailableTimeSlots) {
+				 if (columns.get("date").equals(t.getStartDate().toString())) {
+					 try {
+						 boolean endTimes = t.getEndTime().before(FlexiBookUtil.getTimeFromString(columns.get("endTime")));
+						 boolean startTimes = t.getStartTime().after(FlexiBookUtil.getTimeFromString(columns.get("startTime")));
+						 assertTrue(endTimes || startTimes);
+					 }
+					 catch (ParseException e) {
+						 exception = e;
+					 }
+					 
+				 }
+			}
+		}*/
+		
+		// ***
+		boolean isMatch;
+		
+		for (Map<String, String> columns : rows) {
+			isMatch = false;
+			for (TimeSlot t: availableTimeSlots) {
+				 if (columns.get("date").equals(t.getStartDate().toString())) {
+					 try {
+						 SimpleDateFormat fmt = new SimpleDateFormat("HH:mm");
+						 boolean endTimes = fmt.format(t.getEndTime()).equals(fmt.format(FlexiBookUtil.getTimeFromString(columns.get("endTime"))));
+						 boolean startTimes = fmt.format(t.getStartTime()).equals(fmt.format(FlexiBookUtil.getTimeFromString(columns.get("startTime"))));
+						 if (endTimes && startTimes) {
+							 isMatch = true;
+						 }
+					 }
+					 catch (ParseException e) {
+						 exception = e;
+					 }
+					 
+				 }
+			}
+			assertTrue(isMatch);
+		}
+
+	}
+
+	/** @author sarah
+	 */
+	@Then("the following slots shall be unavailable:")
+	public void the_following_slots_shall_be_unavailable(io.cucumber.datatable.DataTable dataTable) {
+		List<Map<String, String>> rows = dataTable.asMaps();
+		boolean isMatch;
+		
+		for (Map<String, String> columns : rows) {
+			isMatch = false;
+			for (TimeSlot t: unavailableTimeSlots) {
+				 if (columns.get("date").equals(t.getStartDate().toString())) {
+					 try {
+						 SimpleDateFormat fmt = new SimpleDateFormat("HH:mm");
+						 boolean endTimes = fmt.format(t.getEndTime()).equals(fmt.format(FlexiBookUtil.getTimeFromString(columns.get("endTime"))));
+						 boolean startTimes = fmt.format(t.getStartTime()).equals(fmt.format(FlexiBookUtil.getTimeFromString(columns.get("startTime"))));
+						 if (endTimes && startTimes) {
+							 isMatch = true;
+						 }
+					 }
+					 catch (ParseException e) {
+						 exception = e;
+					 }
+					 
+				 }
+			}
+			assertTrue(isMatch);
+		}
+		
+	}
+    /** @author sarah
+     */
+	@Then("the system shall report {string}")
+	public void the_system_shall_report(String string) {
+	    assertEquals(string, exception.getMessage());
+	}
+
+
+	//================================================================================
+    // DefineServiceCombo
+    //================================================================================
+    /**
+
 
 	/**
 	 * @author heqianw
@@ -476,19 +728,6 @@ public class CucumberStepDefinitions {
 				}
 			}
 		);
-	}
-
-	/**
-	 * @author heqianw
-	 */
-	@Given("{string} is logged in to their account")
-	public void is_logged_in_to_their_account(String string) {
-		if (string.equals("owner")) {
-			FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
-		} else {
-			FlexiBookApplication.setCurrentUser(flexiBook.getCustomers().stream()
-				.filter(x -> x.getUsername().equals(string)).findAny().get());
-		}
 	}
 
 	int appointmentCount;
@@ -559,14 +798,6 @@ public class CucumberStepDefinitions {
 	@Then("there shall be {int} more appointment in the system")
 	public void there_shall_be_more_appointment_in_the_system(Integer int1) {
 		assertEquals(appointmentCount + int1, flexiBook.getAppointments().size());
-	}
-
-	/**
-	 * @author heqianw
-	 */
-	@Then("the system shall report {string}")
-	public void the_system_shall_report(String string) {
-		assertEquals(string, exception.getMessage());
 	}
 
 
@@ -730,6 +961,7 @@ public class CucumberStepDefinitions {
     // DefineServiceCombo
     //================================================================================
 	/**
+>>>>>>> master
 	 * @author theodore
 	 */
     @Given("the following service combos exist in the system:")
@@ -1156,6 +1388,7 @@ public class CucumberStepDefinitions {
     		the_service_combo_shall_not_exist_in_the_system(oldComboName);
     	}
     }
+
 	//================================================================================
     // SetUpBusinessInfo
     //================================================================================
@@ -1604,3 +1837,4 @@ public class CucumberStepDefinitions {
 		}
 	}
 }
+

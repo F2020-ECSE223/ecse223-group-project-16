@@ -14,18 +14,32 @@ class TOBusinessHour {
 	Time endTime;
 }
 
-class TOService {
+class TOBookableService {
+	abstract;
 	String name;
 }
 
+class TOService {
+	isA TOBookableService;
+}
+
 class TOServiceCombo {
-	String name;
+	isA TOBookableService;
 	1 <@>- 2..* TOComboItem services;
 }
 
 class TOComboItem {
-	String serviceName; // or 1 -> TOService service;
+	String serviceName;
 	boolean mandatory;
+}
+
+class TOAppointment {
+	Date startDate;
+	Time startTime;
+	Date endDate;
+	Time endTime;
+	String customerUsername; // not sure, may be redundant
+	String bookableServiceName;
 }
 
 class TOTimeSlot {
@@ -33,15 +47,9 @@ class TOTimeSlot {
 	Time startTime;
 	Date endDate;
 	Time endTime;
-	boolean available;
 }
 
-// not sure
-class TOAppointment {
-	Date startDate;
-	Time startTime;
-	Date endDate;
-	Time endTime;
-	String customerUsername;
-	String bookableServiceName;
+class TOCalendar {
+	1 -> * TOTimeSlot availableTimeSlots;
+	1 -> * TOTimeSlot unavailableTimeSlots;
 }

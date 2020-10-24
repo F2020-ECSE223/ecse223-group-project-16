@@ -1,10 +1,5 @@
 namespace ca.mcgill.ecse.flexibook.controller;
 
-class TOUser {
-	String username;
-	String password;
-}
-
 class TOBusiness {
 	String name;
 	String address;
@@ -12,15 +7,39 @@ class TOBusiness {
 	String email;
 }
 
-class TOService {
+class TOBusinessHour {
+	enum DayOfWeek { Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday }
+	DayOfWeek dayOfWeek;
+	Time startTime;
+	Time endTime;
+}
+
+class TOBookableService {
+	abstract;
 	String name;
-	int duration;
-	int downtimeDuration;
-	int downtimeStart;
+}
+
+class TOService {
+	isA TOBookableService;
 }
 
 class TOServiceCombo {
-	String name;
+	isA TOBookableService;
+	1 <@>- 2..* TOComboItem services;
+}
+
+class TOComboItem {
+	String serviceName;
+	boolean mandatory;
+}
+
+class TOAppointment {
+	Date startDate;
+	Time startTime;
+	Date endDate;
+	Time endTime;
+	String customerUsername; // not sure, may be redundant
+	String bookableServiceName;
 }
 
 class TOTimeSlot {
@@ -30,9 +49,7 @@ class TOTimeSlot {
 	Time endTime;
 }
 
-class TOBusinessHour {
-	enum DayOfWeek { Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday }
-	DayOfWeek dayOfWeek;
-	Time startTime;
-	Time endTime;
+class TOCalendar {
+	1 -> * TOTimeSlot availableTimeSlots;
+	1 -> * TOTimeSlot unavailableTimeSlots;
 }

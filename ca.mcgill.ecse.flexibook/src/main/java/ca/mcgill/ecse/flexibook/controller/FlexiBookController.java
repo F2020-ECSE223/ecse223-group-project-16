@@ -1948,5 +1948,83 @@ public class FlexiBookController {
 		}
 		serviceToDelete.delete();
 	}
+	
+	/**
+	 * @author louca
+	 * 
+	 * @param username of the customer for which to retrieve the appointments
+	 * 
+	 * @return chronologically sorted list of appointments for the given customer as transfer objects
+	 */
+	public static List<TOAppointment> getAppointments(String username) {
+		Customer customer = getCustomerByUsername(username);
+		List<TOAppointment> appointments = new ArrayList<TOAppointment>();
+		
+		if (customer == null) {
+			return appointments; // throw?
+		}
+		
+		for (Appointment a : customer.getAppointments()) {
+			TimeSlot t = a.getTimeSlot();
+			appointments.add(new TOAppointment(t.getStartDate(), t.getStartTime(), t.getEndDate(), t.getEndTime(), customer.getUsername(), a.getBookableService().getName()));
+		}
+		
+		// TODO sort chronologically using comparator
+		return appointments;
+	}
+	
+	/**
+	 * @author louca
+	 * 
+	 * @return alphabetically sorted list of bookable services as transfer objects
+	 */
+	public static List<TOBookableService> getBookableServices() {
+		List<TOBookableService> bookableServices = new ArrayList<TOBookableService>();
+		
+		for (BookableService bS : FlexiBookApplication.getFlexiBook().getBookableServices()) {
+			if (bS instanceof Service) {
+				bookableServices.add(new TOService(((Service) bS).getName()));
+			} else {
+				ServiceCombo sC = (ServiceCombo) bS;
+				TOServiceCombo serviceCombo = new TOServiceCombo(sC.getName());
+				
+				for (ComboItem cI : sC.getServices()) {
+					serviceCombo.addService(cI.getService().getName(), cI.isMandatory());
+				}
+				
+				bookableServices.add(serviceCombo);
+			}
+		}
+		
+		// TODO sort alphabetically with comparator
+		return bookableServices;
+	}
+	
+	/**
+	 * @author louca
+	 * 
+	 * @param username
+	 * @param startDate
+	 * @param endDate
+	 * 
+	 * @return a calendar distinctly containing the available and unavailable time slots sorted chronologically as transfer objects
+	 * 
+	 * @throws InvalidInputException 
+	 */
+	public static TOCalendar viewAppointmentCalendar(String username, String startDate, String endDate) throws InvalidInputException {
+		TOCalendar calendar = new TOCalendar();
+		
+		for (TimeSlot tS : viewAppointmentCalendarAvailable(username, startDate, endDate)) {
+			calendar.addAvailableTimeSlot(new TOTimeSlot(tS.getStartDate(), tS.getStartTime(), tS.getEndDate(), tS.getEndTime()));
+		}
+		
+		for (TimeSlot tS : viewAppointmentCalendarBusy(username, startDate, endDate)) {
+			calendar.addUnavailableTimeSlot(new TOTimeSlot(tS.getStartDate(), tS.getStartTime(), tS.getEndDate(), tS.getEndTime()));
+		}
+		
+		// TODO sort chronologically with comparator, maybe create the list first then sort then set.
+		return calendar;
+	}
+	
 }
 

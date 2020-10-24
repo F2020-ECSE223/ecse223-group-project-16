@@ -785,7 +785,7 @@ public class CucumberStepDefinitions {
 		List<Map<String, String>> rows = dataTable.asMaps();
 		
 		for (Map<String, String> columns : rows) {
-			new Business(columns.get("name"), columns.get("address"), columns.get("phoneNumber"), columns.get("email"), flexiBook);
+			new Business(columns.get("name"), columns.get("address"), columns.get("phone number"), columns.get("email"), flexiBook);
 		}
 	}
 	/**

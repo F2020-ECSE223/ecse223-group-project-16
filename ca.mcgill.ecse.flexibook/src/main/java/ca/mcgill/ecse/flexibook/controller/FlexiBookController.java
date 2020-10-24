@@ -1286,7 +1286,6 @@ public class FlexiBookController {
 		}
 	}
 	
-	
 	return newAvailableTSlots;
 } 
 	

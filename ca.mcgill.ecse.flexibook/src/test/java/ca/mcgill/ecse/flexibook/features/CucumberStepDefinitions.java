@@ -95,11 +95,14 @@ public class CucumberStepDefinitions {
 	@Given("the following customers exist in the system:")
 	public void the_following_customers_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
 		List<Map<String, String>> rows = dataTable.asMaps();
-		
+		System.out.println(flexiBook.getCustomers().size());
+		System.out.println(flexiBook.getOwner().getUsername());
 		boolean customerExists;
+		
 		for (Map<String, String> columns : rows) {
 			customerExists = false;
 			for (Customer c : flexiBook.getCustomers()) {
+				System.out.println(columns.get("username") + " " + c.getUsername());
 				if (c.getUsername().equals(columns.get("username"))) {
 					customerExists = true;
 					break;
@@ -383,7 +386,6 @@ public class CucumberStepDefinitions {
 	//================================================================================
     // DefineServiceCombo
     //================================================================================
-	
 	/**
 	 * @author theodore
 	 */
@@ -568,7 +570,7 @@ public class CucumberStepDefinitions {
 			exception = e;
 		}
     }
- 
+	
 	//================================================================================
     // UpdateServiceCombo
     //================================================================================
@@ -610,7 +612,7 @@ public class CucumberStepDefinitions {
 	 */
 	@Given("an owner account exists in the system")
 	public void an_owner_account_exists_in_the_system() {
-		if (FlexiBookApplication.getFlexiBook().hasOwner() == false) {
+		if (!FlexiBookApplication.getFlexiBook().hasOwner()) {
 			new Owner("owner", "owner", FlexiBookApplication.getFlexiBook());
 		}
 	}
@@ -619,7 +621,7 @@ public class CucumberStepDefinitions {
 	 */
 	@Given("a business exists in the system")
 	public void a_business_exists_in_the_system() {
-		if (FlexiBookApplication.getFlexiBook().getBusiness() == null) {
+		if (!FlexiBookApplication.getFlexiBook().hasBusiness()) {
 			new Business("TheAve", "33 Rockford Terrace NW", "4036147734", "theave@gmail.com", FlexiBookApplication.getFlexiBook());
 		}
 		
@@ -632,9 +634,8 @@ public class CucumberStepDefinitions {
 		if (string.equals("owner")) {
 			FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
 		} else {
-			Owner newOwner = new Owner("owner", "owner", FlexiBookApplication.getFlexiBook());
-			FlexiBookApplication.setCurrentUser(newOwner);
-		}
+			FlexiBookApplication.setCurrentUser(new Owner("owner", "owner", FlexiBookApplication.getFlexiBook()));
+			}
 	}
 	/**
 	* @author aayush
@@ -658,7 +659,6 @@ public class CucumberStepDefinitions {
 			FlexiBookController.addService(string2, string3, string4, string5);
 		} catch (InvalidInputException e) {
 			exception = e;
-			System.out.println(e.getMessage());
 		}
 	}
 	/**
@@ -666,14 +666,12 @@ public class CucumberStepDefinitions {
 	*/
 	@Then("the service {string} shall exist in the system")
 	public void the_service_shall_exist_in_the_system(String string) {
-		boolean flag = false;
 		for (BookableService s: FlexiBookApplication.getFlexiBook().getBookableServices()) {
 			if (s.getName().equals(string)) {
-				flag = true;
-				break;
+				return;
 			}
 		}
-		assertTrue(flag);
+		fail();
 	}
 	/**
 	* @author aayush
@@ -681,11 +679,12 @@ public class CucumberStepDefinitions {
 	@Then("the service {string} shall have duration {string}, start of down time {string} and down time duration {string}")
 	public void the_service_shall_have_duration_start_of_down_time_and_down_time_duration(String string, String string2, String string3, String string4) {
 		for (BookableService s: FlexiBookApplication.getFlexiBook().getBookableServices()) {
-			if (s instanceof Service) {
+			if (s instanceof Service && s.getName().equals(string)) {
 				Service service = (Service) s;
 				assertEquals(Integer.parseInt(string2), service.getDuration());
 				assertEquals(Integer.parseInt(string3), service.getDowntimeStart());
 				assertEquals(Integer.parseInt(string4), service.getDowntimeDuration());
+				break;
 			}
 		}
 	}
@@ -697,7 +696,7 @@ public class CucumberStepDefinitions {
 		int counter = 0;
 		for (BookableService s: FlexiBookApplication.getFlexiBook().getBookableServices()) {
 			if (s instanceof Service) {
-				counter ++;
+			counter ++;
 			}
 		}
 		assertEquals(Integer.parseInt(string), counter);
@@ -709,9 +708,11 @@ public class CucumberStepDefinitions {
 	public void the_service_shall_still_preserve_the_following_properties(String string, io.cucumber.datatable.DataTable dataTable) {
 		List<Map<String, String>> rows = dataTable.asMaps();
 		Service s = null;
+		
 		for (BookableService bS: flexiBook.getBookableServices()) {
 			if (bS instanceof Service && bS.getName().equals(string)) {
 				s = (Service) bS;
+				break;
 			}
 		}
 		for (Map<String, String> columns : rows) {
@@ -721,7 +722,6 @@ public class CucumberStepDefinitions {
 			assertEquals(Integer.parseInt(columns.get("downtimeDuration")), s.getDowntimeDuration());
 		}
 	}
-
 
 	//================================================================================
     // DeleteService
@@ -733,6 +733,7 @@ public class CucumberStepDefinitions {
 	@Given("the following services exist in the system:")
 	public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
 		List<Map<String, String>> rows = dataTable.asMaps();
+		
 		for (Map<String, String> columns : rows) {
 			new Service(columns.get("name"), flexiBook, Integer.parseInt(columns.get("duration")), Integer.parseInt(columns.get("downtimeDuration")),Integer.parseInt(columns.get("downtimeStart")));
 		}	
@@ -741,7 +742,7 @@ public class CucumberStepDefinitions {
 	* @author theodore
 	*/
 	@Given("the following appointments exist in the system:")
-    public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
+	public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
     	List<Map<String, String>> appointmentData = dataTable.asMaps();
     	for (Map<String, String> a : appointmentData) {
     		Customer cust = null;
@@ -802,17 +803,11 @@ public class CucumberStepDefinitions {
 	*/
 	@Then("the service {string} shall not exist in the system")
 	public void the_service_shall_not_exist_in_the_system(String string) {
-		Boolean flag = true;
 		for (BookableService s: FlexiBookApplication.getFlexiBook().getBookableServices()) {
-			if (s instanceof Service) {
-				Service service = (Service) s;
-				System.out.println(service.getName());
-				if (service.getName().contentEquals(string)) {
-					flag = false;
-				}
+			if (s instanceof Service && ((Service) s).getName().contentEquals(string)) {
+				fail();
 			}
 		}
-		assertTrue(flag);
 	}
 	/**
 	* @author aayush
@@ -839,13 +834,11 @@ public class CucumberStepDefinitions {
 	*/
 	@Then("the service combos {string} shall not exist in the system")
 	public void the_service_combos_shall_not_exist_in_the_system(String string) {
-		Boolean flag = true;
     	for (BookableService b : flexiBook.getBookableServices()) {
     		if (b instanceof ServiceCombo && b.getName().equals(string)) {
-				flag = false;
+				fail();
 			}
     	}
-    	assertTrue(flag);
 	}
 	/**
 	* @author aayush
@@ -853,18 +846,17 @@ public class CucumberStepDefinitions {
 	@Then("the service combos {string} shall not contain service {string}")
 	public void the_service_combos_shall_not_contain_service(String string, String string2) {
 		ServiceCombo newServiceCombo = null;
-		boolean flag = true;
+    	
 		for (BookableService b : flexiBook.getBookableServices()){
 			if (b instanceof ServiceCombo && b.getName().equals(string)) {
 				newServiceCombo = (ServiceCombo) b;
-				for (int i=0; i<newServiceCombo.numberOfServices(); i++) {
-					if (newServiceCombo.getService(i).getService().getName().equals(string2)) {
-						flag = false;
+				for (ComboItem cI : newServiceCombo.getServices()) {
+					if (cI.getService().getName().equals(string2)) {
+						fail();
 					}
 				}	
 			}   
 		}
-	   assertTrue(flag);
 	}
 	
 	//================================================================================
@@ -880,7 +872,6 @@ public class CucumberStepDefinitions {
 			FlexiBookController.updateService(string2, string3, string4, string5, string6);
 		} catch (InvalidInputException e) {
 			exception = e;
-			System.out.println(e.getMessage());
 		}
 	}
 	/**

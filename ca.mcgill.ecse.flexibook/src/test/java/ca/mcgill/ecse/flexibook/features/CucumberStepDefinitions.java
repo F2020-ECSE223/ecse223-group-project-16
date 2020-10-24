@@ -819,42 +819,49 @@ public class CucumberStepDefinitions {
 	*/
 	@Given("the following appointments exist in the system:")
 	public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
-		List<Map<String, String>> rows = dataTable.asMaps();
-		
-		for (Map<String, String> columns : rows) {
-			String customerNameString = columns.get("customer");
-			String serviceNameString = columns.get("serviceName");
-			String dateString = columns.get("date");
-			String startTimeString = columns.get("startTime");
-			String endTimeString = columns.get("endTime");
-			Date dateSelected = null;
-			Time startTimeSelected = null;
-			Time endTimeSelected = null;
-			
-			try {
-				dateSelected = FlexiBookUtil.getDateFromString(dateString);
-				startTimeSelected = FlexiBookUtil.getTimeFromString(startTimeString);
-				endTimeSelected = FlexiBookUtil.getTimeFromString(endTimeString);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-		
-			TimeSlot timeSlotSelected = new TimeSlot(dateSelected, startTimeSelected, dateSelected, endTimeSelected, flexiBook);
-			Service serviceSelected = null;
-			for (BookableService s: FlexiBookApplication.getFlexiBook().getBookableServices()) {
-				if (s instanceof Service && s.getName().contentEquals(serviceNameString)) {
-					serviceSelected = (Service) s;
-				}
-			}
-			Customer customerSelected = null;
-		    for (Customer c : flexiBook.getCustomers()) {
-		    	if (c.getUsername().equals(customerNameString)) {
-		    		customerSelected = c;
-		    	}
-		    }
-			new Appointment(customerSelected, serviceSelected, timeSlotSelected, flexiBook);
-		}
-	}
+    	List<Map<String, String>> appointmentData = dataTable.asMaps();
+    	for (Map<String, String> a : appointmentData) {
+    		Customer cust = null;
+    		for (Customer cu : flexiBook.getCustomers()) {
+    			if (cu.getUsername().equals(a.get("customer"))) {
+    				cust = cu;
+    				break;
+    			}
+    		}
+    		BookableService bkable = null;
+    		for (BookableService b : flexiBook.getBookableServices()) {
+    			if (b.getName().equals(a.get("serviceName"))) {
+    				bkable = b;
+    				break;
+    			}
+    		}
+    		TimeSlot timeSlotSelected = null;
+    		try {
+    			Date date = FlexiBookUtil.getDateFromString(a.get("date"));
+    			Time startTime = FlexiBookUtil.getTimeFromString(a.get("startTime"));
+    			Time endTime = FlexiBookUtil.getTimeFromString(a.get("endTime"));
+    			timeSlotSelected = new TimeSlot(date, startTime, date, endTime, flexiBook);
+    		} catch (ParseException e) {
+    			fail();
+    		}
+    		Appointment appt = new Appointment(cust, bkable, timeSlotSelected, flexiBook);
+    		if (bkable instanceof ServiceCombo) {
+    			ServiceCombo sc = (ServiceCombo) bkable;
+        		for (ComboItem c : sc.getServices()) {
+        			if (c.getMandatory()) {
+        				appt.addChosenItem(c);
+        			} else {
+        				for (String s : a.get("selectedComboItems").split(",")) {
+        					if (c.getService().getName().equals(s)) {
+        						appt.addChosenItem(c);
+        						break;
+        					}
+        				}
+        			}
+	    		}
+    		}
+    	}
+    }
 	/**
 	* @author aayush
 	*/

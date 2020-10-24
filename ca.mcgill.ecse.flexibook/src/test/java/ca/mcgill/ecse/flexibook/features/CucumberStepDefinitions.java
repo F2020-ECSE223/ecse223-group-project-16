@@ -508,6 +508,7 @@ public class CucumberStepDefinitions {
 	}
 	
 	List<TimeSlot> unavailableTimeSlots;
+	List<TimeSlot> availableTimeSlots;
 	
 	/** @author sarah
 	 */
@@ -515,6 +516,7 @@ public class CucumberStepDefinitions {
 	public void requests_the_appointment_calendar_for_the_day_of(String string, String string2) {
 		try {
 			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendarBusy(string, string2, null);
+			availableTimeSlots = FlexiBookController.viewAppointmentCalendarAvailable(string, string2, null); // ***
 		}
 		catch (InvalidInputException e) { 
 			exception = e;
@@ -522,6 +524,7 @@ public class CucumberStepDefinitions {
 	}
 	/** @author sarah
 	 */
+	
 	@When("{string} requests the appointment calendar for the week starting on {string}")
 	public void requests_the_appointment_calendar_for_the_week_starting_on(String string, String string2) {
 		try {
@@ -532,6 +535,7 @@ public class CucumberStepDefinitions {
 			 String endDate = sdf.format(c.getTime());  
 			 
 			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendarBusy(string, string2, endDate);
+			availableTimeSlots = FlexiBookController.viewAppointmentCalendarAvailable(string, string2, endDate); // ***
 		}
 		catch (InvalidInputException e) { 
 			exception = e;
@@ -545,7 +549,7 @@ public class CucumberStepDefinitions {
 	public void the_following_slots_shall_be_available(io.cucumber.datatable.DataTable dataTable) {
 		List<Map<String, String>> rows = dataTable.asMaps();
 		
-		// Unavailable and available time slots do not overlap
+		/* Unavailable and available time slots do not overlap
 		for (Map<String, String> columns : rows) {
 			for (TimeSlot t: unavailableTimeSlots) {
 				 if (columns.get("date").equals(t.getStartDate().toString())) {
@@ -560,6 +564,30 @@ public class CucumberStepDefinitions {
 					 
 				 }
 			}
+		}*/
+		
+		// ***
+		boolean isMatch;
+		
+		for (Map<String, String> columns : rows) {
+			isMatch = false;
+			for (TimeSlot t: availableTimeSlots) {
+				 if (columns.get("date").equals(t.getStartDate().toString())) {
+					 try {
+						 SimpleDateFormat fmt = new SimpleDateFormat("HH:mm");
+						 boolean endTimes = fmt.format(t.getEndTime()).equals(fmt.format(FlexiBookUtil.getTimeFromString(columns.get("endTime"))));
+						 boolean startTimes = fmt.format(t.getStartTime()).equals(fmt.format(FlexiBookUtil.getTimeFromString(columns.get("startTime"))));
+						 if (endTimes && startTimes) {
+							 isMatch = true;
+						 }
+					 }
+					 catch (ParseException e) {
+						 exception = e;
+					 }
+					 
+				 }
+			}
+			assertTrue(isMatch);
 		}
 
 	}

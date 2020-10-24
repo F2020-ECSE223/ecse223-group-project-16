@@ -434,8 +434,8 @@ public class FlexiBookController {
 	 * @category View Appointment Calendar
 	 * 
 	 * @param username username of the User account being logged in 
-	 * @param day date requested
-	 * @param isWeek if the user is requesting for all the appointments of the week of the day
+	 * @param startDate start date requested
+	 * @param endDate end date requested
 	 * @throws InvalidInputException 
 	 */
 	public static List<TimeSlot> viewAppointmentCalendarBusy (String username, String startDate, String endDate) throws InvalidInputException {
@@ -603,6 +603,140 @@ public class FlexiBookController {
 		
 		return busyTSlots;
 	}
+	
+	/**
+	 * @author sarah
+	 * @category View Appointment Calendar
+	 * 
+	 * @param username username of the User account being logged in 
+	 * @param startDate start date requested
+	 * @param endDate end date requested
+	 * @throws InvalidInputException 
+	 */
+	public static List<TimeSlot> viewAppointmentCalendarAvailable (String username, String startDate, String endDate) throws InvalidInputException {
+	// Check if dates are valid
+	if (!isDateValid(startDate)) {
+		throw new InvalidInputException (startDate + " is not a valid date");
+	}
+	
+	FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
+	List<BusinessHour> businessHours = flexiBook.getBusiness().getBusinessHours();
+	
+	
+	List<Appointment> appointmentsToView = new ArrayList<Appointment>();
+	List<Date> datesToView = new ArrayList<Date>();
+	
+	List<TimeSlot> availableTSlots = new ArrayList<TimeSlot>();
+	List<TimeSlot> newAvailableTSlots = new ArrayList<TimeSlot>();
+	List<TimeSlot> busyTSlots = viewAppointmentCalendarBusy(username, startDate, endDate);
+	
+	// Get available time slots from business hours
+	for (BusinessHour b: businessHours) {
+		if (getWeekdayFromDate(Date.valueOf(startDate)) == b.getDayOfWeek()) {
+			if (!isHoliday(Date.valueOf(startDate))) {
+				availableTSlots.add(new TimeSlot(
+						Date.valueOf(startDate), 
+						b.getStartTime(),
+						Date.valueOf(startDate),
+						b.getEndTime(),
+						flexiBook));
+				break; 
+			}
+		}
+	}
+	
+	if (endDate != null) {
+		Date currentDate = Date.valueOf(startDate);
+		while (!isDatesEqual(currentDate, Date.valueOf(endDate))) { 
+			currentDate = addDayToDate(currentDate, 1);
+			for (BusinessHour b: businessHours) {
+				if (getWeekdayFromDate(currentDate) == b.getDayOfWeek()) {
+					if (!isHoliday(currentDate)) {
+						availableTSlots.add(new TimeSlot(
+								currentDate, 
+								b.getStartTime(),
+								currentDate,
+								b.getEndTime(),
+								flexiBook));
+						break; 
+					}
+				}
+			}
+			
+		}
+	} 
+	
+
+	// Find available time slots
+	int numOfBusyChecked;
+	boolean isBusyOnThisDate;
+	for (TimeSlot t: availableTSlots) {
+		isBusyOnThisDate = false;
+		Time startTime = t.getStartTime();
+		numOfBusyChecked = 0;
+		
+		for (int i = 0; i < busyTSlots.size(); i++) {
+			TimeSlot curTSlot = busyTSlots.get(i);
+			
+			if (isDatesEqual(curTSlot.getStartDate(), t.getStartDate())) {
+				isBusyOnThisDate = true;
+				numOfBusyChecked++;
+				
+				newAvailableTSlots.add(new TimeSlot (
+				           t.getStartDate(),
+				           startTime,
+				           t.getEndDate(), 
+				           curTSlot.getStartTime(),
+				           flexiBook));
+				
+				if (i == busyTSlots.size() - 1 || (!isDatesEqual(busyTSlots.get(i+1).getStartDate(), curTSlot.getStartDate()))) { // lazy evaluation
+					newAvailableTSlots.add(new TimeSlot (
+					           t.getStartDate(),
+					           curTSlot.getEndTime(),
+					           t.getEndDate(), 
+					           t.getEndTime(),
+					           flexiBook));
+				}
+				
+				
+				startTime = curTSlot.getEndTime();
+				
+				
+			}
+		}
+		
+		if (!isBusyOnThisDate) {
+			newAvailableTSlots.add(t);
+		}
+	}
+	
+	// Remove time slots where start and end time are the same
+	for (int i = 0; i < newAvailableTSlots.size() - 1; i++) {
+		if (isTimesEqual(newAvailableTSlots.get(i).getStartTime(), newAvailableTSlots.get(i).getEndTime())) {
+			newAvailableTSlots.remove(i);
+		}
+		else {
+			
+		}
+	}
+	
+	
+	
+	for (TimeSlot t: availableTSlots) {
+		System.out.println("***" + t.getStartDate() + " " + t.getEndDate() + " " + t.getStartTime() + " " + t.getEndTime());
+	}
+	for (TimeSlot t: newAvailableTSlots) {
+		System.out.println("**" + t.getStartDate() + " " + t.getEndDate() + " " + t.getStartTime() + " " + t.getEndTime());
+	} 
+	for (TimeSlot t: busyTSlots) {
+		System.out.println("*" + t.getStartDate() + " " + t.getEndDate() + " " + t.getStartTime() + " " + t.getEndTime());
+	}
+	
+	
+	
+	return newAvailableTSlots;
+} 
+	
 	
 	/**
 	 * @author sarah

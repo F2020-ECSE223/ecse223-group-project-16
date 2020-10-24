@@ -1506,12 +1506,13 @@ public class FlexiBookController {
 	/**
 	 * @author: Julie
 	 * 
-	 * @return basic business information
+	 * @return basic business information as a transfer object
 	 * 
 	 * @throws InvalidInputException
 	 */
-	public static Business viewBusinessInfo() {
-		return FlexiBookApplication.getFlexiBook().getBusiness();
+	public static TOBusiness viewBusinessInfo() {
+		Business business = FlexiBookApplication.getFlexiBook().getBusiness();
+		return new TOBusiness(business.getName(), business.getAddress(), business.getPhoneNumber(), business.getEmail());
 	}
 	/**
 	 * @author: Julie

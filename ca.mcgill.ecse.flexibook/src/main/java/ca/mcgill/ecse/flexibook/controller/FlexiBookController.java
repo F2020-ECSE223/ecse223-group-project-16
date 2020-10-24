@@ -1287,19 +1287,6 @@ public class FlexiBookController {
 	}
 	
 	
-	
-	for (TimeSlot t: availableTSlots) {
-		System.out.println("***" + t.getStartDate() + " " + t.getEndDate() + " " + t.getStartTime() + " " + t.getEndTime());
-	}
-	for (TimeSlot t: newAvailableTSlots) {
-		System.out.println("**" + t.getStartDate() + " " + t.getEndDate() + " " + t.getStartTime() + " " + t.getEndTime());
-	} 
-	for (TimeSlot t: busyTSlots) {
-		System.out.println("*" + t.getStartDate() + " " + t.getEndDate() + " " + t.getStartTime() + " " + t.getEndTime());
-	}
-	
-	
-	
 	return newAvailableTSlots;
 } 
 	

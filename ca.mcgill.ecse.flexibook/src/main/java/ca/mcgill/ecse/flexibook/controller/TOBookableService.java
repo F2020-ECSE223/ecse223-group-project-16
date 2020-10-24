@@ -3,7 +3,7 @@
 
 package ca.mcgill.ecse.flexibook.controller;
 
-// line 17 "../../../../../FlexiBookTransferObjects.ump"
+// line 10 "../../../../../FlexiBookTransferObjects.ump"
 public abstract class TOBookableService
 {
 

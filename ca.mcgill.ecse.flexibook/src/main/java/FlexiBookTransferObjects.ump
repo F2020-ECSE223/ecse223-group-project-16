@@ -7,13 +7,6 @@ class TOBusiness {
 	String email;
 }
 
-class TOBusinessHour {
-	enum DayOfWeek { Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday }
-	DayOfWeek dayOfWeek;
-	Time startTime;
-	Time endTime;
-}
-
 class TOBookableService {
 	abstract;
 	String name;

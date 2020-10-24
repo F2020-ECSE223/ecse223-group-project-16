@@ -3,17 +3,12 @@
  */
 package ca.mcgill.ecse.flexibook.application;
 
-import java.sql.Date;
-import java.sql.Time;
-
 import ca.mcgill.ecse.flexibook.model.FlexiBook;
 import ca.mcgill.ecse.flexibook.model.User;
-import ca.mcgill.ecse.flexibook.util.SystemTime;
 
 public class FlexiBookApplication {
 	private static FlexiBook flexiBook;
     private static User currentUser;
-    private static SystemTime systemTime;
 	
     public String getGreeting() {
         return "Hello world.";

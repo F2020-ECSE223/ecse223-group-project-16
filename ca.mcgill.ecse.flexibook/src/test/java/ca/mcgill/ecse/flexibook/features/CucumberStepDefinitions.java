@@ -386,39 +386,9 @@ public class CucumberStepDefinitions {
 	//================================================================================
     // DefineServiceCombo
     //================================================================================
-	
-	
-    /**
-	 * @author theodore
-=======
-//	@Given("an owner account exists in the system")
-//    public void an_owner_account_exists_in_the_system() {
-//		if (!flexiBook.hasOwner())
-//			new Owner("owner", "", flexiBook);
-//    }
-//	/**
-//	 * @author theodore
-//	 */
-//    @Given("a business exists in the system")
-//    public void a_business_exists_in_the_system() {
-//        if (!flexiBook.hasBusiness())
-//        	new Business("widget shop", "123 Street street", "1(800) 888-8888", "no-reply@google.com", flexiBook);
-//    }
-//    /**
-//	 * @author theodore
-//	 * @param dataTable data for services in the system
-//	 */
-//    @Given("the following services exist in the system:")
-//    public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
-//    	List<Map<String,String>> serviceData = dataTable.asMaps();
-//    	System.out.println(serviceData);
-//    	for (Map<String,String> e : serviceData)
-//			new Service(e.get("name"), flexiBook, Integer.parseInt(e.get("duration")), Integer.parseInt(e.get("downtimeDuration")), Integer.parseInt(e.get("downtimeStart")));
-//    }
+
 	/**
 	 * @author theodore
-	 * @param dataTable data for service combos in the system
->>>>>>> 1a88bc8... deleteService feature completed (+1 squashed commit)
 	 */
     @Given("the following service combos exist in the system:")
     public void the_following_service_combos_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
@@ -442,24 +412,6 @@ public class CucumberStepDefinitions {
 	    	}
 		}
     }
- 
-
-//    @Given("the Owner with username {string} is logged in")
-//    public void the_owner_with_username_is_logged_in(String string) {
-//    	assertEquals(string, "owner");
-//    	FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
-//    }
-//    /**
-//	 * @author theodore
-//	 * @param string customer username
-//	 */
-//    @Given("Customer with username {string} is logged in")
-//    public void customer_with_username_is_logged_in(String string) {
-//    	for (Customer customer : flexiBook.getCustomers())
-//			if (customer.getUsername().equals(string))
-//				FlexiBookApplication.setCurrentUser(customer);
-//    }
-
     /**
 	 * @author theodore
 	 */
@@ -609,10 +561,6 @@ public class CucumberStepDefinitions {
     //================================================================================
 	
     /**
-     * @author theodore
-     */
-    
-    /**
 	 * @author theodore
 	 */
     @When("{string} initiates the deletion of service combo {string}")
@@ -623,28 +571,6 @@ public class CucumberStepDefinitions {
 			exception = e;
 		}
     }
-    /**
-	 * @author theodore
-	 */
-
-
-
-//    @Then("the number of appointments in the system with service {string} shall be {string}")
-//    public void the_number_of_appointments_in_the_system_with_service_shall_be(String name, String num) {
-//    	int counter = 0;
-//    	for (Appointment a : flexiBook.getAppointments())
-//    		if (a.getBookableService().getName().equals(name))
-//    			counter++;
-//    	assertEquals(Integer.parseInt(num), counter);
-//    }
-
-    /**
-	 * @author theodore
-	 */
-//    @Then("the number of appointments in the system shall be {string}")
-//    public void the_number_of_appointments_in_the_system_shall_be(String num) {
-//        assertEquals(Integer.parseInt(num), flexiBook.numberOfAppointments());
-//    }
 	
 	//================================================================================
     // UpdateServiceCombo
@@ -798,7 +724,6 @@ public class CucumberStepDefinitions {
 		}
 	}
 
-
 	//================================================================================
     // DeleteService
     //================================================================================
@@ -815,7 +740,7 @@ public class CucumberStepDefinitions {
 		}	
 	}
 	/**
-	* @author aayush
+	* @author theodore
 	*/
 	@Given("the following appointments exist in the system:")
 	public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {

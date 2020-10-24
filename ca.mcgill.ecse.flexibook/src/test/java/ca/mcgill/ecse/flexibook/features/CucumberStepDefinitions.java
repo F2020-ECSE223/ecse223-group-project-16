@@ -377,6 +377,9 @@ public class CucumberStepDefinitions {
     // MakeAppointments
     //================================================================================	
 
+	/**
+	 * @author heqianw
+	 */
 	@Given("the system's time and date is {string}")
 	public void the_system_s_time_and_date_is(String string) {
 		String[] dateTime = string.split("\\+");
@@ -391,6 +394,9 @@ public class CucumberStepDefinitions {
 		SystemTime.setTesting(date, time);
 	}
 
+	/**
+	 * @author heqianw
+	 */
 	@Given("the business has the following opening hours")
 	public void the_business_has_the_following_opening_hours(io.cucumber.datatable.DataTable dataTable) {
 		dataTable.asMaps().stream().forEach(x -> 
@@ -408,6 +414,9 @@ public class CucumberStepDefinitions {
 		);
 	}
 
+	/**
+	 * @author heqianw
+	 */
 	@Given("the business has the following holidays")
 	public void the_business_has_the_following_holidays(io.cucumber.datatable.DataTable dataTable) {
 		dataTable.asMaps().stream().forEach(x -> 
@@ -427,6 +436,9 @@ public class CucumberStepDefinitions {
 		);
 	}
 
+	/**
+	 * @author heqianw
+	 */
 	@Given("the following appointments exist in the system:")
 	public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable){
 		dataTable.asMaps().stream().forEach(x -> 
@@ -465,7 +477,9 @@ public class CucumberStepDefinitions {
 		);
 	}
 
-
+	/**
+	 * @author heqianw
+	 */
 	@Given("{string} is logged in to their account")
 	public void is_logged_in_to_their_account(String string) {
 		if (string.equals("owner")) {
@@ -478,6 +492,9 @@ public class CucumberStepDefinitions {
 
 	int appointmentCount;
 
+	/**
+	 * @author heqianw
+	 */
 	@When("{string} schedules an appointment on {string} for {string} at {string}")
 	public void schedules_an_appointment_on_for_at(String string, String string2, String string3, String string4) {
 		appointmentCount = flexiBook.getAppointments().size();
@@ -488,6 +505,9 @@ public class CucumberStepDefinitions {
 		}		
 	}
 
+	/**
+	 * @author heqianw
+	 */
 	@When("{string} schedules an appointment on {string} for {string} with {string} at {string}")
 	public void schedules_an_appointment_on_for_with_at(String string, String string2, String string3, String string4, String string5) {
 		appointmentCount = flexiBook.getAppointments().size();
@@ -498,8 +518,9 @@ public class CucumberStepDefinitions {
 		}	
 	}
 
-	// tested and it works
-	@Then("{string} shall have a {string} appointment on {string} from {string} to {string}")
+	/**
+	 * @author heqianw
+	 */	@Then("{string} shall have a {string} appointment on {string} from {string} to {string}")
 	public void shall_have_a_appointment_on_from_to(String string, String string2, String string3, String string4, String string5){
 		Optional<Customer> c = flexiBook.getCustomers().stream().filter(x -> x.getUsername().equals(string)).findFirst();
 		Date date = null;
@@ -531,11 +552,17 @@ public class CucumberStepDefinitions {
 		assertTrue(app != null);
 	}
 
+	/**
+	 * @author heqianw
+	 */
 	@Then("there shall be {int} more appointment in the system")
 	public void there_shall_be_more_appointment_in_the_system(Integer int1) {
 		assertEquals(appointmentCount + int1, flexiBook.getAppointments().size());
 	}
 
+	/**
+	 * @author heqianw
+	 */
 	@Then("the system shall report {string}")
 	public void the_system_shall_report(String string) {
 		assertEquals(string, exception.getMessage());
@@ -545,7 +572,9 @@ public class CucumberStepDefinitions {
 	//================================================================================
     // UpdateAppointments
 	//================================================================================	
-	
+	/**
+	 * @author heqianw
+	 */
 	@Given("{string} has a {string} appointment with optional sevices {string} on {string} at {string}")
 	public void has_a_appointment_with_optional_sevices_on_at(String string, String string2, String string3, String string4, String string5){
 		Customer c = flexiBook.getCustomers().stream().filter(x -> x.getUsername().equals(string)).findFirst().get();
@@ -586,6 +615,9 @@ public class CucumberStepDefinitions {
 	}
 	
 	boolean result;
+	/**
+	 * @author heqianw
+	 */
 	@When("{string} attempts to update their {string} appointment on {string} at {string} to {string} at {string}")
 	public void attempts_to_update_their_appointment_on_at_to_at(String string, String string2, String string3, String string4, String string5, String string6){
 		appointmentCount = flexiBook.getAppointments().size();
@@ -598,6 +630,9 @@ public class CucumberStepDefinitions {
 		}
 	}
 
+	/**
+	 * @author heqianw
+	 */
 	@When("{string} attempts to {string} {string} from their {string} appointment on {string} at {string}")
 	public void attempts_to_from_their_appointment_on_at(String string, String string2, String string3, String string4, String string5, String string6){
 		appointmentCount = flexiBook.getAppointments().size();
@@ -610,6 +645,9 @@ public class CucumberStepDefinitions {
 		}
 	}
 
+	/**
+	 * @author heqianw
+	 */
 	@When("{string} attempts to update {string}'s {string} appointment on {string} at {string} to {string} at {string}")
 	public void attempts_to_update_s_appointment_on_at_to_at(String string, String string2, String string3, String string4, String string5, String string6, String string7) {
 		try {
@@ -619,6 +657,9 @@ public class CucumberStepDefinitions {
 		}
 	}
 
+	/**
+	 * @author heqianw
+	 */
 	@Then("the system shall report that the update was {string}")
 	public void the_system_shall_report_that_the_update_was(String string) {
 		if(result){
@@ -633,7 +674,9 @@ public class CucumberStepDefinitions {
     // CancelAppointments
 	//================================================================================	
 	
-	
+	/**
+	 * @author heqianw
+	 */
 	@When("{string} attempts to cancel their {string} appointment on {string} at {string}")
 	public void attempts_to_cancel_their_appointment_on_at(String string, String string2, String string3, String string4) {
 		appointmentCount = flexiBook.getAppointments().size();
@@ -644,6 +687,9 @@ public class CucumberStepDefinitions {
 		}
 	}
 
+	/**
+	 * @author heqianw
+	 */
 	@When("{string} attempts to cancel {string}'s {string} appointment on {string} at {string}")
 	public void attempts_to_cancel_s_appointment_on_at(String string, String string2, String string3, String string4, String string5) {
 		if (string.equals("owner")) {
@@ -663,11 +709,17 @@ public class CucumberStepDefinitions {
 		}
 	}
 
+	/**
+	 * @author heqianw
+	 */
 	@Then("{string}'s {string} appointment on {string} at {string} shall be removed from the system")
 	public void s_appointment_on_at_shall_be_removed_from_the_system(String string, String string2, String string3, String string4) {
 		assertEquals(flexiBook.getAppointments().size(), 0);
 	}
 
+	/**
+	 * @author heqianw
+	 */
 	@Then("there shall be {int} less appointment in the system")
 	public void there_shall_be_less_appointment_in_the_system(Integer int1) {
 		assertEquals(appointmentCount - int1, flexiBook.getAppointments().size());

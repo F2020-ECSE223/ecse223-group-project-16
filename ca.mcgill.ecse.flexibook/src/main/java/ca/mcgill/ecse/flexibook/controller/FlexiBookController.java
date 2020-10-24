@@ -959,4 +959,152 @@ public class FlexiBookController {
 		};
 		return list[day - 1];
 	}
+	/**
+	 * @author Aayush
+	 * @category feature set 4
+	 * 
+	 * @param name to give to the created service
+	 * @param duration to set for the created service
+	 * @param downtimeDuration to set for the created service
+	 * @param downtimeStart to set for the created service
+	 * 
+	 * @throws InvalidInputException if any of the time values break constraints and if name is null 
+	 */
+	public static void addService(String name, String totalDuration, String downtimeStart, String downtimeDuration) throws InvalidInputException {
+		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
+		if (FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
+			throw new InvalidInputException("You are not authorized to perform this operation");
+		}
+		validateDurationTimes(Integer.parseInt(totalDuration),Integer.parseInt(downtimeStart), Integer.parseInt(downtimeDuration));
+		
+		try {
+			new Service(name, flexiBook, Integer.parseInt(totalDuration), Integer.parseInt(downtimeDuration), Integer.parseInt(downtimeStart));
+		}catch(Exception e){
+			if (e.getMessage().startsWith("Cannot create due to duplicate name")) {
+				throw new InvalidInputException("Service " + name + " already exists");
+			}else {
+				throw e;
+			}
+		} 
+	}
+	/**
+	* @author aayush
+	*/
+	private static void validateDurationTimes(int totalDuration, int downtimeStart, int downtimeDuration) throws InvalidInputException {
+		if (totalDuration <= 0) {
+			throw new InvalidInputException("Duration must be positive");
+		}
+		if (downtimeStart != 0 && downtimeDuration == 0) {
+			throw new InvalidInputException("Downtime duration must be positive");
+		}
+		if (downtimeStart > totalDuration) {
+			throw new InvalidInputException("Downtime must not start after the end of the service");
+		}
+		if (downtimeStart + downtimeDuration > totalDuration) {
+			throw new InvalidInputException("Downtime must not end after the service");
+		}
+		if (downtimeStart == 0 && downtimeDuration < 0) {
+			throw new InvalidInputException("Downtime duration must be 0"); 
+		}
+		if (downtimeDuration > 0 && downtimeStart == 0) {
+			throw new InvalidInputException("Downtime must not start at the beginning of the service");
+		}	
+		if (downtimeStart < 0) {
+			throw new InvalidInputException("Downtime must not start before the beginning of the service");
+		}
+	}
+	/**
+	 * @author Aayush
+	 * @category feature set 4
+	 * 
+	 * @param name of original service
+	 * @param new updated name of service
+	 * @param duration to set for the updated service
+	 * @param downtimeDuration to set for the updated service
+	 * @param downtimeStart to set for the updated service
+	 * 
+	 * @throws InvalidInputException if any of the time values break constraints and if a user other than owner attempts to update a service
+	 */
+	public static void updateService(String ogName, String newName, String totalDuration, String downtimeStart, String downtimeDuration) throws InvalidInputException {
+		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
+	
+		if (FlexiBookApplication.getCurrentUser() != flexiBook.getOwner()) {
+			throw new InvalidInputException("You are not authorized to perform this operation");
+		}
+		validateDurationTimes(Integer.parseInt(totalDuration),Integer.parseInt(downtimeStart), Integer.parseInt(downtimeDuration));
+		
+		for (BookableService bS1: flexiBook.getBookableServices()) {
+			if (bS1.getName().contentEquals(newName)) {
+				throw new InvalidInputException("Service " + newName + " already exists");
+			}
+		}
+		
+		Service s = null;
+		for (BookableService bS: flexiBook.getBookableServices()) {
+			if (bS instanceof Service && bS.getName().contentEquals(ogName)) {
+				s = (Service) bS;
+				s.setName(newName);
+				s.setDowntimeDuration(Integer.parseInt(downtimeDuration));
+				s.setDuration(Integer.parseInt(totalDuration));
+				s.setDowntimeStart(Integer.parseInt(downtimeStart));
+				break;
+			}
+		}
+	}
+	/**
+	 * @author Aayush
+	 * @category feature set 4
+	 * 
+	 * @param name of service to delete
+	 * 
+	 * @throws InvalidInputException if the service to delete has future appointments and if a user other than owner attempts to update a service
+	 */
+	public static void deleteService(String name) throws InvalidInputException {
+		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
+		
+		if (FlexiBookApplication.getCurrentUser() != flexiBook.getOwner()) {
+			throw new InvalidInputException("You are not authorized to perform this operation");
+		}
+		
+		Service serviceToDelete = null;
+		for (BookableService bS: flexiBook.getBookableServices()) {
+			if (bS.getName().equals(name) && bS instanceof Service) {
+				serviceToDelete = (Service) bS;
+				break;
+			}
+		}
+		
+		for (Appointment a : serviceToDelete.getAppointments()) {
+			if ((a.getTimeSlot().getEndDate()).after(SystemTime.getDate())){
+				throw new InvalidInputException("The service contains future appointments");
+			}	
+		}	
+		
+		int i = 0;
+		while (i < flexiBook.getBookableServices().size()) {
+			BookableService bS = flexiBook.getBookableService(i);
+			if (bS instanceof ServiceCombo) {
+				ServiceCombo sC = (ServiceCombo) bS;
+				if (sC.getMainService().getService() == serviceToDelete) {
+					deleteServiceCombo(bS.getName());
+					continue;
+				}else {
+					int j = 0;
+					while (j < sC.numberOfServices()) {
+						ComboItem cI = sC.getService(j);
+						if (cI.getService() == serviceToDelete) {
+							cI.delete();
+							break;
+						}
+						j++;
+					}
+				}	
+			}
+			i++;
+		}
+		serviceToDelete.delete();
+	}
 }
+
+
+

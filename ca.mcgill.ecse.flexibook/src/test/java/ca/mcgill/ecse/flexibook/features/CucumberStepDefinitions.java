@@ -836,11 +836,7 @@ public class CucumberStepDefinitions {
 	 */
 	@When("the user tries to access the business information")
 	public void the_user_tries_to_access_the_business_information() {
-		try {
-			FlexiBookController.viewBusinessInfo();
-		} catch (InvalidInputException e) {
-			exception = e;
-		}	
+		FlexiBookController.viewBusinessInfo();
 	}
 	/**
 	 * @author Julie
@@ -866,6 +862,12 @@ public class CucumberStepDefinitions {
 					return;
 				}
 			}
+			TimeSlot aTimeSlot  = new  TimeSlot(Date.valueOf(LocalDate.of(Integer.parseInt(string2.substring(0,4)), Month.of(Integer.parseInt(string2.substring(5,7))), Integer.parseInt(string2.substring(8,10)))), 
+					Time.valueOf(LocalTime.of(Integer.parseInt(string3.substring(0,2)), Integer.parseInt(string3.substring(3,5)))), 
+					Date.valueOf(LocalDate.of(Integer.parseInt(string4.substring(0,4)), Month.of(Integer.parseInt(string4.substring(5,7))), Integer.parseInt(string4.substring(8,10)))),
+					Time.valueOf(LocalTime.of(Integer.parseInt(string5.substring(0,2)), Integer.parseInt(string5.substring(3,5)))),
+					flexiBook);
+			flexiBook.getBusiness().addVacation(aTimeSlot);
 		}
 		if (string.equals("holiday")) {
 			for (TimeSlot v : flexiBook.getBusiness().getHolidays()) {
@@ -876,17 +878,6 @@ public class CucumberStepDefinitions {
 					return;
 				}
 			}
-		}
-		if (string.equals("vacation")) {
-			TimeSlot aTimeSlot  = new  TimeSlot(Date.valueOf(LocalDate.of(Integer.parseInt(string2.substring(0,4)), Month.of(Integer.parseInt(string2.substring(5,7))), Integer.parseInt(string2.substring(8,10)))), 
-					Time.valueOf(LocalTime.of(Integer.parseInt(string3.substring(0,2)), Integer.parseInt(string3.substring(3,5)))), 
-					Date.valueOf(LocalDate.of(Integer.parseInt(string4.substring(0,4)), Month.of(Integer.parseInt(string4.substring(5,7))), Integer.parseInt(string4.substring(8,10)))),
-					Time.valueOf(LocalTime.of(Integer.parseInt(string5.substring(0,2)), Integer.parseInt(string5.substring(3,5)))),
-					flexiBook);
-			flexiBook.getBusiness().addVacation(aTimeSlot);
-
-		}
-		if (string.equals("holiday")) {
 			TimeSlot aTimeSlot  = new  TimeSlot(Date.valueOf(LocalDate.of(Integer.parseInt(string2.substring(0,4)), Month.of(Integer.parseInt(string2.substring(5,7))), Integer.parseInt(string2.substring(8,10)))), 
 					Time.valueOf(LocalTime.of(Integer.parseInt(string3.substring(0,2)), Integer.parseInt(string3.substring(3,5)))), 
 					Date.valueOf(LocalDate.of(Integer.parseInt(string4.substring(0,4)), Month.of(Integer.parseInt(string4.substring(5,7))), Integer.parseInt(string4.substring(8,10)))),
@@ -1022,8 +1013,10 @@ public class CucumberStepDefinitions {
 	/**
 	 * @author Julie
 	 */
+	int numberOfBusinessHours2;
 	@When("the user tries to remove the business hour starting {string} at {string}")
 	public void the_user_tries_to_remove_the_business_hour_starting_at(String string, String string2) {
+		numberOfBusinessHours2 = flexiBook.getBusiness().getBusinessHours().size();
 		try {
 			FlexiBookController.removeBusinessHour(string, string2);
 		} catch (InvalidInputException e) {
@@ -1032,13 +1025,19 @@ public class CucumberStepDefinitions {
 	}
 	/**
 	 * @author Julie
+	 * @throws ParseException 
 	 */
 	@Then("the business hour starting {string} at {string} shall {string} exist")
-	public void the_business_hour_starting_at_shall_exist(String string, String string2, String string3) {
-		if (string3.equals("not")) {
-			for (BusinessHour bh : FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()) {
-				if (string.equals(bh.getDayOfWeek().toString())) {
-					assertEquals(null, bh.getDayOfWeek());
+	public void the_business_hour_starting_at_shall_exist(String string, String string2, String string3) throws ParseException {
+		Time startTime = FlexiBookUtil.getTimeFromString(string2);
+		for (BusinessHour bh : FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()) {
+			if (string.equals(bh.getDayOfWeek().toString()) && startTime.equals(bh.getStartTime())) {
+				if (string3.isEmpty()) {
+				assertEquals(numberOfBusinessHours2, flexiBook.getBusiness().getBusinessHours().size());
+				}
+			} else {
+				if (string3.equals("not")) {
+					assertTrue(true);
 				}
 			}
 		}

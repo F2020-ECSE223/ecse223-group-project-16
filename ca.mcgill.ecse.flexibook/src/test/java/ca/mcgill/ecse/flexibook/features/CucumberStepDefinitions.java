@@ -998,14 +998,14 @@ public class CucumberStepDefinitions {
 		for (BusinessHour bh : flexiBook.getBusiness().getBusinessHours()) {
 			if (string.equals("not")) {
 				if (prevDay.equals(bh.getDayOfWeek().toString())) {
-					assertTrue(prevStartTime.equals(bh.getStartTime().toString()));
-					assertTrue(prevEndTime.equals(bh.getEndTime().toString()));
+					assertEquals(prevStartTime, bh.getStartTime().toString());
+					assertEquals(prevEndTime, bh.getEndTime().toString());
 				}
 			}
 			else {
 				if (newDay.equals(bh.getDayOfWeek().toString())) {
-					assertTrue(newStartTime.equals(bh.getStartTime().toString()));
-					assertTrue(newEndTime.equals(bh.getEndTime().toString()));
+					assertEquals(newStartTime, bh.getStartTime().toString());
+					assertEquals(newEndTime, bh.getEndTime().toString());
 				}
 			}
 		}
@@ -1033,11 +1033,10 @@ public class CucumberStepDefinitions {
 		for (BusinessHour bh : FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()) {
 			if (string.equals(bh.getDayOfWeek().toString()) && startTime.equals(bh.getStartTime())) {
 				if (string3.isEmpty()) {
-				assertEquals(numberOfBusinessHours2, flexiBook.getBusiness().getBusinessHours().size());
-				}
-			} else {
-				if (string3.equals("not")) {
-					assertTrue(true);
+					assertEquals(numberOfBusinessHours2, flexiBook.getBusiness().getBusinessHours().size());
+					return;
+				} else { 
+					fail();
 				}
 			}
 		}
@@ -1078,14 +1077,14 @@ public class CucumberStepDefinitions {
 			if (string.equals("vacation")) {
 				for (TimeSlot ts : flexiBook.getBusiness().getVacation()) {
 					if (prevStartDate.equals(ts.getStartDate().toString())) {
-						assertTrue(prevStartTime2.equals(ts.getStartTime().toString()));
+						assertEquals(prevStartTime2, ts.getStartTime().toString());
 					}
 				}
 			}
 			else {
 				for (TimeSlot ts : flexiBook.getBusiness().getHolidays()) {
 					if (prevStartDate.equals(ts.getStartDate().toString())) {
-						assertTrue(prevStartTime2.equals(ts.getStartTime().toString()));
+						assertEquals(prevStartTime2, ts.getStartTime().toString());
 					}
 				}
 			}
@@ -1094,18 +1093,18 @@ public class CucumberStepDefinitions {
 			if (string.equals("vacation")) {
 				for (TimeSlot ts : flexiBook.getBusiness().getVacation()) {
 					if (string3.equals(ts.getStartDate().toString())) {
-						assertTrue((string4+":00").equals(ts.getStartTime().toString()));
-						assertTrue(string5.equals(ts.getEndDate().toString()));
-						assertTrue((string6+":00").equals(ts.getEndTime().toString()));
+						assertEquals(string4+":00", ts.getStartTime().toString());
+						assertEquals(string5, ts.getEndDate().toString());
+						assertEquals(string6+":00", ts.getEndTime().toString());
 					}
 				}
 			}
 			else {
 				for (TimeSlot ts : flexiBook.getBusiness().getHolidays()) {
 					if (string3.equals(ts.getStartDate().toString())) {
-						assertTrue((string4+":00").equals(ts.getStartTime().toString()));
-						assertTrue(string5.equals(ts.getEndDate().toString()));
-						assertTrue((string6+":00").equals(ts.getEndTime().toString()));
+						assertEquals(string4+":00", ts.getStartTime().toString());
+						assertEquals(string5, ts.getEndDate().toString());
+						assertEquals(string6+":00", ts.getEndTime().toString());
 					}
 				}
 			}

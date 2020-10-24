@@ -405,13 +405,9 @@ public class FlexiBookController {
 			throw new InvalidInputException("Invalid email");
 		}
 		// check that @ and . are in the correct order
-		for (int i = 0 ; i < email.length(); i++) {
-			char c = email.charAt(i);
-			if (c == '@') {
-					if (!email.substring(i,email.length()-1).contains(".")) {
-						throw new InvalidInputException("Invalid email");
-				}
-			}
+		String splitEmail[]= email.split("@", 2);
+		if (!splitEmail[1].contains(".")) {
+			throw new InvalidInputException("Invalid email");
 		}
 	}
 	/**
@@ -520,35 +516,25 @@ public class FlexiBookController {
 			}
 		}
 		validateTimeSlot(vacationOrHoliday, startDate, startTime, endDate, endTime);
-		if (vacationOrHoliday.equals("holiday")) {
-			for (TimeSlot ts : FlexiBookApplication.getFlexiBook().getBusiness().getVacation()) {
-				if ((convertedEndDate.after(ts.getStartDate()) && convertedStartDate.before(ts.getEndDate())) ||
-					(convertedEndDate.equals(ts.getStartDate()) && convertedEndTime.after(ts.getStartTime())) ||
-					(convertedStartDate.equals(ts.getEndDate()) && convertedStartTime.before(ts.getEndTime()))) {
+		for (TimeSlot ts : FlexiBookApplication.getFlexiBook().getBusiness().getVacation()) {
+			if ((convertedEndDate.after(ts.getStartDate()) && convertedStartDate.before(ts.getEndDate())) ||
+				(convertedEndDate.equals(ts.getStartDate()) && convertedEndTime.after(ts.getStartTime())) ||
+				(convertedStartDate.equals(ts.getEndDate()) && convertedStartTime.before(ts.getEndTime()))) {
+				if (vacationOrHoliday.equals("vacation")) {
+					throw new InvalidInputException("Vacation times cannot overlap");
+				} else {
 					throw new InvalidInputException("Holiday and vacation times cannot overlap");
-				}
-			}
-			for (TimeSlot ts : FlexiBookApplication.getFlexiBook().getBusiness().getHolidays()) {
-				if ((convertedEndDate.after(ts.getStartDate()) && convertedStartDate.before(ts.getEndDate())) ||
-					(convertedStartDate.equals(ts.getStartDate()) && convertedStartTime.before(ts.getEndTime())) ||
-					(convertedEndDate.equals(ts.getEndDate()) && convertedEndTime.after(ts.getStartDate()))) {
-					throw new InvalidInputException("Holiday times cannot overlap");
 				}
 			}
 		}
-		if (vacationOrHoliday.equals("vacation")) {
-			for (TimeSlot ts : FlexiBookApplication.getFlexiBook().getBusiness().getHolidays()) {
-				if ((convertedEndDate.after(ts.getStartDate()) && convertedStartDate.before(ts.getEndDate())) ||
-					(convertedEndDate.equals(ts.getStartDate()) && convertedEndTime.after(ts.getStartTime())) ||
-					(convertedStartDate.equals(ts.getEndDate()) && convertedStartTime.before(ts.getEndTime()))) {
+		for (TimeSlot ts : FlexiBookApplication.getFlexiBook().getBusiness().getHolidays()) {
+			if ((convertedEndDate.after(ts.getStartDate()) && convertedStartDate.before(ts.getEndDate())) ||
+				(convertedStartDate.equals(ts.getStartDate()) && convertedStartTime.before(ts.getEndTime())) ||
+				(convertedEndDate.equals(ts.getEndDate()) && convertedEndTime.after(ts.getStartDate()))) {
+				if (vacationOrHoliday.equals("holiday")) {
+					throw new InvalidInputException("Holiday times cannot overlap");
+				} else {
 					throw new InvalidInputException("Holiday and vacation times cannot overlap");
-				}
-			}
-			for (TimeSlot ts : FlexiBookApplication.getFlexiBook().getBusiness().getVacation()) {
-				if ((convertedEndDate.after(ts.getStartDate()) && convertedStartDate.before(ts.getEndDate())) ||
-					(convertedStartDate.equals(ts.getStartDate()) && convertedStartTime.before(ts.getEndTime())) ||
-					(convertedEndDate.equals(ts.getEndDate()) && convertedEndTime.after(ts.getStartDate()))) {
-					throw new InvalidInputException("Vacation times cannot overlap");
 				}
 			}
 		}

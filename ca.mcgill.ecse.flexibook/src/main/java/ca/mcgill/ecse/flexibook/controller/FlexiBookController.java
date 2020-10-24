@@ -8,6 +8,8 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
@@ -26,10 +28,10 @@ public class FlexiBookController {
 	 * @param password to give to the created Customer account
 	 * 
 	 * @throws IllegalArgumentException if any of the username or password are null
-	 * @throws InvalidInputException    if: - any of the username or password are
-	 *                                  empty or whitespace - the logged in User
-	 *                                  account is the Owner account - the username
-	 *                                  already exists
+	 * @throws InvalidInputException    if:
+	 * - any of the username or password are empty or whitespace 
+	 * - the logged in User account is the Owner account 
+	 * - the username  already exists
 	 */
 	public static void createCustomerAccount(String username, String password) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
@@ -92,21 +94,6 @@ public class FlexiBookController {
 	 * @author louca
 	 * @category Feature set 1
 	 * 
-	 * @param username of the User account to retrieve
-	 * @return the retrieved User account (null if no User account with that
-	 *         username exists)
-	 */
-	private static User getUserByUsername(String username) {
-		if (username.equals("owner")) {
-			return FlexiBookApplication.getFlexiBook().getOwner();
-		}
-		return getCustomerByUsername(username);
-	}
-
-	/**
-	 * @author louca
-	 * @category Feature set 1
-	 * 
 	 * @param username of the Customer account to retrieve
 	 * @return the retrieved Customer account (null if no User account with that username exists)
 	 * 
@@ -132,11 +119,11 @@ public class FlexiBookController {
 	 * @param newUsername with which to update the User account
 	 * @param newPassword with which to update the User account
 	 * 
-	 * @throws InvalidInputException if - the newUsername is empty or whitespace -
-	 *                               the newPassword is empty or whitespace - the
-	 *                               newUsername is not available - the User by the
-	 *                               given username is the Owner, and the
-	 *                               newUsername is not "owner"
+	 * @throws InvalidInputException if 
+	 * - the newUsername is empty or whitespace 
+	 * - the newPassword is empty or whitespace 
+	 * - the newUsername is not available 
+	 * - the User by the given username is the Owner, and the newUsername is not "owner"
 	 */
 	public static void updateUserAccount(String username, String newUsername, String newPassword) throws InvalidInputException {
 		if (username.equals("owner")) {
@@ -1955,13 +1942,15 @@ public class FlexiBookController {
 	 * @param username of the customer for which to retrieve the appointments
 	 * 
 	 * @return chronologically sorted list of appointments for the given customer as transfer objects
+	 * 
+	 * @throws InvalidInputException if the customer with the given username does not exist
 	 */
-	public static List<TOAppointment> getAppointments(String username) {
+	public static List<TOAppointment> getAppointments(String username) throws InvalidInputException {
 		Customer customer = getCustomerByUsername(username);
 		List<TOAppointment> appointments = new ArrayList<TOAppointment>();
 		
 		if (customer == null) {
-			return appointments; // throw?
+			throw new InvalidInputException("Customer " + username + " does not exist");
 		}
 		
 		for (Appointment a : customer.getAppointments()) {
@@ -1969,7 +1958,26 @@ public class FlexiBookController {
 			appointments.add(new TOAppointment(t.getStartDate(), t.getStartTime(), t.getEndDate(), t.getEndTime(), customer.getUsername(), a.getBookableService().getName()));
 		}
 		
-		// TODO sort chronologically using comparator
+		Collections.sort(appointments, new Comparator<TOAppointment>() {
+			@Override
+			public int compare(TOAppointment a1, TOAppointment a2) {
+				if (a1.getStartDate().equals(a2.getStartDate())) {
+		        	if (a1.getStartTime().equals(a2.getStartTime())) {
+		        		return 0; // a1 == a2
+		        	} else if (a1.getStartTime().before(a2.getStartTime())) {
+		        		return -1; // a1 <= a2 
+		        	} else {
+		        		return 1; // a1 >= a2
+		        	}
+		        } else if (a1.getStartDate().before(a2.getStartDate())) {
+		        	return -1;
+		        } else {
+		        	return 0;
+		        }
+			}
+			
+		});;
+		
 		return appointments;
 	}
 	
@@ -1996,7 +2004,13 @@ public class FlexiBookController {
 			}
 		}
 		
-		// TODO sort alphabetically with comparator
+		Collections.sort(bookableServices, new Comparator<TOBookableService>() {
+			@Override
+			public int compare(TOBookableService bS1,TOBookableService bS2) {
+				return bS1.getName().compareTo(bS2.getName());
+			}
+		});
+		
 		return bookableServices;
 	}
 	
@@ -2013,16 +2027,46 @@ public class FlexiBookController {
 	 */
 	public static TOCalendar viewAppointmentCalendar(String username, String startDate, String endDate) throws InvalidInputException {
 		TOCalendar calendar = new TOCalendar();
+		Comparator<TOTimeSlot> timeSlotComparator = new Comparator<TOTimeSlot>() {
+		    @Override
+		    public int compare(TOTimeSlot tS1, TOTimeSlot tS2) {
+		        if (tS1.getStartDate().equals(tS2.getStartDate())) {
+		        	if (tS1.getStartTime().equals(tS2.getStartTime())) {
+		        		return 0; // tS1 == tS2
+		        	} else if (tS1.getStartTime().before(tS2.getStartTime())) {
+		        		return -1; // tS1 <= tS2 
+		        	} else {
+		        		return 1; // tS1 >= tS2
+		        	}
+		        } else if (tS1.getStartDate().before(tS2.getStartDate())) {
+		        	return -1;
+		        } else {
+		        	return 0;
+		        }
+		    }
+		};
 		
+		List<TOTimeSlot> availableTimeSlots = new ArrayList<TOTimeSlot>();
 		for (TimeSlot tS : viewAppointmentCalendarAvailable(username, startDate, endDate)) {
-			calendar.addAvailableTimeSlot(new TOTimeSlot(tS.getStartDate(), tS.getStartTime(), tS.getEndDate(), tS.getEndTime()));
+			availableTimeSlots.add(new TOTimeSlot(tS.getStartDate(), tS.getStartTime(), tS.getEndDate(), tS.getEndTime()));
 		}
 		
+		List<TOTimeSlot> unavailableTimeSlots = new ArrayList<TOTimeSlot>();
 		for (TimeSlot tS : viewAppointmentCalendarBusy(username, startDate, endDate)) {
-			calendar.addUnavailableTimeSlot(new TOTimeSlot(tS.getStartDate(), tS.getStartTime(), tS.getEndDate(), tS.getEndTime()));
+			unavailableTimeSlots.add(new TOTimeSlot(tS.getStartDate(), tS.getStartTime(), tS.getEndDate(), tS.getEndTime()));
 		}
 		
-		// TODO sort chronologically with comparator, maybe create the list first then sort then set.
+		Collections.sort(availableTimeSlots, timeSlotComparator);
+		Collections.sort(unavailableTimeSlots, timeSlotComparator);
+		
+		for (TOTimeSlot tS : availableTimeSlots) {
+			calendar.addAvailableTimeSlot(tS);
+		} 
+		
+		for (TOTimeSlot tS : unavailableTimeSlots) {
+			calendar.addUnavailableTimeSlot(tS);
+		}
+		
 		return calendar;
 	}
 	

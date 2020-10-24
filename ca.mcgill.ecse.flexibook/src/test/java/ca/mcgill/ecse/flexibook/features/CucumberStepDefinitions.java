@@ -307,7 +307,6 @@ public class CucumberStepDefinitions {
     // MakeAppointments
     //================================================================================	
 
-	// tested
 	@Given("the system's time and date is {string}")
 	public void the_system_s_time_and_date_is(String string) {
 		String[] dateTime = string.split("\\+");
@@ -322,7 +321,6 @@ public class CucumberStepDefinitions {
 		SystemTime.setTesting(date, time);
 	}
 
-	// tested
 	@Given("an owner account exists in the system")
 	public void an_owner_account_exists_in_the_system() {
 	    if (!flexiBook.hasOwner()) {
@@ -330,7 +328,6 @@ public class CucumberStepDefinitions {
 		}
 	}
 
-	// tested
 	@Given("a business exists in the system")
 	public void a_business_exists_in_the_system() {
 	    if(!flexiBook.hasBusiness()){
@@ -340,7 +337,6 @@ public class CucumberStepDefinitions {
 		}
 	}
 
-   // tested 4 services are present
 	@Given("the following services exist in the system:")
 	public void the_following_services_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
 		dataTable.asMaps().stream().forEach(x -> 
@@ -353,10 +349,8 @@ public class CucumberStepDefinitions {
 		);
 	}
 
-	// tested, 6 bookables and combos are linked properly
 	@Given("the following service combos exist in the system:")
-	public void the_following_service_combos_exist_in_the_system(io.cucumber.datatable.DataTable dataTable)
-			throws InvalidInputException {
+	public void the_following_service_combos_exist_in_the_system(io.cucumber.datatable.DataTable dataTable){
 		dataTable.asMaps().stream().forEach(x -> {
 				ServiceCombo sc = new ServiceCombo(x.get("name"), FlexiBookApplication.getFlexiBook());
 
@@ -370,8 +364,7 @@ public class CucumberStepDefinitions {
 						); 
 						if(x.get("mainService").equals(c.getService().getName())){
 							sc.setMainService(c);
-						}
-						else{
+						} else{
 							sc.addService(c);
 						}
 					}
@@ -420,8 +413,7 @@ public class CucumberStepDefinitions {
 
 	// tested and this works
 	@Given("the following appointments exist in the system:")
-	public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable)
-			throws Exception {
+	public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable){
 		dataTable.asMaps().stream().forEach(x -> 
 			{
 				Customer c = flexiBook.getCustomers().stream().filter(y -> y.getUsername().equals(x.get("customer"))).findAny().get();
@@ -487,8 +479,7 @@ public class CucumberStepDefinitions {
 
 	// tested and it works
 	@Then("{string} shall have a {string} appointment on {string} from {string} to {string}")
-	public void shall_have_a_appointment_on_from_to(String string, String string2, String string3, String string4, String string5)
-			throws Exception {
+	public void shall_have_a_appointment_on_from_to(String string, String string2, String string3, String string4, String string5){
 		Optional<Customer> c = flexiBook.getCustomers().stream().filter(x -> x.getUsername().equals(string)).findFirst();
 		Date date = null;
 		try {
@@ -535,8 +526,7 @@ public class CucumberStepDefinitions {
 	//================================================================================	
 	
 	@Given("{string} has a {string} appointment with optional sevices {string} on {string} at {string}")
-	public void has_a_appointment_with_optional_sevices_on_at(String string, String string2, String string3, String string4, String string5)
-			throws InvalidInputException {
+	public void has_a_appointment_with_optional_sevices_on_at(String string, String string2, String string3, String string4, String string5){
 		Customer c = flexiBook.getCustomers().stream().filter(x -> x.getUsername().equals(string)).findFirst().get();
 		ServiceCombo sc = (ServiceCombo) flexiBook.getBookableServices().stream().filter(x -> x.getName().equals(string2)).findFirst().get();
 		
@@ -576,8 +566,7 @@ public class CucumberStepDefinitions {
 	
 	boolean result;
 	@When("{string} attempts to update their {string} appointment on {string} at {string} to {string} at {string}")
-	public void attempts_to_update_their_appointment_on_at_to_at(String string, String string2, String string3, String string4, String string5, String string6)
-			throws Exception {
+	public void attempts_to_update_their_appointment_on_at_to_at(String string, String string2, String string3, String string4, String string5, String string6){
 		appointmentCount = flexiBook.getAppointments().size();
 		result = false;
 		try {
@@ -589,8 +578,7 @@ public class CucumberStepDefinitions {
 	}
 
 	@When("{string} attempts to {string} {string} from their {string} appointment on {string} at {string}")
-	public void attempts_to_from_their_appointment_on_at(String string, String string2, String string3, String string4, String string5, String string6)
-			throws InvalidInputException {
+	public void attempts_to_from_their_appointment_on_at(String string, String string2, String string3, String string4, String string5, String string6){
 		appointmentCount = flexiBook.getAppointments().size();
 		result = false;
 		try {

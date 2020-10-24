@@ -1,4 +1,3 @@
-  
 package ca.mcgill.ecse.flexibook.util;
 
 import java.sql.Date;

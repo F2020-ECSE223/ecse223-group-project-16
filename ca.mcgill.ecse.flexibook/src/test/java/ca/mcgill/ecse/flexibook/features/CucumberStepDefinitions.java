@@ -23,6 +23,7 @@ import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOBusiness;
+import ca.mcgill.ecse.flexibook.controller.TOTimeSlot;
 import ca.mcgill.ecse.flexibook.model.*;
 import ca.mcgill.ecse.flexibook.util.FlexiBookUtil;
 import ca.mcgill.ecse.flexibook.util.SystemTime;
@@ -562,16 +563,16 @@ public class CucumberStepDefinitions {
 		}
 	}
 	
-	List<TimeSlot> unavailableTimeSlots;
-	List<TimeSlot> availableTimeSlots;
+	List<TOTimeSlot> unavailableTimeSlots;
+	List<TOTimeSlot> availableTimeSlots;
 	
 	/** @author sarah
 	 */
 	@When("{string} requests the appointment calendar for the day of {string}")
 	public void requests_the_appointment_calendar_for_the_day_of(String string, String string2) {
 		try {
-			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendarBusy(string, string2, null);
-			availableTimeSlots = FlexiBookController.viewAppointmentCalendarAvailable(string, string2, null); // ***
+			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2, null).getUnavailableTimeSlots();
+			availableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2, null).getAvailableTimeSlots(); // ***
 		}
 		catch (InvalidInputException e) { 
 			exception = e;
@@ -589,8 +590,8 @@ public class CucumberStepDefinitions {
 			 c.add(Calendar.DATE, 7);  // number of days to add
 			 String endDate = sdf.format(c.getTime());  
 			 
-			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendarBusy(string, string2, endDate);
-			availableTimeSlots = FlexiBookController.viewAppointmentCalendarAvailable(string, string2, endDate); // ***
+			unavailableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2, endDate).getUnavailableTimeSlots();
+			availableTimeSlots = FlexiBookController.viewAppointmentCalendar(string, string2, endDate).getAvailableTimeSlots(); // ***
 		}
 		catch (InvalidInputException e) { 
 			exception = e;
@@ -626,7 +627,7 @@ public class CucumberStepDefinitions {
 		
 		for (Map<String, String> columns : rows) {
 			isMatch = false;
-			for (TimeSlot t: availableTimeSlots) {
+			for (TOTimeSlot t: availableTimeSlots) {
 				 if (columns.get("date").equals(t.getStartDate().toString())) {
 					 try {
 						 SimpleDateFormat fmt = new SimpleDateFormat("HH:mm");
@@ -634,6 +635,7 @@ public class CucumberStepDefinitions {
 						 boolean startTimes = fmt.format(t.getStartTime()).equals(fmt.format(FlexiBookUtil.getTimeFromString(columns.get("startTime"))));
 						 if (endTimes && startTimes) {
 							 isMatch = true;
+							 break;
 						 }
 					 }
 					 catch (ParseException e) {
@@ -656,7 +658,7 @@ public class CucumberStepDefinitions {
 		
 		for (Map<String, String> columns : rows) {
 			isMatch = false;
-			for (TimeSlot t: unavailableTimeSlots) {
+			for (TOTimeSlot t: unavailableTimeSlots) {
 				 if (columns.get("date").equals(t.getStartDate().toString())) {
 					 try {
 						 SimpleDateFormat fmt = new SimpleDateFormat("HH:mm");
@@ -664,6 +666,7 @@ public class CucumberStepDefinitions {
 						 boolean startTimes = fmt.format(t.getStartTime()).equals(fmt.format(FlexiBookUtil.getTimeFromString(columns.get("startTime"))));
 						 if (endTimes && startTimes) {
 							 isMatch = true;
+							 break;
 						 }
 					 }
 					 catch (ParseException e) {

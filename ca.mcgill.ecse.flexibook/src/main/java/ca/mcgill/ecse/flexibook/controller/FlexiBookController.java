@@ -936,26 +936,17 @@ public class FlexiBookController {
 		return true;
 	}
 	
-	/**
-	 * @author heqianw
-	 */
 	private static void deleteAppointment(Appointment appointment) {
 		appointment.getTimeSlot().delete();
 		appointment.delete();
 	}
 	
-	/**
-	 * @author heqianw
-	 */
 	private static void deleteAllCustomerAppointments(Customer customer) {
 		for (Appointment appointment : customer.getAppointments()) {
 			deleteAppointment(appointment);
 		}
 	}
 
-	/**
-	 * @author heqianw
-	 */
 	private static void checkUser(String username) throws InvalidInputException {
 		if (!FlexiBookApplication.getCurrentUser().getUsername().equals(username))
 			throw new InvalidInputException("You are not authorized to perform this operation");

@@ -928,12 +928,15 @@ public class FlexiBookController {
 	}
 		
 	/**
+	 * Login the user into the application, create owner account if logging in as owner for the first time
+	 * 
 	 * @author sarah
-	 * @category Login/Logout
+	 * @category Feature set 6
 	 * 
 	 * @param username username of the User account being logged in 
 	 * @param password password of the User account being logged in
-	 * @throws InvalidInputException 
+	 * @return the user logged in
+	 * @throws InvalidInputException if the username or password is not found
 	 */
 	public static User login(String username, String password) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
@@ -960,10 +963,12 @@ public class FlexiBookController {
 	}
 	
 	/**
-	 * @author sarah
-	 * @category Login/Logout
+	 * Log the user out of the application
 	 * 
-	 * @throws InvalidInputException 
+	 * @author sarah
+	 * @category Feature set 6
+	 * 
+	 * @throws InvalidInputException if the user is already logged out
 	 */
 	public static void logout() throws InvalidInputException {
 		if (FlexiBookApplication.getCurrentUser() == null ) {
@@ -972,13 +977,16 @@ public class FlexiBookController {
 		FlexiBookApplication.unsetCurrentUser();
 	}
 	/**
+	 * Finds unavailable/busy time slots
+	 * 
 	 * @author sarah
-	 * @category View Appointment Calendar
+	 * @category Feature set 6
 	 * 
 	 * @param username username of the User account being logged in 
 	 * @param startDate start date requested
 	 * @param endDate end date requested
-	 * @throws InvalidInputException 
+	 * @return list of unavailable time slots
+	 * @throws InvalidInputException if the date(s) requested are invalid
 	 */
 	public static List<TimeSlot> viewAppointmentCalendarBusy (String username, String startDate, String endDate) throws InvalidInputException {
 		// Check if dates are valid
@@ -1128,121 +1136,124 @@ public class FlexiBookController {
 	}
 	
 	/**
+	 * Finds available time slots
+	 * 
 	 * @author sarah
-	 * @category View Appointment Calendar
+	 * @category Feature set 6
 	 * 
 	 * @param username username of the User account being logged in 
 	 * @param startDate start date requested
 	 * @param endDate end date requested
-	 * @throws InvalidInputException 
+	 * @return list of available time slots
+	 * @throws InvalidInputException if the date(s) requested are invalid
 	 */
 	public static List<TimeSlot> viewAppointmentCalendarAvailable (String username, String startDate, String endDate) throws InvalidInputException {
-	// Check if dates are valid
-	if (!isDateValid(startDate)) {
-		throw new InvalidInputException (startDate + " is not a valid date");
-	}
-	
-	FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
-	List<BusinessHour> businessHours = flexiBook.getBusiness().getBusinessHours();
-	
-	
-	//List<Appointment> appointmentsToView = new ArrayList<Appointment>();
-	//List<Date> datesToView = new ArrayList<Date>();
-	
-	List<TimeSlot> availableTSlots = new ArrayList<TimeSlot>();
-	List<TimeSlot> newAvailableTSlots = new ArrayList<TimeSlot>();
-	List<TimeSlot> busyTSlots = viewAppointmentCalendarBusy(username, startDate, endDate);
-	
-	// Get available time slots from business hours
-	for (BusinessHour b: businessHours) {
-		if (getWeekdayFromDate(Date.valueOf(startDate)) == b.getDayOfWeek()) {
-			if (!isHoliday(Date.valueOf(startDate))) {
-				availableTSlots.add(new TimeSlot(
-						Date.valueOf(startDate), 
-						b.getStartTime(),
-						Date.valueOf(startDate),
-						b.getEndTime(),
-						flexiBook));
-				break; 
+		// Check if dates are valid
+		if (!isDateValid(startDate)) {
+			throw new InvalidInputException (startDate + " is not a valid date");
+		}
+		
+		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
+		List<BusinessHour> businessHours = flexiBook.getBusiness().getBusinessHours();
+		
+		List<TimeSlot> availableTSlots = new ArrayList<TimeSlot>();
+		List<TimeSlot> newAvailableTSlots = new ArrayList<TimeSlot>();
+		List<TimeSlot> busyTSlots = viewAppointmentCalendarBusy(username, startDate, endDate);
+		
+		// Get available time slots from business hours
+		for (BusinessHour b: businessHours) {
+			if (getWeekdayFromDate(Date.valueOf(startDate)) == b.getDayOfWeek()) {
+				if (!isHoliday(Date.valueOf(startDate))) {
+					availableTSlots.add(new TimeSlot(
+							Date.valueOf(startDate), 
+							b.getStartTime(),
+							Date.valueOf(startDate),
+							b.getEndTime(),
+							flexiBook));
+					break; 
+				}
 			}
 		}
-	}
-	if (endDate != null) {
-		Date currentDate = Date.valueOf(startDate);
-		while (!isDatesEqual(currentDate, Date.valueOf(endDate))) { 
-			currentDate = addDayToDate(currentDate, 1);
-			for (BusinessHour b: businessHours) {
-				if (getWeekdayFromDate(currentDate) == b.getDayOfWeek()) {
-					if (!isHoliday(currentDate)) {
-						availableTSlots.add(new TimeSlot(
-								currentDate, 
-								b.getStartTime(),
-								currentDate,
-								b.getEndTime(),
-								flexiBook));
-						break; 
+		
+		if (endDate != null) {
+			Date currentDate = Date.valueOf(startDate);
+			while (!isDatesEqual(currentDate, Date.valueOf(endDate))) { 
+				currentDate = addDayToDate(currentDate, 1);
+				for (BusinessHour b: businessHours) {
+					if (getWeekdayFromDate(currentDate) == b.getDayOfWeek()) {
+						if (!isHoliday(currentDate)) {
+							availableTSlots.add(new TimeSlot(
+									currentDate, 
+									b.getStartTime(),
+									currentDate,
+									b.getEndTime(),
+									flexiBook));
+							break; 
+						}
 					}
 				}
+				
 			}
-			
-		}
-	} 
-
-	// Find available time slots
-	boolean isBusyOnThisDate;
-	for (TimeSlot t: availableTSlots) {
-		isBusyOnThisDate = false;
-		Time startTime = t.getStartTime();
+		} 
 		
-		
-		for (int i = 0; i < busyTSlots.size(); i++) {
-			TimeSlot curTSlot = busyTSlots.get(i);
+	
+		// Find available time slots
+		boolean isBusyOnThisDate;
+		for (TimeSlot t: availableTSlots) {
+			isBusyOnThisDate = false;
+			Time startTime = t.getStartTime();
 			
-			if (isDatesEqual(curTSlot.getStartDate(), t.getStartDate())) {
-				isBusyOnThisDate = true;
+			
+			for (int i = 0; i < busyTSlots.size(); i++) {
+				TimeSlot curTSlot = busyTSlots.get(i);
 				
-				
-				newAvailableTSlots.add(new TimeSlot (
-				           t.getStartDate(),
-				           startTime,
-				           t.getEndDate(), 
-				           curTSlot.getStartTime(),
-				           flexiBook));
-				
-				if (i == busyTSlots.size() - 1 || (!isDatesEqual(busyTSlots.get(i+1).getStartDate(), curTSlot.getStartDate()))) { // lazy evaluation
+				if (isDatesEqual(curTSlot.getStartDate(), t.getStartDate())) {
+					isBusyOnThisDate = true;
+					
+					
 					newAvailableTSlots.add(new TimeSlot (
 					           t.getStartDate(),
-					           curTSlot.getEndTime(),
+					           startTime,
 					           t.getEndDate(), 
-					           t.getEndTime(),
+					           curTSlot.getStartTime(),
 					           flexiBook));
+					
+					if (i == busyTSlots.size() - 1 || (!isDatesEqual(busyTSlots.get(i+1).getStartDate(), curTSlot.getStartDate()))) { 
+						newAvailableTSlots.add(new TimeSlot (
+						           t.getStartDate(),
+						           curTSlot.getEndTime(),
+						           t.getEndDate(), 
+						           t.getEndTime(),
+						           flexiBook));
+					}
+					
+					
+					startTime = curTSlot.getEndTime();
+					
+					
 				}
-				startTime = curTSlot.getEndTime();
+			}
+			
+			if (!isBusyOnThisDate) {
+				newAvailableTSlots.add(t);
 			}
 		}
-
-		if (!isBusyOnThisDate) {
-			newAvailableTSlots.add(t);
+		
+		// Remove time slots where start and end time are the same
+		for (int i = 0; i < newAvailableTSlots.size() - 1; i++) {
+			if (isTimesEqual(newAvailableTSlots.get(i).getStartTime(), newAvailableTSlots.get(i).getEndTime())) {
+				newAvailableTSlots.remove(i);
+			}
+			else {
+				
+			}
 		}
-	}
+		
+		return newAvailableTSlots;
 	
-	// Remove time slots where start and end time are the same
-	for (int i = 0; i < newAvailableTSlots.size() - 1; i++) {
-		if (isTimesEqual(newAvailableTSlots.get(i).getStartTime(), newAvailableTSlots.get(i).getEndTime())) {
-			newAvailableTSlots.remove(i);
-		}
-		else {
-			
-		}
-	}
-
-	return newAvailableTSlots;
-} 
+    } 
 	/**
 	 * @author sarah
-	 * @param time time to add minutes to
-	 * @param minutes number of minutes
-	 * @throws ParseException 
 	 */	
 	private static Time addMinToTime (Time time, int minutes) throws ParseException {
 		 String sTime = time.toString();
@@ -1258,8 +1269,6 @@ public class FlexiBookController {
 	
 	/**
 	 * @author sarah
-	 * @param date date to check
-	 * @param days number of days
 	 */	
 	private static Date addDayToDate (Date date, int days) {
 		 String sDate = date.toString();
@@ -1267,7 +1276,8 @@ public class FlexiBookController {
 		 Calendar c = Calendar.getInstance();
 		 try {
 			c.setTime(sdf.parse(sDate));
-		 } catch (ParseException e) {
+		 } 
+		 catch (ParseException e) {
 			e.printStackTrace();
 		 }
 		 c.add(Calendar.DATE, days);  // number of days to add
@@ -1278,7 +1288,6 @@ public class FlexiBookController {
 	
 	/**
 	 * @author sarah
-	 * @param date date to check
 	 */	
 	private static Boolean isDateValid (String date) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -1296,8 +1305,6 @@ public class FlexiBookController {
 	
 	/**
 	 * @author sarah
-	 * @param date1 first date
-	 * @param date2 second date
 	 */	
 	private static boolean isDatesEqual(Date date1, Date date2) {
 	    SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
@@ -1306,8 +1313,6 @@ public class FlexiBookController {
 	
 	/**
 	 * @author sarah
-	 * @param time1 first time
-	 * @param time2 second time
 	 */	
 	private static boolean isTimesEqual(Time time1, Time time2) {
 	    SimpleDateFormat fmt = new SimpleDateFormat("HH:mm");
@@ -1316,10 +1321,9 @@ public class FlexiBookController {
 	
 	/**
 	 * @author sarah
-	 * @param date date to get weekday of
 	 */	
 	private static BusinessHour.DayOfWeek getWeekdayFromDate (Date date) {
-        SimpleDateFormat simpleDateformat = new SimpleDateFormat("EEEE"); // the day of the week spelled out completely
+        SimpleDateFormat simpleDateformat = new SimpleDateFormat("EEEE"); // the day of the week (full name)
         String weekday = simpleDateformat.format(date);
         
         switch (weekday) {
@@ -1344,7 +1348,6 @@ public class FlexiBookController {
 	
 	/**
 	 * @author sarah
-	 * @param date date to check if its a holiday
 	 */	
 	private static boolean isHoliday (Date date) {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();

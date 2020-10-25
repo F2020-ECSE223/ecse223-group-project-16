@@ -1442,7 +1442,6 @@ public class CucumberStepDefinitions {
 	 */
 	@When("the user tries to access the business information")
 	public void the_user_tries_to_access_the_business_information() {
-		FlexiBookController.viewBusinessInfo();
 		business = FlexiBookController.viewBusinessInfo();
 	}
 	/**
@@ -1450,10 +1449,6 @@ public class CucumberStepDefinitions {
 	 */
 	@Then("the {string} and {string} and {string} and {string} shall be provided to the user")
 	public void the_and_and_and_shall_be_provided_to_the_user(String string, String string2, String string3, String string4) {
-		assertEquals(string, flexiBook.getBusiness().getName());
-		assertEquals(string2, flexiBook.getBusiness().getAddress());
-		assertEquals(string3, flexiBook.getBusiness().getPhoneNumber());
-		assertEquals(string4, flexiBook.getBusiness().getEmail());
 		assertEquals(string, business.getName());
 		assertEquals(string2, business.getAddress());
 		assertEquals(string3, business.getPhoneNumber());

@@ -881,7 +881,9 @@ public class FlexiBookController {
 			}
 		}		
 	}
-
+	/**
+	 * @author heqianw
+	 */
 	private static boolean validateConflictingAppointments(Date finalStartDate, Time finalStartTime, Time finalEndTimeWithDownTime, 
 		Time finalEndTimeWithNoDownTime, long totalDuration) throws InvalidInputException {
 		for(Appointment app: FlexiBookApplication.getFlexiBook().getAppointments()){
@@ -934,17 +936,26 @@ public class FlexiBookController {
 		return true;
 	}
 	
+	/**
+	 * @author heqianw
+	 */
 	private static void deleteAppointment(Appointment appointment) {
 		appointment.getTimeSlot().delete();
 		appointment.delete();
 	}
 	
+	/**
+	 * @author heqianw
+	 */
 	private static void deleteAllCustomerAppointments(Customer customer) {
 		for (Appointment appointment : customer.getAppointments()) {
 			deleteAppointment(appointment);
 		}
 	}
 
+	/**
+	 * @author heqianw
+	 */
 	private static void checkUser(String username) throws InvalidInputException {
 		if (!FlexiBookApplication.getCurrentUser().getUsername().equals(username))
 			throw new InvalidInputException("You are not authorized to perform this operation");
@@ -1776,6 +1787,9 @@ public class FlexiBookController {
 			}
 		}
 	}
+	/**
+	 * @author heqianw
+	 */
 	private static BusinessHour.DayOfWeek getDayOfWeek(int day){
 		BusinessHour.DayOfWeek[] list = { 
 			BusinessHour.DayOfWeek.Sunday,

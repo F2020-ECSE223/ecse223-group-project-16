@@ -54,23 +54,9 @@ public class CucumberStepDefinitions {
 	public void teardown() {
 		FlexiBookApplication.unsetCurrentUser();
 		
-		if (flexiBook.hasOwner()) {
-			flexiBook.getOwner().delete();
-		}
+		flexiBook.delete();
+		flexiBook = null;
 		
-		for (Customer customer : new ArrayList<Customer>(flexiBook.getCustomers())) {
-			customer.delete();
-		}
-		
-		for (BookableService bookableService : new ArrayList<BookableService>(flexiBook.getBookableServices())) {
-			bookableService.delete();
-		}
-		if (flexiBook.hasBusiness()) {
-			flexiBook.getBusiness().delete();
-		}
-		for (Appointment a : new ArrayList<Appointment>(flexiBook.getAppointments())){
-			a.delete();
-		}
 		exception = null;
 	}
 	/**
@@ -155,7 +141,6 @@ public class CucumberStepDefinitions {
 	 */
 	@Given("the user is logged in to an account with username {string}")
 	public void the_user_is_logged_in_to_an_account_with_username(String string) {
-		System.out.println(string);
 		if (string.equals("owner")) {
 			if (flexiBook.hasOwner()) {
  				FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
@@ -362,7 +347,7 @@ public class CucumberStepDefinitions {
 		priorPassword = FlexiBookApplication.getCurrentUser().getPassword();
 		
 	    try {
-			FlexiBookController.updateUserAccount(FlexiBookApplication.getCurrentUser().getUsername(), string, string2);
+			FlexiBookController.updateUserAccount(string, string2);
 		} catch (InvalidInputException e) {
 			exception = e;
 		}

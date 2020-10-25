@@ -21,6 +21,8 @@ import ca.mcgill.ecse.flexibook.util.SystemTime;
 
 public class FlexiBookController {
 	/**
+	 * Create a new Customer account with the provided username and password.
+	 * 
 	 * @author louca
 	 * @category Feature set 1
 	 * 
@@ -28,9 +30,9 @@ public class FlexiBookController {
 	 * @param password to give to the created Customer account
 	 * 
 	 * @throws IllegalArgumentException if any of the username or password are null
-	 * @throws InvalidInputException    if:
+	 * @throws InvalidInputException if:
 	 * - any of the username or password are empty or whitespace 
-	 * - the logged in User account is the Owner account 
+	 * - the logged in User is the Owner account 
 	 * - the username  already exists
 	 */
 	public static void createCustomerAccount(String username, String password) throws InvalidInputException {
@@ -56,12 +58,6 @@ public class FlexiBookController {
 
 	/**
 	 * @author louca
-	 * @category Feature set 1
-	 * 
-	 * @param username to validate
-	 * 
-	 * @throws IllegalArgumentException if the username is null
-	 * @throws InvalidInputException if the username is empty or whitespace
 	 */
 	private static void validateCustomerAccountUsername(String username) throws InvalidInputException {
 		if (username == null) {
@@ -74,12 +70,6 @@ public class FlexiBookController {
 	
 	/**
 	 * @author louca
-	 * @category Feature set 1
-	 * 
-	 * @param password to validate
-	 * 
-	 * @throws IllegalArgumentException if the password is null
-	 * @throws InvalidInputException if the password is empty or whitespace
 	 */
 	private static void validateUserAccountPassword(String password) throws InvalidInputException {
 		if (password == null) {
@@ -92,12 +82,6 @@ public class FlexiBookController {
 
 	/**
 	 * @author louca
-	 * @category Feature set 1
-	 * 
-	 * @param username of the Customer account to retrieve
-	 * @return the retrieved Customer account (null if no User account with that username exists)
-	 * 
-	 * @throws IllegalArgumentException if the username is null
 	 */
 	private static Customer getCustomerByUsername(String username) {
 		if (username.equals(null)) {
@@ -112,6 +96,8 @@ public class FlexiBookController {
 	}
 
 	/**
+	 * Update the currently logged in User account with the provided new username and a new password.
+	 * 
 	 * @author louca
 	 * @category Feature set 1
 	 * 
@@ -146,13 +132,6 @@ public class FlexiBookController {
 
 	/**
 	 * @author louca
-	 * @category Feature set 1
-	 * 
-	 * @param customer    to update
-	 * @param newUsername with which to update the Customer account
-	 * 
-	 * @throws InvalidInputException if the newUsername is empty or whitespace, or
-	 *                               if the newUsername is not available
 	 */
 	private static void updateCustomerAccountUsername(Customer customer, String newUsername) throws InvalidInputException {
 		validateCustomerAccountUsername(newUsername);
@@ -163,12 +142,6 @@ public class FlexiBookController {
 
 	/**
 	 * @author louca
-	 * @category Feature set 1
-	 * 
-	 * @param user        to update
-	 * @param newPassword with which to update the User account
-	 * 
-	 * @throws InvalidInputException if the newPassword is empty or whitespace
 	 */
 	private static void updateUserAccountPassword(User user, String newPassword) throws InvalidInputException {
 		validateUserAccountPassword(newPassword);
@@ -176,13 +149,15 @@ public class FlexiBookController {
 	}
 
 	/**
+	 * Delete the Customer account with the provided username.
+	 * 
 	 * @author louca
 	 * @category Feature set 1
 	 * 
 	 * @param username of the Customer account to delete
 	 * @return whether or not the Customer account was deleted
 	 * 
-	 * @throws InvalidInputException if the Customer account to delete is the current user, or is the username is the Owner account username
+	 * @throws InvalidInputException if the Customer account to delete is the current user, or if the username is the that of the Owner account
 	 */
 	public static void deleteCustomerAccount(String username) throws InvalidInputException {
 		Customer customerToDelete = getCustomerByUsername(username);
@@ -194,7 +169,6 @@ public class FlexiBookController {
 		if (customerToDelete == null) {
 			return;
 		}
-
 
 		logout();
 		deleteAllCustomerAppointments(customerToDelete);
@@ -1928,7 +1902,10 @@ public class FlexiBookController {
 	}
 	
 	/**
+	 * Get all appointments of the User with the provided username, as a list of transfer objects.
+	 * 
 	 * @author louca
+	 * @category Query methods
 	 * 
 	 * @param username of the customer for which to retrieve the appointments
 	 * 
@@ -1973,7 +1950,12 @@ public class FlexiBookController {
 	}
 	
 	/**
+	 * Get all bookable services offered, as a list of transfer objects.
+	 * 
+	 * These transfer objects represent either a service or a service combo with an association to its combo items
+	 * 
 	 * @author louca
+	 * @category Query methods
 	 * 
 	 * @return alphabetically sorted list of bookable services as transfer objects
 	 */
@@ -2006,11 +1988,16 @@ public class FlexiBookController {
 	}
 	
 	/**
-	 * @author louca
+	 * View the appointment calendar between the provided range of dates, or a single day if only the startDate is provided.
 	 * 
-	 * @param username
-	 * @param startDate
-	 * @param endDate
+	 * Returns a calendar transfer object associated with distinct associations to time slot transfer objects for the available and unavailable time slots over the range of dates or single date.
+	 * 
+	 * @author louca
+	 * @category Query methods
+	 * 
+	 * @param username of the User requesting the appointment calendar
+	 * @param startDate of the range of dates over which to view the appointment, or the single date if no endDate is provided
+	 * @param endDate of the range of dates over which to view the appointment, or null if the startDate is to be the single date
 	 * 
 	 * @return a calendar distinctly containing the available and unavailable time slots sorted chronologically as transfer objects
 	 * 

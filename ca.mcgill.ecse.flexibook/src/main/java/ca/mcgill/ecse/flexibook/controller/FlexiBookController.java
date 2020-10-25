@@ -324,12 +324,16 @@ public class FlexiBookController {
 
 	/**
 	 * @author He Qian Wang
-	 * @return
-	 * 
-	 *         Current as a method that takes in Bookable service, but easily
-	 *         changeable to two methods
-	 * @throws InvalidInputException
-	 * @throws InvalidUserException
+	 * @category Feature set 6
+	 * This method is responsible to make appointments when a service name is given. This method is not responsible for service Combo appointments
+	 * that case will be handle by the other method with overloaded params.	
+	 *	
+	 * @param customerString    	Customer username
+	 * @param serviceName 			apointment service name
+	 * @param dateString        	start Date of appointment
+	 * @param startTimeString 		start Time of appointment
+	 * @throws InvalidInputException if appointment cannot be made
+	 * 								 if owner tries to make appointment       
 	 */
 
 	public static void makeAppointment(String customerString, String dateString, String serviceName, String startTimeString)
@@ -339,6 +343,8 @@ public class FlexiBookController {
 			throw new InvalidInputException("An owner cannot make an appointment");
 		}
 		
+		// This portion of the code deals with build the start and total durations of the appointments based on service and downtimes
+
 		Time startTime = null;
 		try {
 			startTime = FlexiBookUtil.getTimeFromString(startTimeString);
@@ -355,6 +361,7 @@ public class FlexiBookController {
 			throw new InvalidInputException(String.format("Service with name %s does not exist", serviceName));
 		}
 
+		// calculate the total duration of the appointment
 		Service service = (Service) optionalService.get();
 
 		endTimeWithDownTime = new Time(startTime.getTime() 
@@ -376,6 +383,7 @@ public class FlexiBookController {
 			e.printStackTrace();
 		}
 
+		// start and end date must be same
 		if(startDate.before(SystemTime.getDate())){
 			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
 				serviceName, dateString, startTimeString));
@@ -393,6 +401,7 @@ public class FlexiBookController {
 		final Time finalEndTimeWithDownTime = endTimeWithDownTime;
 		final Time finalEndTimeWithNoDownTime = endTimeWithNoDowntime;
 
+		// this sections checks whether the appointment is in business hours
 		if(!(FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours().stream().anyMatch(x -> 
 			x.getDayOfWeek().equals(getDayOfWeek(dayOfWeek))
 			&& x.getStartTime().before(finalStartTime)
@@ -401,6 +410,7 @@ public class FlexiBookController {
 				serviceName, dateString, startTimeString));
 		}
 		
+		// this sections checks whether the appointment is in vacation
 		if(FlexiBookApplication.getFlexiBook().getBusiness().getVacation().stream().anyMatch(x -> 
 			x.getStartDate().after(finalStartDate) && x.getEndDate().before(finalStartDate)
 			|| (x.getStartDate().equals(finalStartDate) && x.getStartTime().before(finalEndTimeWithDownTime))
@@ -409,6 +419,7 @@ public class FlexiBookController {
 				serviceName, dateString, startTimeString));
 		}
 
+		// this sections checks whether the appointment is in holiday
 		if(FlexiBookApplication.getFlexiBook().getBusiness().getHolidays().stream().anyMatch(x -> 
 			x.getStartDate().after(finalStartDate) && x.getEndDate().before(finalStartDate)
 			|| (x.getStartDate().equals(finalStartDate) && x.getStartTime().before(finalEndTimeWithDownTime))
@@ -417,12 +428,15 @@ public class FlexiBookController {
 				serviceName, dateString, startTimeString));
 		}
 
+		// this section checks if we have conflicting appointments during that time and if we can fit the appointment
+		// inside of a downtime
 		if(!validateConflictingAppointments(finalStartDate, finalStartTime, finalEndTimeWithDownTime, 
 			finalEndTimeWithNoDownTime, totalDuration)) {
 			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
 				serviceName, dateString, startTimeString));
 		}
 
+		// make the appointment
 		FlexiBookApplication.getFlexiBook().addAppointment(
 			new Appointment((Customer) FlexiBookApplication.getCurrentUser(), service, 
 			new TimeSlot(startDate, startTime, startDate, endTimeWithDownTime, FlexiBookApplication.getFlexiBook()), 
@@ -433,12 +447,13 @@ public class FlexiBookController {
 	 * @author heqianw
 	 * @category Feature set 6
 	 * 
+	 * This method is for the sake of making appointments for Service Combos when service combos are chosen.
+	 * 
 	 * @param customerString    	Customer username
-	 * @param serviceName 			apointment service name
 	 * @param dateString        	start Date of appointment
+	 * @param serviceName 			apointment service name
+	 * @param optServices        	list of chosen services
 	 * @param startTimeString 		start Time of appointment
-	 * @param newdateString    		tentative new start Date of appointment
-	 * @param newStartTimeString 	tentative new start Time of appointment
 	 * @throws InvalidInputException if appointment cannot be updated
 	 */
 	
@@ -449,6 +464,7 @@ public class FlexiBookController {
 				throw new InvalidInputException("An owner cannot make an appointment");
 			}
 
+			// This portion of the code deals with build the start and total durations of the appointments based on service and downtimes
 			Time startTime = null;
 			try {
 				startTime = FlexiBookUtil.getTimeFromString(startTimeString);
@@ -468,6 +484,7 @@ public class FlexiBookController {
 			int durationWithAllServices = serviceCombo.getMainService().getService().getDuration();
 			int lastDowntime = 0;
 			
+			// build list of chosen items
 			String[] optServiceList = optServices.split(",");
 			List<ComboItem> chosenItems = new ArrayList<>();
 			
@@ -481,6 +498,7 @@ public class FlexiBookController {
 				}
 			}
 
+			// find the total duration of the appointment with and without the last downtime
 			Time endTimeWithDownTime = new Time(startTime.getTime() 
 				+ durationWithAllServices * 60 * 1000);
 			Time endTimeWithNoDowntime = new Time(startTime.getTime()  
@@ -500,6 +518,7 @@ public class FlexiBookController {
 				e.printStackTrace();
 			}
 	
+			// if end/start date aren't on the same date, then throw exception
 			if(startDate.before(SystemTime.getDate())){
 				throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
 					serviceName, dateString, startTimeString));
@@ -517,7 +536,7 @@ public class FlexiBookController {
 			final Time finalEndTimeWithDownTime = endTimeWithDownTime;
 			final Time finalEndTimeWithNoDownTime = endTimeWithNoDowntime;
 	
-	
+			// checks if the appointment is during business hours
 			if(!(FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours().stream().anyMatch(x -> 
 				x.getDayOfWeek().equals(getDayOfWeek(dayOfWeek))
 				&& x.getStartTime().before(finalStartTime)
@@ -526,6 +545,7 @@ public class FlexiBookController {
 					serviceName, dateString, startTimeString));
 			}
 			
+			// checks if appointment is during vacation times
 			if(FlexiBookApplication.getFlexiBook().getBusiness().getVacation().stream().anyMatch(x -> 
 				x.getStartDate().after(finalStartDate) && x.getEndDate().before(finalStartDate)
 				|| (x.getStartDate().equals(finalStartDate) && x.getStartTime().before(finalEndTimeWithDownTime))
@@ -534,6 +554,7 @@ public class FlexiBookController {
 					serviceName, dateString, startTimeString));
 			}
 	
+			// checks if appointment is during holiday times
 			if(FlexiBookApplication.getFlexiBook().getBusiness().getHolidays().stream().anyMatch(x -> 
 				x.getStartDate().after(finalStartDate) && x.getEndDate().before(finalStartDate)
 				|| (x.getStartDate().equals(finalStartDate) && x.getStartTime().before(finalEndTimeWithDownTime))
@@ -542,12 +563,14 @@ public class FlexiBookController {
 					serviceName, dateString, startTimeString));
 			}
 	
+			// check whether we the appointment conflicts with other appointments and if it fits during a downtime
 			if(!validateConflictingAppointments(finalStartDate, finalStartTime, finalEndTimeWithDownTime, 
 				finalEndTimeWithNoDownTime, totalDuration)) {
 				throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", 
 					serviceName, dateString, startTimeString));
 			}
 			
+			// make the appointment
 			Appointment a = new Appointment((Customer) FlexiBookApplication.getCurrentUser(), serviceCombo, 
 			new TimeSlot(startDate, startTime, startDate, endTimeWithDownTime, FlexiBookApplication.getFlexiBook()), 
 				FlexiBookApplication.getFlexiBook());
@@ -564,13 +587,15 @@ public class FlexiBookController {
 	 * @author heqianw
 	 * @category Feature set 6
 	 * 
+	 * Updating appointment for a new time for a specific user
+	 * 
 	 * @param customerString    	Customer username
 	 * @param serviceName 			apointment service name
 	 * @param dateString        	start Date of appointment
 	 * @param startTimeString 		start Time of appointment
 	 * @param newdateString    		tentative new start Date of appointment
 	 * @param newStartTimeString 	tentative new start Time of appointment
-	 * @throws InvalidInputException if appointment cannot be updated
+	 * @throws InvalidInputException permission issues or new time invalid or attempt to change appointment on same days
 	 */
 	public static boolean updateAppointment(String customerString, String serviceName, String dateString,
 			String startTimeString, String newdateString, String newStartTimeString) throws InvalidInputException {
@@ -584,7 +609,7 @@ public class FlexiBookController {
 		}
 
 		Customer c = (Customer) FlexiBookApplication.getCurrentUser();
-
+		// build Date/Time objects
 		Date startDate = null;
 		Time startTime = null;
 		Date oldStartDate = null;
@@ -602,6 +627,7 @@ public class FlexiBookController {
 			throw new InvalidInputException("Cannot cancel an appointment on the appointment date");
 		}
 
+		// find the appointment
 		Appointment foundAppointment = null;
 
 		for(Appointment a : new ArrayList<Appointment>(c.getAppointments())){
@@ -611,7 +637,8 @@ public class FlexiBookController {
 					foundAppointment = a;
 			}
 		}
-
+		// if it is a service then try to make new appointment (delete old one and try to use makeappointment)
+		// if that fails, reinstate old one
 		if(foundAppointment.getBookableService() instanceof Service){
 			Service s = (Service) foundAppointment.getBookableService();
 			Date oldDateStart = foundAppointment.getTimeSlot().getStartDate();
@@ -631,6 +658,8 @@ public class FlexiBookController {
 					FlexiBookApplication.getFlexiBook()));
 				throw new InvalidInputException(e.getMessage());
 			}
+		// if it is a service combo then find total time first and attempt to update (delete old one and try to use makeappointment)
+		// if that fails, reinstate old one
 		} else if(foundAppointment.getBookableService() instanceof ServiceCombo){
 			ServiceCombo sc = (ServiceCombo) foundAppointment.getBookableService();
 			Date oldDateStart = foundAppointment.getTimeSlot().getStartDate();
@@ -670,6 +699,8 @@ public class FlexiBookController {
 	 * @author heqianw
 	 * @category Feature set 6
 	 * 
+	 * This method is responsible to update a specific appointment by adding or removing a combo item from the appointment
+	 * 
 	 * @param customerString    Customer username
 	 * @param isAdd    			adding or removing comboItem
 	 * @param comboItemName 	comboitem name to add/remove
@@ -677,7 +708,7 @@ public class FlexiBookController {
 	 * @param dateString        start Date of appointment
 	 * @param startTimeString 	start Time of appointment
 	 * 
-	 * @throws InvalidInputException if appointment cannot be updated
+	 * @throws InvalidInputException if owner tries to update appointment, other customer, invalid timeslot
 	 */
 	public static boolean updateAppointment(String customerString, boolean isAdd, String comboItemName, String serviceName, 
 		String dateString, String startTimeString) throws InvalidInputException{
@@ -690,6 +721,7 @@ public class FlexiBookController {
 			throw new InvalidInputException("Error: A customer can only update their own appointments");
 		}
 
+		// build Date Time objects
 		Date startDate = null;
 		Time startTime = null;
 		try {
@@ -699,10 +731,9 @@ public class FlexiBookController {
 			e.printStackTrace();
 		}
 
+		// find the appointment for that user
 		Customer c = (Customer) FlexiBookApplication.getCurrentUser();
-
 		Appointment foundAppointment = null;
-
 		for(Appointment a : new ArrayList<Appointment>(c.getAppointments())){
 			if(a.getBookableService().getName().equals(serviceName) 
 				&& a.getTimeSlot().getStartDate().equals(startDate)
@@ -713,7 +744,8 @@ public class FlexiBookController {
 
 		ServiceCombo sc = (ServiceCombo) foundAppointment.getBookableService();
 		ComboItem cI = sc.getServices().stream().filter(x -> x.getService().getName().equals(comboItemName)).findFirst().get();
-
+		// depending on add or remove. If we delete old one first and tentatively add new appointment with new info
+		// if that fails, then we reinstate the old appointment
 		if(isAdd){
 			Date oldDateStart = foundAppointment.getTimeSlot().getStartDate();
 			Time oldTimeStart = foundAppointment.getTimeSlot().getStartTime();
@@ -783,12 +815,14 @@ public class FlexiBookController {
 	 * @author heqianw
 	 * @category Feature set 6
 	 * 
+	 * Cancels an appointment for a specific user for a specific service at a specific date and time
+	 * 
 	 * @param customerString    Customer username
 	 * @param serviceName 		apointment service name
 	 * @param dateString        start Date of appointment
 	 * @param startTimeString 	start Time of appointment
 	 * 
-	 * @throws InvalidInputException if appointment cannot be deleted
+	 * @throws InvalidInputException if owner cancels appointment or another customer attemps to cancel the appointment or on appointment date
 	 */
 	public static void cancelAppointment(String customerString, String serviceName, String dateString,
 			String startTimeString) throws InvalidInputException {		
@@ -799,7 +833,7 @@ public class FlexiBookController {
 		if(!FlexiBookApplication.getCurrentUser().getUsername().equals(customerString)){
 			throw new InvalidInputException("A customer can only cancel their own appointments");
 		}
-
+		// find date and time of appointment
 		Customer c = (Customer) FlexiBookApplication.getCurrentUser();
 
 		Date startDate = null;
@@ -810,11 +844,11 @@ public class FlexiBookController {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-
+		
 		if(startDate.equals(SystemTime.getDate())){
 			throw new InvalidInputException("Cannot cancel an appointment on the appointment date");
 		}
-
+		// find and delete that appointment
 		for(Appointment a : new ArrayList<Appointment>(c.getAppointments())){
 			if(a.getBookableService().getName().equals(serviceName) 
 				&& a.getTimeSlot().getStartDate().equals(startDate)
@@ -825,10 +859,13 @@ public class FlexiBookController {
 	}
 	/**
 	 * @author heqianw
+	 * 
+	 * helper method to find conflicting appointments and whether we can fit the appointment during downtimes
 	 */
 	private static boolean validateConflictingAppointments(Date finalStartDate, Time finalStartTime, Time finalEndTimeWithDownTime, 
 		Time finalEndTimeWithNoDownTime, long totalDuration) throws InvalidInputException {
 		for(Appointment app: FlexiBookApplication.getFlexiBook().getAppointments()){
+			// if same date then we investigate. we start by finding the total duration of the appointment without downtimes
 			if(app.getTimeSlot().getStartDate().equals(finalStartDate)){
 				int downtime = 0;
 				if(app.getBookableService() instanceof Service){
@@ -856,6 +893,7 @@ public class FlexiBookController {
 				Time appEndNoDowntime = new Time(app.getTimeSlot().getEndTime().getTime() 
 				- downtime * 60 * 1000);
 
+				// if this is a potential conflict, then we try to fit the appointment inside of a downtime
 				if((app.getTimeSlot().getStartTime().before(finalEndTimeWithNoDownTime)
 				&& appEndNoDowntime.after(finalStartTime))){
 					boolean fitsInDowntime = false;

@@ -157,15 +157,17 @@ public class FlexiBookController {
 	}
 	
 	/**
+	 * Attempts to define a service combo with the provided data.
+	 * 
 	 * @author theodore
-	 * @category CRUD ServiceCombo
+	 * @category Feature set 5
+	 *  
+	 * @param name name of the new ServiceCombo
+	 * @param services array of names of Service s to be included in the combo
+	 * @param mainService name of main Service
+	 * @param mandatory array of booleans for whether each service is mandatory in an appointment for that service combo
 	 * 
-	 * @param name of the new ServiceCombo
-	 * @param array of names of Service s
-	 * @param name of main Service
-	 * @param array of booleans for whether each service is mandatory
-	 * 
-	 * @throws InvalidInputException
+	 * @throws InvalidInputException if the service combo already exists, does not contain enough services or contains services which do not exist, or does not contain a mandatory main service
 	 */
 	public static void defineServiceCombo(String name, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException {
 		checkUser("owner");
@@ -209,21 +211,23 @@ public class FlexiBookController {
 	}
 	
 	/**
+	 * Attempts to update a service combo with new parameters
+	 * 
 	 * @author theodore
-	 * @category CRUD ServiceCombo
+	 * @category Feature set 5
 	 * 
-	 * @param ServiceCombo to update
-	 * @param name of the updated ServiceCombo
-	 * @param array of names of Service s
-	 * @param name of main Service
-	 * @param array of booleans for whether each service is mandatory
+	 * @param comboName old name of the service combo, to be updated
+	 * @param newComboName change the service combo to this name
+	 * @param services array of names of Service s
+	 * @param mainService name of main Service
+	 * @param mandatory array of booleans for whether each service is mandatory
 	 * 
-	 * @throws InvalidInputException
+	 * @throws InvalidInputException if the service combo already exists, unless the existing combo is the one to be updated, does not contain enough services or contains services which do not exist, or does not contain a mandatory main service
 	 */
 	public static void updateServiceCombo(String comboName, String newComboName, String[] services, String mainService, boolean[] mandatory) throws InvalidInputException {
 		checkUser("owner");
 		if (services.length < 2) {
-			throw new InvalidInputException("A service Combo must have at least 2 services");
+			throw new InvalidInputException("A service Combo must have at least 2 services"); // this validation could be factored out into a method but this error message says "must have" and the other one says "must contain" so it didnt seem worth it.
 		}
 		if (getService(mainService) == null) {
 			throw new InvalidInputException(String.format("Service %s does not exist", mainService));
@@ -268,12 +272,14 @@ public class FlexiBookController {
 	}
 	
 	/**
+	 * deletes a service combo if it contains no future appointments
+	 * 
 	 * @author theodore
-	 * @category CRUD ServiceCombo
+	 * @category Feature set 5
 	 * 
 	 * @param name of the ServiceCombo to be deleted
 	 * 
-	 * @throws InvalidInputException
+	 * @throws InvalidInputException if the service combo does not exist or there are future appointments booked for that service combo
 	 */
 	public static void deleteServiceCombo(String name) throws InvalidInputException {
 		checkUser("owner");

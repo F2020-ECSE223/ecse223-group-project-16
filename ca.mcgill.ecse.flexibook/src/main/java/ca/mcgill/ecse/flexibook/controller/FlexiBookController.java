@@ -881,7 +881,9 @@ public class FlexiBookController {
 			}
 		}		
 	}
-
+	/**
+	 * @author heqianw
+	 */
 	private static boolean validateConflictingAppointments(Date finalStartDate, Time finalStartTime, Time finalEndTimeWithDownTime, 
 		Time finalEndTimeWithNoDownTime, long totalDuration) throws InvalidInputException {
 		for(Appointment app: FlexiBookApplication.getFlexiBook().getAppointments()){
@@ -1776,6 +1778,9 @@ public class FlexiBookController {
 			}
 		}
 	}
+	/**
+	 * @author heqianw
+	 */
 	private static BusinessHour.DayOfWeek getDayOfWeek(int day){
 		BusinessHour.DayOfWeek[] list = { 
 			BusinessHour.DayOfWeek.Sunday,

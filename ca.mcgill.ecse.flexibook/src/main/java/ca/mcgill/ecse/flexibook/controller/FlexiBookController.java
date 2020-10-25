@@ -96,56 +96,39 @@ public class FlexiBookController {
 	}
 
 	/**
-	 * Update the currently logged in User account with the provided new username and a new password.
+	 * Update the currently logged in User account with the provided new username and password.
 	 * 
 	 * @author louca
 	 * @category Feature set 1
 	 * 
-	 * @param username of the User account to update
 	 * @param newUsername with which to update the User account
 	 * @param newPassword with which to update the User account
 	 * 
 	 * @throws InvalidInputException if 
-	 * - the newUsername is empty or whitespace 
-	 * - the newPassword is empty or whitespace 
-	 * - the newUsername is not available 
-	 * - the User by the given username is the Owner, and the newUsername is not "owner"
+	 * - the newUsername is empty or whitespace
+	 * - the newPassword is empty or whitespace
+	 * - the newUsername is not available
+	 * - the currently logged in User is the Owner and the newUsername is not "owner"
 	 */
-	public static void updateUserAccount(String username, String newUsername, String newPassword) throws InvalidInputException {
-		if (username.equals("owner")) {
-			if (!newUsername.equals("owner")) {
-				throw new InvalidInputException("Changing username of owner is not allowed");
-			}
-			
-			updateUserAccountPassword(FlexiBookApplication.getFlexiBook().getOwner(), newPassword);
-		} else {
-			Customer customerToUpdate = getCustomerByUsername(username);
-			
-			if (customerToUpdate == null) {
-				return;
-			}
-			
-			updateCustomerAccountUsername(customerToUpdate, newUsername);
-			updateUserAccountPassword(customerToUpdate, newPassword);
+	public static void updateUserAccount(String newUsername, String newPassword) throws InvalidInputException {
+		User currentUser = FlexiBookApplication.getCurrentUser();
+		
+		if (currentUser instanceof Owner && !newUsername.equals("owner")) {
+			throw new InvalidInputException("Changing username of owner is not allowed");
 		}
-	}
-
-	/**
-	 * @author louca
-	 */
-	private static void updateCustomerAccountUsername(Customer customer, String newUsername) throws InvalidInputException {
-		validateCustomerAccountUsername(newUsername);
-		if (!customer.setUsername(newUsername)) {
-			throw new InvalidInputException("Username not available");
+		
+		if (currentUser instanceof Customer) {
+			Customer currentCustomer = (Customer) currentUser;
+			
+			validateCustomerAccountUsername(newUsername);
+			
+			if (!currentCustomer.setUsername(newUsername)) {
+				throw new InvalidInputException("Username not available");
+			}
 		}
-	}
-
-	/**
-	 * @author louca
-	 */
-	private static void updateUserAccountPassword(User user, String newPassword) throws InvalidInputException {
+		
 		validateUserAccountPassword(newPassword);
-		user.setPassword(newPassword);
+		currentUser.setPassword(newPassword);
 	}
 
 	/**
@@ -155,7 +138,6 @@ public class FlexiBookController {
 	 * @category Feature set 1
 	 * 
 	 * @param username of the Customer account to delete
-	 * @return whether or not the Customer account was deleted
 	 * 
 	 * @throws InvalidInputException if the Customer account to delete is the current user, or if the username is the that of the Owner account
 	 */
@@ -171,7 +153,6 @@ public class FlexiBookController {
 		}
 
 		logout();
-		deleteAllCustomerAppointments(customerToDelete);
 		customerToDelete.delete();
 	}
 	
@@ -895,17 +876,6 @@ public class FlexiBookController {
 			}
 		}
 		return true;
-	}
-	
-	private static void deleteAppointment(Appointment appointment) {
-		appointment.getTimeSlot().delete();
-		appointment.delete();
-	}
-	
-	private static void deleteAllCustomerAppointments(Customer customer) {
-		for (Appointment appointment : customer.getAppointments()) {
-			deleteAppointment(appointment);
-		}
 	}
 
 	private static void checkUser(String username) throws InvalidInputException {

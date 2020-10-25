@@ -940,6 +940,8 @@ public class FlexiBookController {
 	}
 		
 	/**
+	 * Login the user into the application
+	 * 
 	 * @author sarah
 	 * @category Login/Logout
 	 * 
@@ -1177,10 +1179,6 @@ public class FlexiBookController {
 	FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 	List<BusinessHour> businessHours = flexiBook.getBusiness().getBusinessHours();
 	
-	
-	//List<Appointment> appointmentsToView = new ArrayList<Appointment>();
-	//List<Date> datesToView = new ArrayList<Date>();
-	
 	List<TimeSlot> availableTSlots = new ArrayList<TimeSlot>();
 	List<TimeSlot> newAvailableTSlots = new ArrayList<TimeSlot>();
 	List<TimeSlot> busyTSlots = viewAppointmentCalendarBusy(username, startDate, endDate);
@@ -1223,7 +1221,6 @@ public class FlexiBookController {
 	
 
 	// Find available time slots
-	//int numOfBusyChecked;
 	boolean isBusyOnThisDate;
 	for (TimeSlot t: availableTSlots) {
 		isBusyOnThisDate = false;

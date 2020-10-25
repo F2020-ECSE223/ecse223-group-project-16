@@ -450,9 +450,6 @@ public class CucumberStepDefinitions {
     // ViewAppointmentCalendar
     //================================================================================
 
-	//================================================================================
-    // MakeAppointments
-    //================================================================================	
 	/**
 	 * @author heqianw
 	 */
@@ -511,44 +508,6 @@ public class CucumberStepDefinitions {
 	}
 	/** @author sarah
 	 */
-	/*@Given("the following appointments exist in the system:")
-	public void the_following_appointments_exist_in_the_system(io.cucumber.datatable.DataTable dataTable) {
-		List<Map<String, String>> rows = dataTable.asMaps();
-		Customer customer = null;
-		BookableService bookableService = null;
-		TimeSlot timeSlot = null;
-		
-		for (Map<String, String> columns : rows) {
-			
-			for (Customer c : flexiBook.getCustomers()) {
-		    	if (c.getUsername().equals(columns.get("customer"))) {
-		    		customer = c;
-		    	}
-		    }
-			
-			for (BookableService b : flexiBook.getBookableServices()) {
-		    	if (b.getName().equals(columns.get("serviceName"))) {
-		    		bookableService = b;
-		    	}
-		    }
-			
-			try {
-				 timeSlot = new TimeSlot(
-						 FlexiBookUtil.getDateFromString(columns.get("date")),
-						 FlexiBookUtil.getTimeFromString(columns.get("startTime")),
-						 FlexiBookUtil.getDateFromString(columns.get("date")),
-						 FlexiBookUtil.getTimeFromString(columns.get("endTime")), 
-						 flexiBook);
-			}
-			catch (ParseException e) {
-				exception = e;
-			}
-				
-			new Appointment(customer, bookableService, timeSlot, flexiBook);
-		}
-	} */
-	/** @author sarah
-	 */
 	@Given("{string} is logged in to their account") 
 	public void is_logged_in_to_their_account(String string) {
 		if (string.equals("owner")) {
@@ -604,25 +563,7 @@ public class CucumberStepDefinitions {
 	@Then("the following slots shall be available:")
 	public void the_following_slots_shall_be_available(io.cucumber.datatable.DataTable dataTable) {
 		List<Map<String, String>> rows = dataTable.asMaps();
-		
-		/* Unavailable and available time slots do not overlap
-		for (Map<String, String> columns : rows) {
-			for (TimeSlot t: unavailableTimeSlots) {
-				 if (columns.get("date").equals(t.getStartDate().toString())) {
-					 try {
-						 boolean endTimes = t.getEndTime().before(FlexiBookUtil.getTimeFromString(columns.get("endTime")));
-						 boolean startTimes = t.getStartTime().after(FlexiBookUtil.getTimeFromString(columns.get("startTime")));
-						 assertTrue(endTimes || startTimes);
-					 }
-					 catch (ParseException e) {
-						 exception = e;
-					 }
-					 
-				 }
-			}
-		}*/
-		
-		// ***
+
 		boolean isMatch;
 		
 		for (Map<String, String> columns : rows) {

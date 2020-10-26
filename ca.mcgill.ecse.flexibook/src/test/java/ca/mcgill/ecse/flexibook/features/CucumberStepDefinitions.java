@@ -1663,7 +1663,7 @@ public class CucumberStepDefinitions {
 	/**
 	 * @author Julie
 	 */
-	@Then("the {string} shall {string} be updated with start date {string} at {string} and end date {string} at {string}")
+	@Then("the {string} shall {string} updated with start date {string} at {string} and end date {string} at {string}")
 	public void the_shall_be_updated_with_start_date_at_and_end_date_at(String string, String string2, String string3, String string4, String string5, String string6) {
 		if (string2.equals("not")) {
 			if (string.equals("vacation")) {

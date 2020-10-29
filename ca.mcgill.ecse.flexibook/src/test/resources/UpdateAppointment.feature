@@ -92,3 +92,4 @@ Feature: Update appointment
       | user      | error                                                    |
       | owner     | Error: An owner cannot update a customer's appointment   |
       | customer2 | Error: A customer can only update their own appointments |
+      

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+/.metadata/
+.vscode
+=======
 # Ignore Gradle project-specific cache directory
 .gradle
 
@@ -11,6 +15,7 @@ build
 bin
 
 # Mac specific files
+>>>>>>> master
 .DS_Store
 /bin/
 
@@ -18,3 +23,4 @@ bin
 *~*
 \#*
 *\#
+/.metadata/

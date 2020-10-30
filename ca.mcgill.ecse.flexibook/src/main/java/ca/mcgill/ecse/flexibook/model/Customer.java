@@ -2,10 +2,12 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse.flexibook.model;
+import java.io.Serializable;
 import java.util.*;
 
-// line 23 "../../../../../FlexiBook.ump"
-public class Customer extends User
+// line 35 "../../../../../FlexiBookPersistence.ump"
+// line 25 "../../../../../FlexiBook.ump"
+public class Customer extends User implements Serializable
 {
 
   //------------------------
@@ -176,5 +178,13 @@ public class Customer extends User
     }
     super.delete();
   }
+  
+  //------------------------
+  // DEVELOPER CODE - PROVIDED AS-IS
+  //------------------------
+  
+  // line 39 "../../../../../FlexiBookPersistence.ump"
+  private static final long serialVersionUID = 3L ;
 
+  
 }

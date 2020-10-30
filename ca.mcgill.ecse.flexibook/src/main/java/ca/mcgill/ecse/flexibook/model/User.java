@@ -4,7 +4,8 @@
 package ca.mcgill.ecse.flexibook.model;
 import java.util.*;
 
-// line 13 "../../../../../FlexiBook.ump"
+// line 18 "../../../../../FlexiBookPersistence.ump"
+// line 15 "../../../../../FlexiBook.ump"
 public abstract class User
 {
 
@@ -89,6 +90,14 @@ public abstract class User
   public void delete()
   {
     usersByUsername.remove(getUsername());
+  }
+
+  // line 21 "../../../../../FlexiBookPersistence.ump"
+   public static  void reinitializeUsernames(List<User> users){
+    usersByUsername = new HashMap<String, User>();
+      for(User user : users){
+        usersByUsername.put(user.getUsername(), user);
+      }
   }
 
 

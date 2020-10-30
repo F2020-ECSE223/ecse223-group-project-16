@@ -2,10 +2,12 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse.flexibook.model;
+import java.io.Serializable;
 import java.util.*;
 
-// line 84 "../../../../../FlexiBook.ump"
-public class Appointment
+// line 90 "../../../../../FlexiBookPersistence.ump"
+// line 86 "../../../../../FlexiBook.ump"
+public class Appointment implements Serializable
 {
 
   //------------------------
@@ -249,5 +251,13 @@ public class Appointment
       placeholderFlexiBook.removeAppointment(this);
     }
   }
+  
+  //------------------------
+  // DEVELOPER CODE - PROVIDED AS-IS
+  //------------------------
+  
+  // line 93 "../../../../../FlexiBookPersistence.ump"
+  private static final long serialVersionUID = 10L ;
 
+  
 }

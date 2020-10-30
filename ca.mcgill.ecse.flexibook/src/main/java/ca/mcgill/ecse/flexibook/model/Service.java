@@ -2,10 +2,12 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse.flexibook.model;
+import java.io.Serializable;
 import java.util.*;
 
-// line 63 "../../../../../FlexiBook.ump"
-public class Service extends BookableService
+// line 70 "../../../../../FlexiBookPersistence.ump"
+// line 65 "../../../../../FlexiBook.ump"
+public class Service extends BookableService implements Serializable
 {
 
   //------------------------
@@ -87,5 +89,13 @@ public class Service extends BookableService
             "duration" + ":" + getDuration()+ "," +
             "downtimeDuration" + ":" + getDowntimeDuration()+ "," +
             "downtimeStart" + ":" + getDowntimeStart()+ "]";
-  }
+  }  
+  //------------------------
+  // DEVELOPER CODE - PROVIDED AS-IS
+  //------------------------
+  
+  // line 74 "../../../../../FlexiBookPersistence.ump"
+  private static final long serialVersionUID = 7L ;
+
+  
 }

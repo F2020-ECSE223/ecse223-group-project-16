@@ -2,9 +2,11 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse.flexibook.model;
+import java.io.Serializable;
 
-// line 79 "../../../../../FlexiBook.ump"
-public class ComboItem
+// line 84 "../../../../../FlexiBookPersistence.ump"
+// line 81 "../../../../../FlexiBook.ump"
+public class ComboItem implements Serializable
 {
 
   //------------------------
@@ -127,5 +129,13 @@ public class ComboItem
             "mandatory" + ":" + getMandatory()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "service = "+(getService()!=null?Integer.toHexString(System.identityHashCode(getService())):"null") + System.getProperties().getProperty("line.separator") +
             "  " + "serviceCombo = "+(getServiceCombo()!=null?Integer.toHexString(System.identityHashCode(getServiceCombo())):"null");
-  }
+  }  
+  //------------------------
+  // DEVELOPER CODE - PROVIDED AS-IS
+  //------------------------
+  
+  // line 87 "../../../../../FlexiBookPersistence.ump"
+  private static final long serialVersionUID = 9L ;
+
+  
 }

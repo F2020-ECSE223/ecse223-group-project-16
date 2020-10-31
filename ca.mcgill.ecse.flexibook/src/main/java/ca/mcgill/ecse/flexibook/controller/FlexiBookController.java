@@ -47,7 +47,7 @@ public class FlexiBookController {
 		}
 
 		try {
-			new Customer(username, password, flexiBook);
+			new Customer(username, password, 0, flexiBook);
 		} catch (RuntimeException e) {
 			if (e.getMessage().startsWith("Cannot create due to duplicate username.")) {
 				throw new InvalidInputException("The username already exists");

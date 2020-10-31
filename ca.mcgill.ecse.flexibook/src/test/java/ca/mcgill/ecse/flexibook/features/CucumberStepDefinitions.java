@@ -103,7 +103,7 @@ public class CucumberStepDefinitions {
 			}
 			
 			if (!customerExists) {
-				new Customer(columns.get("username"), columns.get("password"), flexiBook);
+				new Customer(columns.get("username"), columns.get("password"), 0, flexiBook);
 			}
 		}
 	}
@@ -154,7 +154,7 @@ public class CucumberStepDefinitions {
 					return;
 				}
 			}
-			FlexiBookApplication.setCurrentUser(new Customer(string, "customerPass", flexiBook));
+			FlexiBookApplication.setCurrentUser(new Customer(string, "customerPass", 0, flexiBook));
 		}
 		
 	}
@@ -320,7 +320,7 @@ public class CucumberStepDefinitions {
 		    		return;
 		    	}
 		    }
-		    new Customer(string, "customerPass", flexiBook);
+		    new Customer(string, "customerPass", 0, flexiBook);
 		}
 	}
 	/**
@@ -1115,7 +1115,7 @@ public class CucumberStepDefinitions {
 		        return;
 		    }
 		}
-		FlexiBookApplication.setCurrentUser(new Customer(string, "password", flexiBook));
+		FlexiBookApplication.setCurrentUser(new Customer(string, "password", 0, flexiBook));
 	}
 	/**
 	 * @author aayush
@@ -1739,4 +1739,68 @@ public class CucumberStepDefinitions {
 			}
 		}
 	}	
+	
+	
+	// State machine step definitions
+	
+	
+	@Given("{string} has {int} no-show records")
+	public void has_no_show_records(String string, Integer int1) {
+		for (Customer customer : FlexiBookApplication.getFlexiBook().getCustomers()) {
+			if (customer.getUsername().equals(string)) {
+				customer.setNoShow(int1);
+				break;
+			}
+		}
+	}
+	@When("{string} makes a {string} appointment for the date {string} and time {string} at {string}") // TODO string5?
+	public void makes_a_appointment_for_the_date_and_time_at(String string, String string2, String string3, String string4, String string5) {
+	   try {
+		   for (Customer customer: flexiBook.getCustomers()) {
+			   if (customer.getUsername().equals(string)) {
+				   System.out.println(string);
+			   }
+		   }
+	       FlexiBookController.makeAppointment(string, string3, string2, string4);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}
+	}
+	@When("the owner starts the appointment at {string}")
+	public void the_owner_starts_the_appointment_at(String string) {
+		 // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+	@When("the owner ends the appointment at {string}")
+	public void the_owner_ends_the_appointment_at(String string) {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Then("the user {string} shall have {int} no-show records")
+	public void the_user_shall_have_no_show_records(String string, Integer int1) {
+		for (Customer customer : FlexiBookApplication.getFlexiBook().getCustomers()) {
+			if (customer.getUsername().equals(string)) {
+				assertEquals(customer.getNoShow(), int1);
+			}
+		}
+	    
+	}
+	@Then("the system shall have {int} appointment")
+	public void the_system_shall_have_appointment(Integer int1) {
+	    assertEquals(flexiBook.getAppointments().size(), int1);
+	} 
+
+
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

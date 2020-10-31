@@ -22,6 +22,7 @@ class Owner {
 
 class Customer {
   isA User;
+  int noShow;
 }
 
 class Business {

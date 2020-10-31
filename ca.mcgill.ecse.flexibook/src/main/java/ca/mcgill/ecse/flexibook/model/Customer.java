@@ -12,6 +12,9 @@ public class Customer extends User
   // MEMBER VARIABLES
   //------------------------
 
+  //Customer Attributes
+  private int noShow;
+
   //Customer Associations
   private FlexiBook flexiBook;
   private List<Appointment> appointments;
@@ -20,9 +23,10 @@ public class Customer extends User
   // CONSTRUCTOR
   //------------------------
 
-  public Customer(String aUsername, String aPassword, FlexiBook aFlexiBook)
+  public Customer(String aUsername, String aPassword, int aNoShow, FlexiBook aFlexiBook)
   {
     super(aUsername, aPassword);
+    noShow = aNoShow;
     boolean didAddFlexiBook = setFlexiBook(aFlexiBook);
     if (!didAddFlexiBook)
     {
@@ -34,6 +38,19 @@ public class Customer extends User
   //------------------------
   // INTERFACE
   //------------------------
+
+  public boolean setNoShow(int aNoShow)
+  {
+    boolean wasSet = false;
+    noShow = aNoShow;
+    wasSet = true;
+    return wasSet;
+  }
+
+  public int getNoShow()
+  {
+    return noShow;
+  }
   /* Code from template association_GetOne */
   public FlexiBook getFlexiBook()
   {
@@ -177,4 +194,11 @@ public class Customer extends User
     super.delete();
   }
 
+
+  public String toString()
+  {
+    return super.toString() + "["+
+            "noShow" + ":" + getNoShow()+ "]" + System.getProperties().getProperty("line.separator") +
+            "  " + "flexiBook = "+(getFlexiBook()!=null?Integer.toHexString(System.identityHashCode(getFlexiBook())):"null");
+  }
 }

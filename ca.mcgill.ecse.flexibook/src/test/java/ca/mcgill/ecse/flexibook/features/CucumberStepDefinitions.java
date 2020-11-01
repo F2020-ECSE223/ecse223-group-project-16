@@ -1743,28 +1743,6 @@ public class CucumberStepDefinitions {
 	
 	// State machine step definitions
 	
-	
-	@Given("{string} has {int} no-show records")
-	public void has_no_show_records(String string, Integer int1) {
-		for (Customer customer : FlexiBookApplication.getFlexiBook().getCustomers()) {
-			if (customer.getUsername().equals(string)) {
-				customer.setNoShow(int1);
-				break;
-			}
-		}
-	}
-	
-	@Then("the user {string} shall have {int} no-show records")
-	public void the_user_shall_have_no_show_records(String string, Integer int1) {
-		for (Customer customer : FlexiBookApplication.getFlexiBook().getCustomers()) {
-			if (customer.getUsername().equals(string)) {
-				assertEquals(customer.getNoShow(), int1);
-			}
-		}
-	    
-	}
-	
-
 	/** 
 	 * @author sarah
 	 */

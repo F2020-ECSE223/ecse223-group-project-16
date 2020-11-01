@@ -13,7 +13,7 @@ public class Customer extends User
   //------------------------
 
   //Customer Attributes
-  private int noShow;
+  private int noShowCount;
 
   //Customer Associations
   private FlexiBook flexiBook;
@@ -26,7 +26,7 @@ public class Customer extends User
   public Customer(String aUsername, String aPassword, int aNoShow, FlexiBook aFlexiBook)
   {
     super(aUsername, aPassword);
-    noShow = aNoShow;
+    noShowCount = 0;
     boolean didAddFlexiBook = setFlexiBook(aFlexiBook);
     if (!didAddFlexiBook)
     {
@@ -38,19 +38,6 @@ public class Customer extends User
   //------------------------
   // INTERFACE
   //------------------------
-
-  public boolean setNoShow(int aNoShow)
-  {
-    boolean wasSet = false;
-    noShow = aNoShow;
-    wasSet = true;
-    return wasSet;
-  }
-
-  public int getNoShow()
-  {
-    return noShow;
-  }
   /* Code from template association_GetOne */
   public FlexiBook getFlexiBook()
   {
@@ -194,11 +181,25 @@ public class Customer extends User
     super.delete();
   }
 
+  // line 28 "../../../../../FlexiBook.ump"
+   public int getNoShowCount(){
+    return noShowCount;
+  }
+
+  // line 32 "../../../../../FlexiBook.ump"
+   public void incrementNoShowCount(){
+    noShowCount++;
+  }
+
+  // line 36 "../../../../../FlexiBook.ump"
+   public void resetNoShowCount(){
+    noShowCount = 0;
+  }
+
 
   public String toString()
   {
-    return super.toString() + "["+
-            "noShow" + ":" + getNoShow()+ "]" + System.getProperties().getProperty("line.separator") +
+    return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "flexiBook = "+(getFlexiBook()!=null?Integer.toHexString(System.identityHashCode(getFlexiBook())):"null");
   }
 }

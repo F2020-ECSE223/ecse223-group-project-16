@@ -22,7 +22,23 @@ class Owner {
 
 class Customer {
   isA User;
+<<<<<<< HEAD
   int noShow;
+=======
+  internal int noShowCount = 0;
+  
+  public int getNoShowCount() {
+  	return noShowCount;
+  }
+  
+  public void incrementNoShowCount() {
+  	noShowCount++;
+  }
+  
+  public void resetNoShowCount() {
+  	noShowCount = 0;
+  }
+>>>>>>> master
 }
 
 class Business {

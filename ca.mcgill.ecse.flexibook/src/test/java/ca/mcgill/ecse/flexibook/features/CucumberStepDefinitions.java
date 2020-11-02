@@ -1755,8 +1755,10 @@ public class CucumberStepDefinitions {
 				cust = c;
 			}
 		}
-		//fail();
-		//cust.???
+		cust.resetNoShowCount();
+		for (int i = 0; i < int1; i++) {
+			cust.incrementNoShowCount();
+		}
 	}
 	String apptService;
 	String apptDate;
@@ -1873,8 +1875,7 @@ public class CucumberStepDefinitions {
 			for (Appointment a : flexiBook.getAppointments()) {
 				if (a.getBookableService().getName().equals(apptService) && a.getTimeSlot().getStartDate().equals(startDate) && a.getTimeSlot().getStartTime().equals(startTime)) {
 					appt = a;
-					//fail();
-					//assertTrue(appt.???);
+					assertEquals(appt.getAppointmentStatus(), Appointment.AppointmentStatus.Booked);
 					return;
 				}
 			}
@@ -1940,8 +1941,7 @@ public class CucumberStepDefinitions {
 				cust = c;
 			}
 		}
-		//fail();
-		//assertEquals(int1, cust.???);
+		assertEquals(int1, cust.getNoShowCount());
 	}
 	/**
 	 * @author theodore

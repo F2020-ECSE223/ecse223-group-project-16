@@ -4,7 +4,7 @@
 package ca.mcgill.ecse.flexibook.model;
 import java.util.*;
 
-// line 76 "../../../../../FlexiBook.ump"
+// line 78 "../../../../../FlexiBook.ump"
 public class Service extends BookableService
 {
 

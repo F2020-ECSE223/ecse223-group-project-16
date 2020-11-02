@@ -4,7 +4,7 @@
 package ca.mcgill.ecse.flexibook.model;
 import java.util.*;
 
-// line 23 "../../../../../FlexiBook.ump"
+// line 25 "../../../../../FlexiBook.ump"
 public class Customer extends User
 {
 
@@ -181,17 +181,17 @@ public class Customer extends User
     super.delete();
   }
 
-  // line 28 "../../../../../FlexiBook.ump"
+  // line 30 "../../../../../FlexiBook.ump"
    public int getNoShowCount(){
     return noShowCount;
   }
 
-  // line 32 "../../../../../FlexiBook.ump"
+  // line 34 "../../../../../FlexiBook.ump"
    public void incrementNoShowCount(){
     noShowCount++;
   }
 
-  // line 36 "../../../../../FlexiBook.ump"
+  // line 38 "../../../../../FlexiBook.ump"
    public void resetNoShowCount(){
     noShowCount = 0;
   }

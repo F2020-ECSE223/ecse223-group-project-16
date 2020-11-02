@@ -4,13 +4,16 @@
 package ca.mcgill.ecse.flexibook.model;
 import java.util.*;
 
-// line 23 "../../../../../FlexiBook.ump"
+// line 25 "../../../../../FlexiBook.ump"
 public class Customer extends User
 {
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
+
+  //Customer Attributes
+  private int noShowCount;
 
   //Customer Associations
   private FlexiBook flexiBook;
@@ -23,6 +26,7 @@ public class Customer extends User
   public Customer(String aUsername, String aPassword, FlexiBook aFlexiBook)
   {
     super(aUsername, aPassword);
+    noShowCount = 0;
     boolean didAddFlexiBook = setFlexiBook(aFlexiBook);
     if (!didAddFlexiBook)
     {
@@ -177,4 +181,25 @@ public class Customer extends User
     super.delete();
   }
 
+  // line 30 "../../../../../FlexiBook.ump"
+   public int getNoShowCount(){
+    return noShowCount;
+  }
+
+  // line 34 "../../../../../FlexiBook.ump"
+   public void incrementNoShowCount(){
+    noShowCount++;
+  }
+
+  // line 38 "../../../../../FlexiBook.ump"
+   public void resetNoShowCount(){
+    noShowCount = 0;
+  }
+
+
+  public String toString()
+  {
+    return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
+            "  " + "flexiBook = "+(getFlexiBook()!=null?Integer.toHexString(System.identityHashCode(getFlexiBook())):"null");
+  }
 }

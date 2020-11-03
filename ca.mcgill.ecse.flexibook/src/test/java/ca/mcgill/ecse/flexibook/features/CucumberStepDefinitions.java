@@ -1736,7 +1736,246 @@ public class CucumberStepDefinitions {
 			}
 			else {
 				assertEquals(numberofVacations, flexiBook.getBusiness().getVacation().size());
+				}
 			}
 		}
-	}	
+		
+	/**
+	 * @author theodore
+	 */
+	@Given("{string} has {int} no-show records")
+	public void has_no_show_records(String string, Integer int1) {
+		Customer cust = null;
+		for (Customer c : flexiBook.getCustomers()) {
+			if (c.getUsername().equals(string)) {
+				cust = c;
+			}
+		}
+		//fail();
+		//cust.???
+	}
+	String apptService;
+	String apptDate;
+	String apptTime;
+	/**
+	 * @author theodore
+	 */
+	@When("{string} makes a {string} appointment for the date {string} and time {string} at {string}")
+	public void makes_a_appointment_for_the_date_and_time_at(String cust, String bservice, String adate, String atime, String ctime) {
+		the_system_s_time_and_date_is(ctime);
+		for (Customer c : flexiBook.getCustomers()) {
+			if (c.getUsername().equals(cust)) {
+				FlexiBookApplication.setCurrentUser(c);
+			}
+		}
+		try {
+			FlexiBookController.makeAppointment(cust, adate, bservice, atime);
+		} catch (InvalidInputException e) {
+			exception = e;
+			System.err.println(e);
+		}
+		apptService = bservice;
+		apptDate = adate;
+		apptTime = atime;
+		System.err.println(".." + atime);
+		try {
+			Date startDate = FlexiBookUtil.getDateFromString(apptDate);
+			Time startTime = FlexiBookUtil.getTimeFromString(apptTime);
+			for (Appointment a : flexiBook.getAppointments()) {
+				if (a.getBookableService().getName().equals(apptService) && a.getTimeSlot().getStartDate().equals(startDate) && a.getTimeSlot().getStartTime().equals(startTime)) {
+					return;
+				}
+			}
+			System.err.println("appointment could not be booked :((");
+			fail();
+		} catch (ParseException e) {
+			fail();
+		}
+	}
+	/**
+	 * @author theodore
+	 */
+	@When("{string} attempts to change the service in the appointment to {string} at {string}")
+	public void attempts_to_change_the_service_in_the_appointment_to_at(String cust, String serv, String ctime) {
+		for (Customer c : flexiBook.getCustomers()) {
+			if (c.getUsername().equals(cust)) {
+				FlexiBookApplication.setCurrentUser(c);
+			}
+		}
+		System.err.println(apptTime);
+		the_system_s_time_and_date_is(ctime);
+		try {
+			FlexiBookController.updateAppointment(cust, apptService, apptDate, apptTime, serv, ctime);
+			apptService = serv;
+		} catch (InvalidInputException e) {
+			exception = e;
+			System.err.println(e);
+		}
+	}
+	/**
+	 * @author theodore
+	 */
+	@When("{string} makes a {string} appointment without choosing optional services for the date {string} and time {string} at {string}")
+	public void makes_a_appointment_without_choosing_optional_services_for_the_date_and_time_at(String cust, String bservice, String adate, String atime, String ctime) {
+		the_system_s_time_and_date_is(ctime);
+		for (Customer c : flexiBook.getCustomers()) {
+			if (c.getUsername().equals(cust)) {
+				FlexiBookApplication.setCurrentUser(c);
+			}
+		}
+		try {
+			FlexiBookController.makeAppointment(cust, adate, bservice, "", atime);
+		} catch (InvalidInputException e) {
+			exception = e;
+			//System.err.println(e);
+		}
+		apptService = bservice;
+		apptDate = adate;
+		apptTime = atime;
+	}
+	/**
+	 * @author theodore
+	 */
+	@When("{string} attempts to update the date to {string} and time to {string} at {string}")
+	public void attempts_to_update_the_date_to_and_time_to_at(String cust, String adate, String atime, String ctime) {
+		for (Customer c : flexiBook.getCustomers()) {
+			if (c.getUsername().equals(cust)) {
+				FlexiBookApplication.setCurrentUser(c);
+			}
+		}
+		the_system_s_time_and_date_is(ctime);
+		try {
+			FlexiBookController.updateAppointment(cust, apptService, apptDate, apptTime, adate, atime);
+			apptDate = adate;
+			apptTime = atime;
+		} catch (InvalidInputException e) {
+			exception = e;
+			//System.err.println(e);
+		}
+	}
+	/**
+	 * @author theodore
+	 */
+	@When("{string} attempts to add the optional service {string} to the service combo in the appointment at {string}")
+	public void attempts_to_add_the_optional_service_to_the_service_combo_in_the_appointment_at(String cust, String serv, String ctime) {
+		for (Customer c : flexiBook.getCustomers()) {
+			if (c.getUsername().equals(cust)) {
+				FlexiBookApplication.setCurrentUser(c);
+			}
+		}
+		the_system_s_time_and_date_is(ctime);
+		try {
+			FlexiBookController.updateAppointment(cust, true, serv, apptService, apptDate, apptTime);
+		} catch (InvalidInputException e) {
+			exception = e;
+			//System.err.println(e);
+		}
+	}
+
+	/**
+	 * @author theodore
+	 */
+	Appointment appt = null;
+	@Then("the appointment shall be booked")
+	public void the_appointment_shall_be_booked() {
+		try {
+			Date startDate = FlexiBookUtil.getDateFromString(apptDate);
+			Time startTime = FlexiBookUtil.getTimeFromString(apptTime);
+			for (Appointment a : flexiBook.getAppointments()) {
+				if (a.getBookableService().getName().equals(apptService) && a.getTimeSlot().getStartDate().equals(startDate) && a.getTimeSlot().getStartTime().equals(startTime)) {
+					appt = a;
+					//fail();
+					//assertTrue(appt.???);
+					return;
+				}
+			}
+			fail();
+		} catch (ParseException e) {
+			fail();
+		}
+	}
+	/**
+	 * @author theodore
+	 */
+	@Then("the service in the appointment shall be {string}")
+	public void the_service_in_the_appointment_shall_be(String string) {
+		assertEquals(appt.getBookableService().getName(), string);
+	}
+	/**
+	 * @author theodore
+	 */
+	@Then("the service combo in the appointment shall be {string}")
+	public void the_service_combo_in_the_appointment_shall_be(String string) {
+		assertEquals(appt.getBookableService().getName(), string);
+	}
+	/**
+	 * @author theodore
+	 */
+	@Then("the service combo shall have {string} selected services")
+	public void the_service_combo_shall_have_selected_services(String string) {
+		List<String> servs = Arrays.asList(string.split(","));
+		assertEquals(appt.numberOfChosenItems(), servs.size());
+		for (ComboItem s : appt.getChosenItems()) {
+			assertTrue(servs.contains(s.getService().getName()));
+		}
+	}
+	/**
+	 * @author theodore
+	 */
+	@Then("the appointment shall be for the date {string} with start time {string} and end time {string}")
+	public void the_appointment_shall_be_for_the_date_with_start_time_and_end_time(String date, String startTime, String endTime) {
+		TimeSlot ts = appt.getTimeSlot();
+		try {
+			assertEquals(FlexiBookUtil.getDateFromString(date), ts.getStartDate());
+			assertEquals(FlexiBookUtil.getTimeFromString(startTime), ts.getStartTime());
+			assertEquals(FlexiBookUtil.getTimeFromString(endTime), ts.getEndTime());
+		} catch (ParseException e) {
+			fail();
+		}
+	}
+	/**
+	 * @author theodore
+	 */
+	@Then("the username associated with the appointment shall be {string}")
+	public void the_username_associated_with_the_appointment_shall_be(String string) {
+		assertEquals(appt.getCustomer().getUsername(), string);
+	}
+	/**
+	 * @author theodore
+	 */
+	@Then("the user {string} shall have {int} no-show records")
+	public void the_user_shall_have_no_show_records(String string, Integer int1) {
+		Customer cust = null;
+		for (Customer c : flexiBook.getCustomers()) {
+			if (c.getUsername().equals(string)) {
+				cust = c;
+			}
+		}
+		//fail();
+		//assertEquals(int1, cust.???);
+	}
+	/**
+	 * @author theodore
+	 */
+	@Then("the system shall have {int} appointments")
+	public void the_system_shall_have_appointments(Integer int1) {
+		assertEquals(int1, flexiBook.numberOfAppointments());
+	}
+	/**
+	 * @author Aayush
+	 */
+	@When("{string} attempts to cancel the appointment at {string}")
+	public void attempts_to_cancel_the_appointment_at(String string, String string2) {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+
+
+	@Then("the system shall have {int} appointment")
+	public void the_system_shall_have_appointment(Integer int1) {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+	
+	
 }

@@ -2063,4 +2063,44 @@ public class FlexiBookController {
 		
 		return calendar;
 	}
+	
+	// state machine controller methods
+	
+	/**
+	 * Starts an appointment 
+	 * 
+	 * @author sarah
+	 * @category 
+	 * 
+	 * @param appt appointment to start
+	 * @throws InvalidInputException if appt is null
+	
+	 */
+	public static void startAppointment (Appointment appt) throws InvalidInputException {
+		if (appt == null) {
+			throw new InvalidInputException("Appointment not found"); 
+		}
+		
+		appt.startAppointment();
+	}
+	
+	/**
+	 * Ends an appointment 
+	 * 
+	 * @author sarah
+	 * @category 
+	 * 
+	 * @param appt appointment to end	 
+	 * @throws InvalidInputException if appt is null
+	
+	 */
+	public static void endAppointment (Appointment appt) throws InvalidInputException {
+		if (appt == null) {
+			throw new InvalidInputException("Appointment "); 
+		}
+		
+		appt.startAppointment();
+	}
+	
+	
 }

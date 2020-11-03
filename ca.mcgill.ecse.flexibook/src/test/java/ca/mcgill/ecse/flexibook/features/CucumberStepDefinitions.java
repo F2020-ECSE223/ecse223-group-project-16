@@ -25,6 +25,7 @@ import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOBusiness;
 import ca.mcgill.ecse.flexibook.controller.TOTimeSlot;
 import ca.mcgill.ecse.flexibook.model.*;
+import ca.mcgill.ecse.flexibook.model.Appointment.AppointmentStatus;
 import ca.mcgill.ecse.flexibook.util.FlexiBookUtil;
 import ca.mcgill.ecse.flexibook.util.SystemTime;
 import io.cucumber.java.Before;
@@ -1743,17 +1744,46 @@ public class CucumberStepDefinitions {
 	
 	// State machine step definitions
 	
+	
+	String apptService;
+	String apptDate;
+	String apptTime;
+	
 	/** 
 	 * @author sarah
 	 */
 	@When("the owner starts the appointment at {string}")
 	public void the_owner_starts_the_appointment_at(String string) {
 		// set system time?
-	    /* FlexiBookController.startAppointment(a);
-	     * 
-	     * 
-	     * 
-	     * */
+		
+		Date apptStartDate = null;
+		Time apptStartTime = null;
+		Appointment appt = null;
+		
+		try {
+			apptStartDate = FlexiBookUtil.getDateFromString(apptDate);
+			apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
+		} catch (ParseException e) {
+			exception = e;
+			System.out.println(e.getMessage()); // to check
+		}
+		
+		
+		for (Appointment a: flexiBook.getAppointments()) {
+			if (a.getBookableService().getName().equals(apptService) &&
+				a.getTimeSlot().getStartDate().equals(apptStartDate) &&
+				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
+				
+				appt = a;
+			}
+		}
+		
+		try {
+			FlexiBookController.startAppointment(appt);
+		} catch (InvalidInputException e) {
+			exception = e;
+			System.out.println(e.getMessage()); // to check
+		}
 	}
 	/** 
 	 * @author sarah
@@ -1761,11 +1791,35 @@ public class CucumberStepDefinitions {
 	@When("the owner ends the appointment at {string}")
 	public void the_owner_ends_the_appointment_at(String string) {
 		// set system time?
-	    /* FlexiBookController.endAppointment(a);
-	     * 
-	     * 
-	     * 
-	     * */
+		
+		Date apptStartDate = null;
+		Time apptStartTime = null;
+		Appointment appt = null;
+		
+		try {
+			apptStartDate = FlexiBookUtil.getDateFromString(apptDate);
+			apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
+		} catch (ParseException e) {
+			exception = e;
+			System.out.println(e.getMessage()); // to check
+		}
+		
+		
+		for (Appointment a: flexiBook.getAppointments()) {
+			if (a.getBookableService().getName().equals(apptService) &&
+				a.getTimeSlot().getStartDate().equals(apptStartDate) &&
+				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
+				
+				appt = a;
+			}
+		}
+		
+		try {
+			FlexiBookController.endAppointment(appt);
+		} catch (InvalidInputException e) {
+			exception = e;
+			System.out.println(e.getMessage()); // to check
+		}
 	}
 	/** 
 	 * @author sarah
@@ -1779,16 +1833,28 @@ public class CucumberStepDefinitions {
 	 */
 	@Then("the appointment shall be in progress")
 	public void the_appointment_shall_be_in_progress() {
-	   // assertTrue(AppointmentStatus.InProgress, a.getAppointmentStatus());
+		Date apptStartDate = null;
+		Time apptStartTime = null;
+		
+		try {
+			apptStartDate = FlexiBookUtil.getDateFromString(apptDate);
+			apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
+		} catch (ParseException e) {
+			exception = e;
+			System.out.println(e.getMessage()); // to check
+		}
+		
+		
+		for (Appointment a: flexiBook.getAppointments()) {
+			if (a.getBookableService().getName().equals(apptService) &&
+				a.getTimeSlot().getStartDate().equals(apptStartDate) &&
+				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
+				
+				assertEquals(AppointmentStatus.InProgress, a.getAppointmentStatus());
+			}
+		}
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
+		
 	
 }

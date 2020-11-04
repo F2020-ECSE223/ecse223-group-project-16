@@ -1929,9 +1929,11 @@ public class CucumberStepDefinitions {
 	/**
 	 * @author theodore
 	 */
+	String customerString;
 	@Then("the user {string} shall have {int} no-show records")
 	public void the_user_shall_have_no_show_records(String string, Integer int1) {
 		Customer cust = null;
+		customerString = string;
 		for (Customer c : flexiBook.getCustomers()) {
 			if (c.getUsername().equals(string)) {
 				cust = c;
@@ -1943,23 +1945,47 @@ public class CucumberStepDefinitions {
 	 * @author theodore
 	 */
 	@Then("the system shall have {int} appointments")
+	@Then("the system shall have {int} appointment")
 	public void the_system_shall_have_appointments(Integer int1) {
 		assertEquals(int1, flexiBook.numberOfAppointments());
 	}
-	
 	/**
 	 * @author Julie
 	 */
+	Date apptDateDate = null;
+	Time apptTimeTime = null;
 	@When("the owner attempts to register a no-show for the appointment at {string}")
 	public void the_owner_attempts_to_register_a_no_show_for_the_appointment_at(String string) {
-		Date date = null;
-		Time time = null;
 		try {
-			date = FlexiBookUtil.getDateFromString(string.substring(0,10));
-			time = FlexiBookUtil.getTimeFromString(string.substring(11,16));
+			apptDateDate = FlexiBookUtil.getDateFromString(apptDate);
+			apptTimeTime = FlexiBookUtil.getTimeFromString(apptTime);
 		} catch (ParseException e1) {
 			e1.printStackTrace();
 		}
-		FlexiBookController.registerNoShow(date, time);
+		FlexiBookController.registerNoShow(apptDateDate, apptTimeTime);
+		
+		for (Appointment a : FlexiBookApplication.getFlexiBook().getAppointments()) {
+			if (apptDateDate.equals(a.getTimeSlot().getStartDate()) && apptTimeTime.equals(a.getTimeSlot().getStartTime())) {
+				appt = a;
+			}
+		}
+		appt.delete();
+	}
+	@When("the owner starts the appointment at {string}")
+	public void the_owner_starts_the_appointment_at(String string) {
+		//FlexiBookController.startAppointment(apptDateDate, apptTimeTime);
+	    // Write code here that turns the phrase above into concrete actions
+	}
+	@When("{string} attempts to cancel the appointment at {string}")
+	public void attempts_to_cancel_the_appointment_at(String string, String string2) {
+	    // Write code here that turns the phrase above into concrete actions
+	}
+	@Then("the appointment shall be in progress")
+	public void the_appointment_shall_be_in_progress() {
+	    // Write code here that turns the phrase above into concrete actions
+	}
+	@When("the owner attempts to end the appointment at {string}")
+	public void the_owner_attempts_to_end_the_appointment_at(String string) {
+	    // Write code here that turns the phrase above into concrete actions
 	}
 }

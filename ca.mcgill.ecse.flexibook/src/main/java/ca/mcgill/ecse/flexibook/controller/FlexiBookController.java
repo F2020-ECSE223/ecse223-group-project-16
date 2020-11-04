@@ -2094,7 +2094,7 @@ public class FlexiBookController {
 		
 		for (TOTimeSlot tS : availableTimeSlots) {
 			calendar.addAvailableTimeSlot(tS);
-		} 
+		}
 		
 		for (TOTimeSlot tS : unavailableTimeSlots) {
 			calendar.addUnavailableTimeSlot(tS);
@@ -2112,9 +2112,16 @@ public class FlexiBookController {
 	 */
 	public static void registerNoShow(Date noShowDate, Time noShowTime) {
 		for (Appointment a : FlexiBookApplication.getFlexiBook().getAppointments()) {
-			if (noShowDate == a.getTimeSlot().getStartDate() && noShowTime == a.getTimeSlot().getStartTime()) {
+			if (noShowDate.equals(a.getTimeSlot().getStartDate()) && noShowTime.equals(a.getTimeSlot().getStartTime())) {
 				a.getCustomer().incrementNoShowCount();
 			}
 		}
+	}
+	public static void deleteAppointment(Appointment appointment) {
+		appointment.delete();
+	}
+	
+	public static void startAppointment(Date startDate, Time startTime) {
+		
 	}
 }

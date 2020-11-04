@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import ca.mcgill.ecse.flexibook.model.Business;
 import ca.mcgill.ecse.flexibook.model.FlexiBook;
 import ca.mcgill.ecse.flexibook.persistence.FlexiBookPersistence;
-import ca.mcgill.ecse.flexibook.util.SystemTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
 class FlexiBookApplicationTest {
-    private static int nextDriverID = 1;
 	private static String filename = "testdata.flexibook";
 	
 	@BeforeAll
@@ -54,8 +52,6 @@ class FlexiBookApplicationTest {
         flexiBook.setBusiness(b);
 
 		FlexiBookPersistence.save(flexiBook);
-		
-		// load model again and check it
 		FlexiBook flexiBook2 = FlexiBookPersistence.load();
         assertEquals(b.getName(), flexiBook2.getBusiness().getName());
         assertEquals(b.getAddress(), flexiBook2.getBusiness().getAddress());;

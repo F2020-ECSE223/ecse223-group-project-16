@@ -439,7 +439,7 @@ public class FlexiBookController {
 	 *  
 	 * checks if a bookable service appointment would have any time conflicts.
 	 */
-	private static Time checkAppointmentSlots(BookableService bs, List<ComboItem> chosenItems, Date startDate, Time startTime) throws InvalidInputException {
+	private static Time checkAppointmentSlots(BookableService bs, List<ComboItem> chosenItems, Date startDate, Time startTime, Appointment existingAppt) throws InvalidInputException {
 		SimpleDateFormat timeStringifier = new SimpleDateFormat("H:mm");
 		String noTimeSlotMessage = String.format("There are no available slots for %s on %s at %s", bs.getName(), startDate, timeStringifier.format(startTime));
 		Time endTimeWithDownTime, endTimeWithNoDownTime;
@@ -495,7 +495,7 @@ public class FlexiBookController {
 			Service service = (Service) bs;
 			if(!validateConflictingAppointments(startDate, startTime, endTimeWithNoDownTime, 
 					new Time(startTime.getTime() + service.getDowntimeStart() * 60 * 1000),
-					new Time(startTime.getTime() + (service.getDowntimeStart() + service.getDowntimeDuration()) * 60 * 1000))) {
+					new Time(startTime.getTime() + (service.getDowntimeStart() + service.getDowntimeDuration()) * 60 * 1000), existingAppt)) {
 				throw new InvalidInputException(noTimeSlotMessage);
 			}
 		} else {
@@ -507,14 +507,19 @@ public class FlexiBookController {
 				ciEndTime = new Time(ciStartTime.getTime() + s.getDuration() * 60 * 1000);
 				Time ciDownTimeStart = new Time(ciStartTime.getTime() + s.getDowntimeStart() * 60 * 1000);
 				Time ciDownTimeEnd = new Time(ciDownTimeStart.getTime() + s.getDowntimeDuration() * 60 * 1000);
-				if(!validateConflictingAppointments(startDate, ciStartTime, ciEndTime, ciDownTimeStart, ciDownTimeEnd)) {
+				if(!validateConflictingAppointments(startDate, ciStartTime, ciEndTime, ciDownTimeStart, ciDownTimeEnd, existingAppt)) {
 					throw new InvalidInputException(noTimeSlotMessage);
 				}
 			}
 		}
 		return endTimeWithDownTime;
 	}
-
+	/**
+	 * @author theodore
+	 */
+	private static Time checkAppointmentSlots(BookableService bs, List<ComboItem> chosenItems, Date startDate, Time startTime) throws InvalidInputException {
+		return checkAppointmentSlots(bs, chosenItems, startDate, startTime, null);
+	}
 	/**
 	 * @author heqianw
 	 * @category Feature set 6
@@ -529,14 +534,13 @@ public class FlexiBookController {
 	 * @param newStartTimeString 	tentative new start Time of appointment
 	 * @throws InvalidInputException permission issues or new time invalid or attempt to change appointment on same days
 	 */
-	public static boolean updateAppointment(String customerString, String serviceName, String dateString,
+	public static void updateAppointment(String customerString, String serviceName, String dateString,
 			String startTimeString, String newdateString, String newStartTimeString) throws InvalidInputException {
-
-		if(FlexiBookApplication.getCurrentUser().getUsername().equals("owner")){
+		if (FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
 			throw new InvalidInputException("Error: An owner cannot update a customer's appointment");
 		}
 
-		if(!FlexiBookApplication.getCurrentUser().getUsername().equals(customerString)){
+		if (!FlexiBookApplication.getCurrentUser().getUsername().equals(customerString)) {
 			throw new InvalidInputException("Error: A customer can only update their own appointments");
 		}
 
@@ -555,76 +559,25 @@ public class FlexiBookController {
 			e.printStackTrace();
 		}
 
-		if(startDate.equals(SystemTime.getDate())){
+		if (startDate.equals(SystemTime.getDate())) {
 			throw new InvalidInputException("Cannot cancel an appointment on the appointment date");
 		}
 
 		// find the appointment
 		Appointment foundAppointment = null;
 
-		for(Appointment a : new ArrayList<Appointment>(c.getAppointments())){
-			if(a.getBookableService().getName().equals(serviceName) 
-				&& a.getTimeSlot().getStartDate().equals(oldStartDate)
-				&& a.getTimeSlot().getStartTime().equals(oldStartTime)){
-					foundAppointment = a;
+		for (Appointment a : new ArrayList<Appointment>(c.getAppointments())) {
+			if (a.getBookableService().getName().equals(serviceName) 
+					&& a.getTimeSlot().getStartDate().equals(oldStartDate)
+					&& a.getTimeSlot().getStartTime().equals(oldStartTime)) {
+				foundAppointment = a;
 			}
 		}
-		// if it is a service then try to make new appointment (delete old one and try to use makeappointment)
-		// if that fails, reinstate old one
-		if(foundAppointment.getBookableService() instanceof Service){
-			Service s = (Service) foundAppointment.getBookableService();
-			Date oldDateStart = foundAppointment.getTimeSlot().getStartDate();
-			Time oldTimeStart = foundAppointment.getTimeSlot().getStartTime();
-			Time oldEndTimeWithDownTime = foundAppointment.getTimeSlot().getEndTime();
-			
-			foundAppointment.delete();
-
-			try{
-				makeAppointment(c.getUsername(), startDate.toString(), s.getName(), startTime.toString());
-				return true;
-			}
-			catch(InvalidInputException e){
-				FlexiBookApplication.getFlexiBook().addAppointment(
-					new Appointment((Customer) FlexiBookApplication.getCurrentUser(), s, 
-					new TimeSlot(oldDateStart, oldTimeStart, oldDateStart, oldEndTimeWithDownTime, FlexiBookApplication.getFlexiBook()), 
-					FlexiBookApplication.getFlexiBook()));
-				throw new InvalidInputException(e.getMessage());
-			}
-		// if it is a service combo then find total time first and attempt to update (delete old one and try to use makeappointment)
-		// if that fails, reinstate old one
-		} else if(foundAppointment.getBookableService() instanceof ServiceCombo){
-			ServiceCombo sc = (ServiceCombo) foundAppointment.getBookableService();
-			Date oldDateStart = foundAppointment.getTimeSlot().getStartDate();
-			Time oldTimeStart = foundAppointment.getTimeSlot().getStartTime();
-			Time oldEndTimeWithDownTime = foundAppointment.getTimeSlot().getEndTime();
-			List<ComboItem> listCI = new ArrayList<ComboItem>(foundAppointment.getChosenItems());
-			StringBuilder sb = new StringBuilder();
-
-			for(ComboItem ci : listCI){
-				sb.append(ci.getService().getName());
-				sb.append(",");
-			}
-
-			foundAppointment.delete();
-			try{
-				makeAppointment(c.getUsername(), startDate.toString(), sc.getName(), sb.substring(0, sb.length() - 1), startTime.toString());
-				return true;
-			}
-			catch(InvalidInputException e){
-				Appointment a = new Appointment((Customer) FlexiBookApplication.getCurrentUser(), sc, 
-					new TimeSlot(oldDateStart, oldTimeStart, oldDateStart, oldEndTimeWithDownTime, FlexiBookApplication.getFlexiBook()), 
-					FlexiBookApplication.getFlexiBook());
-				
-				for(ComboItem ci : listCI){
-					a.addChosenItem(ci);
-				}
-
-				FlexiBookApplication.getFlexiBook().addAppointment(a);
-
-				throw new InvalidInputException(e.getMessage());
-			}
+		Time endTime = checkAppointmentSlots(foundAppointment.getBookableService(), foundAppointment.getChosenItems(), startDate, startTime, foundAppointment);
+		
+		if (!foundAppointment.changeDateAndTime(startDate, startTime)) {
+			throw new InvalidInputException("Cannot update appointment day before");
 		}
-		return false;
 	}
 	/**
 	 * @author theodore
@@ -639,7 +592,7 @@ public class FlexiBookController {
 	 * @param newServiceName    	tentative new service name of appointment
 	 * @throws InvalidInputException permission issues or new time invalid or attempt to change appointment on same days
 	 */
-	public static boolean updateAppointment(String customerString, String serviceName, String dateString, String startTimeString, String newServiceName) throws InvalidInputException {
+	public static void updateAppointment(String customerString, String serviceName, String dateString, String startTimeString, String newServiceName) throws InvalidInputException {
 
 		if(FlexiBookApplication.getCurrentUser().getUsername().equals("owner")){
 			throw new InvalidInputException("Error: An owner cannot update a customer's appointment");
@@ -662,38 +615,34 @@ public class FlexiBookController {
 
 		// find the appointment
 		Appointment foundAppointment = null;
-
-		for(Appointment a : new ArrayList<Appointment>(c.getAppointments())){
-			if(a.getBookableService().getName().equals(serviceName) 
-				&& a.getTimeSlot().getStartDate().equals(oldStartDate)
-				&& a.getTimeSlot().getStartTime().equals(oldStartTime)){
-					foundAppointment = a;
+		for (Appointment a : new ArrayList<Appointment>(c.getAppointments())) {
+			if (a.getBookableService().getName().equals(serviceName)
+					&& a.getTimeSlot().getStartDate().equals(oldStartDate)
+					&& a.getTimeSlot().getStartTime().equals(oldStartTime)) {
+				foundAppointment = a;
+				break;
 			}
 		}
+		BookableService bookableService = null;
+		for (BookableService bs : FlexiBookApplication.getFlexiBook().getBookableServices()) {
+			if (bs.getName().equals(serviceName)) {
+				bookableService = bs;
+				break;
+			}
+		}
+		
 		// if it is a service then try to make new appointment (delete old one and try to use makeappointment)
 		// if that fails, reinstate old one
-		if(foundAppointment.getBookableService() instanceof Service){
-			Service s = (Service) foundAppointment.getBookableService();
-			Date oldDateStart = foundAppointment.getTimeSlot().getStartDate();
-			Time oldTimeStart = foundAppointment.getTimeSlot().getStartTime();
-			Time oldEndTimeWithDownTime = foundAppointment.getTimeSlot().getEndTime();
+		if (bookableService instanceof Service) {
 			
-			foundAppointment.delete();
+			checkAppointmentSlots(bookableService, null, oldStartDate, oldStartTime, foundAppointment);
 
-			try {
-				//System.err.println(String.format("attempting to update appt to service: %s, on %s at %s", newServiceName, oldStartDate.toString(), oldStartTime.toString()));
-				makeAppointment(c.getUsername(), oldStartDate.toString(), newServiceName, oldStartTime.toString());
-				return true;
+			if (!foundAppointment.changeBookableService(bookableService.getName())) {
+				throw new InvalidInputException("Cannot update appointment day before");
 			}
-			catch(InvalidInputException e){
-				FlexiBookApplication.getFlexiBook().addAppointment(
-					new Appointment((Customer) FlexiBookApplication.getCurrentUser(), s, 
-					new TimeSlot(oldDateStart, oldTimeStart, oldDateStart, oldEndTimeWithDownTime, FlexiBookApplication.getFlexiBook()), 
-					FlexiBookApplication.getFlexiBook()));
-				throw new InvalidInputException(e.getMessage());
-			}
+		} else {
+			throw new InvalidInputException("Cannot change bookable service to service combo");
 		}
-		return false;
 	}
 	/**
 	 * @author heqianw
@@ -710,14 +659,12 @@ public class FlexiBookController {
 	 * 
 	 * @throws InvalidInputException if owner tries to update appointment, other customer, invalid timeslot
 	 */
-	public static boolean updateAppointment(String customerString, boolean isAdd, String comboItemName, String serviceName, 
-		String dateString, String startTimeString) throws InvalidInputException{
-
-		if(FlexiBookApplication.getCurrentUser().getUsername().equals("owner")){
+	public static void updateAppointment(String customerString, boolean isAdd, String comboItemName, String serviceName, 
+			String dateString, String startTimeString) throws InvalidInputException {
+		if (FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
 			throw new InvalidInputException("Error: An owner cannot update a customer's appointment");
 		}
-
-		if(!FlexiBookApplication.getCurrentUser().getUsername().equals(customerString)){
+		if (!FlexiBookApplication.getCurrentUser().getUsername().equals(customerString)) {
 			throw new InvalidInputException("Error: A customer can only update their own appointments");
 		}
 
@@ -734,80 +681,53 @@ public class FlexiBookController {
 		// find the appointment for that user
 		Customer c = (Customer) FlexiBookApplication.getCurrentUser();
 		Appointment foundAppointment = null;
-		for(Appointment a : new ArrayList<Appointment>(c.getAppointments())){
-			if(a.getBookableService().getName().equals(serviceName) 
+		for (Appointment a : new ArrayList<Appointment>(c.getAppointments())) {
+			if (a.getBookableService().getName().equals(serviceName) 
 				&& a.getTimeSlot().getStartDate().equals(startDate)
-				&& a.getTimeSlot().getStartTime().equals(startTime)){
+				&& a.getTimeSlot().getStartTime().equals(startTime)) {
 					foundAppointment = a;
+					break;
 			}
 		}
-
+		if (foundAppointment.getBookableService() instanceof Service) {
+			throw new InvalidInputException("Cannot add / remove combo items from service appointment");
+		}
 		ServiceCombo sc = (ServiceCombo) foundAppointment.getBookableService();
-		ComboItem cI = sc.getServices().stream().filter(x -> x.getService().getName().equals(comboItemName)).findFirst().get();
-		// depending on add or remove. If we delete old one first and tentatively add new appointment with new info
-		// if that fails, then we reinstate the old appointment
-		if(isAdd){
-			Date oldDateStart = foundAppointment.getTimeSlot().getStartDate();
-			Time oldTimeStart = foundAppointment.getTimeSlot().getStartTime();
-			Time oldEndTimeWithDownTime = foundAppointment.getTimeSlot().getEndTime();
-			List<ComboItem> oldListCI = new ArrayList<>(foundAppointment.getChosenItems());
-			StringBuilder sb = new StringBuilder();
-
-			List<ComboItem> newListCI = new ArrayList<>(oldListCI);
-			newListCI.add(cI);
-
-			for(ComboItem ci : newListCI){
-				sb.append(ci.getService().getName());
-				sb.append(",");
-			}
-
-			foundAppointment.delete();
-			try{
-				makeAppointment(c.getUsername(), startDate.toString(), sc.getName(), sb.substring(0, sb.length() - 1), startTime.toString());
-				return true;
-			}
-			catch(InvalidInputException e){
-				Appointment a = new Appointment((Customer) FlexiBookApplication.getCurrentUser(), sc, 
-					new TimeSlot(oldDateStart, oldTimeStart, oldDateStart, oldEndTimeWithDownTime, FlexiBookApplication.getFlexiBook()), 
-					FlexiBookApplication.getFlexiBook());
-				
-				for(ComboItem ci : oldListCI){
-					a.addChosenItem(ci);
+		ComboItem cI = sc.getServices().stream().filter(x -> x.getService().getName().equals(comboItemName)).findFirst().get();	
+		List<ComboItem> listCI = new ArrayList<>();
+		if (isAdd) {
+			for (ComboItem ci : sc.getServices()) {
+				boolean alreadyHas = false;
+				for (ComboItem cii : foundAppointment.getChosenItems()) {
+					if (ci == cii) {
+						listCI.add(ci);
+						alreadyHas = true;
+						break;
+					}
 				}
-
-				FlexiBookApplication.getFlexiBook().addAppointment(a);
-
-				return false;
+				if (ci == cI) {
+					if (alreadyHas) {
+						throw new InvalidInputException("Appoinment already contains this service");
+					} else {
+						listCI.add(ci);
+					}
+				}
 			}
 		} else {
-			if(cI.getMandatory()){
-				return false;
+			if (sc.getMainService() == cI) {
+				throw new InvalidInputException("Cannot remove main service");
+			} else if (cI.getMandatory()) {
+				throw new InvalidInputException("Cannot remove mandatory service");
 			}
-			if(sc.getMainService().getService().getName().equals(comboItemName)){
-				return false;
-			}
-			List<ComboItem> listCI = new ArrayList<>();
-
-			for(ComboItem ci : foundAppointment.getChosenItems()){
-				if(!ci.getService().getName().equals(comboItemName)){
+			for (ComboItem ci : foundAppointment.getChosenItems()) {
+				if (ci != cI) {
 					listCI.add(ci);
 				}
 			}
-
-			StringBuilder sb = new StringBuilder();
-			for(ComboItem ci : listCI){
-				sb.append(ci.getService().getName());
-				sb.append(",");
-			}
-			
-			foundAppointment.delete();
-			try{
-				makeAppointment(c.getUsername(), dateString, sc.getName(), sb.substring(0, sb.length() - 1), startTimeString);
-				return true;
-			}
-			catch(InvalidInputException e){
-				return false;
-			}
+		}
+		checkAppointmentSlots(sc, listCI, startDate, startTime, foundAppointment);
+		if (!foundAppointment.changeOptionalService(cI.getService().getName(), isAdd)) {
+			throw new InvalidInputException("Cannot update appointment day before");
 		}
 	}
 
@@ -826,11 +746,11 @@ public class FlexiBookController {
 	 */
 	public static void cancelAppointment(String customerString, String serviceName, String dateString,
 			String startTimeString) throws InvalidInputException {		
-		if(FlexiBookApplication.getCurrentUser().getUsername().equals("owner")){
+		if (FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
 			throw new InvalidInputException("An owner cannot cancel an appointment");
 		}
 
-		if(!FlexiBookApplication.getCurrentUser().getUsername().equals(customerString)){
+		if (!FlexiBookApplication.getCurrentUser().getUsername().equals(customerString)) {
 			throw new InvalidInputException("A customer can only cancel their own appointments");
 		}
 		// find date and time of appointment
@@ -845,14 +765,14 @@ public class FlexiBookController {
 			e.printStackTrace();
 		}
 		
-		if(startDate.equals(SystemTime.getDate())){
+		if (startDate.equals(SystemTime.getDate())) {
 			throw new InvalidInputException("Cannot cancel an appointment on the appointment date");
 		}
 		// find and delete that appointment
-		for(Appointment a : new ArrayList<Appointment>(c.getAppointments())){
-			if(a.getBookableService().getName().equals(serviceName) 
+		for (Appointment a : new ArrayList<Appointment>(c.getAppointments())) {
+			if (a.getBookableService().getName().equals(serviceName) 
 				&& a.getTimeSlot().getStartDate().equals(startDate)
-				&& a.getTimeSlot().getStartTime().equals(startTime)){
+				&& a.getTimeSlot().getStartTime().equals(startTime)) {
 					a.delete();
 			}
 		}		
@@ -862,11 +782,11 @@ public class FlexiBookController {
 	 * 
 	 * helper method to find conflicting appointments and whether we can fit the appointment during downtimes
 	 */
-	private static boolean validateConflictingAppointments(Date startDate, Time startTime, Time finalEndTime, Time downTimeStart, Time downTimeEnd) throws InvalidInputException {
+	private static boolean validateConflictingAppointments(Date startDate, Time startTime, Time finalEndTime, Time downTimeStart, Time downTimeEnd, Appointment existingAppt) throws InvalidInputException {
 		//System.err.println(String.format("Appempting to validate appointment on %s from %s to %s, downtime %s to %s", startDate.toString(), startTime.toString(), finalEndTime.toString(), downTimeStart.toString(), downTimeEnd.toString()));
 		for(Appointment app: FlexiBookApplication.getFlexiBook().getAppointments()) {
 			//System.err.print(String.format("appt for %s on %s from %s to %s ...", app.getBookableService().getName(), app.getTimeSlot().getStartDate().toString(), app.getTimeSlot().getStartTime().toString(), app.getTimeSlot().getEndTime().toString()));
-			if(app.getTimeSlot().getStartDate().equals(startDate) && app.getTimeSlot().getStartTime().before(finalEndTime) && app.getTimeSlot().getEndTime().after(startTime)) {
+			if(app != existingAppt && app.getTimeSlot().getStartDate().equals(startDate) && app.getTimeSlot().getStartTime().before(finalEndTime) && app.getTimeSlot().getEndTime().after(startTime)) {
 				if(app.getBookableService() instanceof Service) {
 					Service s = (Service) app.getBookableService();
 					Time servStartTime = app.getTimeSlot().getStartTime();

@@ -685,23 +685,16 @@ public class CucumberStepDefinitions {
 	public void shall_have_a_appointment_on_from_to(String string, String string2, String string3, String string4, String string5){
 		Optional<Customer> c = flexiBook.getCustomers().stream().filter(x -> x.getUsername().equals(string)).findFirst();
 		Date date = null;
-		try {
-			date = FlexiBookUtil.getDateFromString(string3);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
 		Time startTime = null;
-		try {
-			startTime = FlexiBookUtil.getTimeFromString(string4);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
 		Time endTime = null;
 		try {
+			date = FlexiBookUtil.getDateFromString(string3);
+			startTime = FlexiBookUtil.getTimeFromString(string4);
 			endTime = FlexiBookUtil.getTimeFromString(string5);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+		
 
 		Appointment app = null;
 		for(Appointment a : c.get().getAppointments()){
@@ -771,10 +764,12 @@ public class CucumberStepDefinitions {
 		appointmentCount = flexiBook.getAppointments().size();
 		result = false;
 		try {
-			result = FlexiBookController.updateAppointment(string, string2, string3, string4, string5, string6);	
+			FlexiBookController.updateAppointment(string, string2, string3, string4, string5, string6);
+			result = true;
 		} 
 		catch (InvalidInputException e) {
 			exception = e;
+			System.err.println("tried to update appointment but " + e.getMessage());
 		}
 	}
 	/**
@@ -785,7 +780,8 @@ public class CucumberStepDefinitions {
 		appointmentCount = flexiBook.getAppointments().size();
 		result = false;
 		try {
-			result = FlexiBookController.updateAppointment(string, string2.equals("add"), string3, string4, string5, string6);
+			FlexiBookController.updateAppointment(string, string2.equals("add"), string3, string4, string5, string6);
+			result = true;
 		} 
 		catch (InvalidInputException e) {
 			exception = e;
@@ -807,10 +803,9 @@ public class CucumberStepDefinitions {
 	 */
 	@Then("the system shall report that the update was {string}")
 	public void the_system_shall_report_that_the_update_was(String string) {
-		if(result){
+		if(result) {
 			assertEquals("successful", string);
-		}
-		else{
+		} else {
 			assertEquals("unsuccessful", string);
 		}
 	}

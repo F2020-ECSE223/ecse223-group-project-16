@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.*;
 
 // line 28 "../../../../../FlexiBookPersistence.ump"
-// line 21 "../../../../../FlexiBook.ump"
+// line 22 "../../../../../FlexiBook.ump"
 public class Owner extends User implements Serializable
 {
 

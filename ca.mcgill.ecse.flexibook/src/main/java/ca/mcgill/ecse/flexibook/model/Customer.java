@@ -6,13 +6,16 @@ import java.io.Serializable;
 import java.util.*;
 
 // line 35 "../../../../../FlexiBookPersistence.ump"
-// line 25 "../../../../../FlexiBook.ump"
+// line 26 "../../../../../FlexiBook.ump"
 public class Customer extends User implements Serializable
 {
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
+
+  //Customer Attributes
+  private int noShowCount;
 
   //Customer Associations
   private FlexiBook flexiBook;
@@ -25,6 +28,7 @@ public class Customer extends User implements Serializable
   public Customer(String aUsername, String aPassword, FlexiBook aFlexiBook)
   {
     super(aUsername, aPassword);
+    noShowCount = 0;
     boolean didAddFlexiBook = setFlexiBook(aFlexiBook);
     if (!didAddFlexiBook)
     {
@@ -178,7 +182,28 @@ public class Customer extends User implements Serializable
     }
     super.delete();
   }
-  
+
+  // line 31 "../../../../../FlexiBook.ump"
+   public int getNoShowCount(){
+    return noShowCount;
+  }
+
+  // line 35 "../../../../../FlexiBook.ump"
+   public void incrementNoShowCount(){
+    noShowCount++;
+  }
+
+  // line 39 "../../../../../FlexiBook.ump"
+   public void resetNoShowCount(){
+    noShowCount = 0;
+  }
+
+
+  public String toString()
+  {
+    return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
+            "  " + "flexiBook = "+(getFlexiBook()!=null?Integer.toHexString(System.identityHashCode(getFlexiBook())):"null");
+  }  
   //------------------------
   // DEVELOPER CODE - PROVIDED AS-IS
   //------------------------

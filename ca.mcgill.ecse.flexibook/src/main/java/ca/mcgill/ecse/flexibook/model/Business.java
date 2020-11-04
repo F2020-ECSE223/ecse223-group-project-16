@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.*;
 
 // line 42 "../../../../../FlexiBookPersistence.ump"
-// line 29 "../../../../../FlexiBook.ump"
+// line 43 "../../../../../FlexiBook.ump"
 public class Business implements Serializable
 {
 

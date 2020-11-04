@@ -1,0 +1,61 @@
+class Appointment {   
+  depend java.sql.Date;
+  depend java.sql.Time;
+  
+  appointmentStatus {
+    Booked {
+      cancel -> Final;
+      noShow [isDuringAppointment()] -> /{incrementCustomerNoShow();} Final;
+      
+      startAppointment [isDuringAppointment()] -> InProgress;
+        
+      changeBookableService(String bookableServiceName) [isDayBeforeAppointment()] -> /{doChangeBookableService(bookableServiceName);} Booked;
+      changeOptionalService(String serviceName, boolean isAdd) [isDayBeforeAppointment() && isServiceCombo()] -> /{doChangeOptionalService(serviceName, isAdd);} Booked;
+      changeDateAndTime(Date date, Time time) [isDayBeforeAppointment()] -> /{doChangeDateAndTime(date, time);} Booked;
+    }  
+     
+    InProgress {  
+      endAppointment -> Final;
+      
+      changeOptionalService(String serviceName, boolean isAdd) [isServiceCombo()] -> /{doChangeOptionalService(serviceName, isAdd);} InProgress;
+      changeBookableService(String bookableServiceName) -> /{rejectChangeBookableService();} InProgress;
+      changeDateAndTime(Date date, Time time) -> /{rejectChangeDateAndTime();} InProgress;
+    }
+  }  
+  
+  private boolean isServiceCombo() {
+    return getBookableService() instanceof ServiceCombo;
+  }
+
+  private boolean isDayBeforeAppointment() {
+    return true; // placeholder
+  }
+  
+  private boolean isDuringAppointment() {
+  	return true; // placeholder
+  }
+    
+  private void incrementCustomerNoShow() {
+    getCustomer().incrementNoShowCount();
+  }
+  
+  private void doChangeOptionalService(String newServiceName, boolean isAdd) {
+    
+  }
+ 
+  private void doChangeBookableService(String newBookeableServiceName) {
+    
+  }
+  
+  private void doChangeDateAndTime(Date newDate, Time newTime) {
+    
+  }
+  
+  private void rejectChangeBookableService() {
+     throw new RuntimeException("Cannot change bookeable service of an appointment in progress.");
+  }
+  
+   private void rejectChangeDateAndTime() {
+     throw new RuntimeException("Cannot change date and time of an appointment in progress.");
+  }
+}

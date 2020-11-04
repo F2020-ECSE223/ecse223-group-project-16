@@ -9,7 +9,6 @@ class Appointment {
       
       startAppointment [isDuringAppointment()] -> InProgress;
         
-      changeBookableService(String bookableServiceName) [isDayBeforeAppointment()] -> /{doChangeBookableService(bookableServiceName);} Booked;
       changeOptionalService(String serviceName, boolean isAdd) [isDayBeforeAppointment() && isServiceCombo()] -> /{doChangeOptionalService(serviceName, isAdd);} Booked;
       changeDateAndTime(Date date, Time time) [isDayBeforeAppointment()] -> /{doChangeDateAndTime(date, time);} Booked;
     }  
@@ -18,7 +17,6 @@ class Appointment {
       endAppointment -> Final;
       
       changeOptionalService(String serviceName, boolean isAdd) [isServiceCombo()] -> /{doChangeOptionalService(serviceName, isAdd);} InProgress;
-      changeBookableService(String bookableServiceName) -> /{rejectChangeBookableService();} InProgress;
       changeDateAndTime(Date date, Time time) -> /{rejectChangeDateAndTime();} InProgress;
     }
   }  
@@ -42,17 +40,9 @@ class Appointment {
   private void doChangeOptionalService(String newServiceName, boolean isAdd) {
     
   }
- 
-  private void doChangeBookableService(String newBookeableServiceName) {
-    
-  }
   
   private void doChangeDateAndTime(Date newDate, Time newTime) {
     
-  }
-  
-  private void rejectChangeBookableService() {
-     throw new RuntimeException("Cannot change bookeable service of an appointment in progress.");
   }
   
    private void rejectChangeDateAndTime() {

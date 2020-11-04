@@ -1775,15 +1775,11 @@ public class CucumberStepDefinitions {
 				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
 				
 				appt = a;
+				appt.startAppointment();
+				return;
 			}
 		}
-		
-		try {
-			FlexiBookController.startAppointment(appt);
-		} catch (InvalidInputException e) {
-			exception = e;
-			System.out.println(e.getMessage()); // to check
-		}
+		fail();
 	}
 	/** 
 	 * @author sarah
@@ -1811,15 +1807,11 @@ public class CucumberStepDefinitions {
 				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
 				
 				appt = a;
+				appt.endAppointment();
+				return;
 			}
 		}
-		
-		try {
-			FlexiBookController.endAppointment(appt);
-		} catch (InvalidInputException e) {
-			exception = e;
-			System.out.println(e.getMessage()); // to check
-		}
+		fail();
 	}
 	/** 
 	 * @author sarah

@@ -1739,5 +1739,98 @@ public class CucumberStepDefinitions {
 			}
 		}
 	}	
+	
+ 	//================================================================================
+    // AppointmentManagement
+    //================================================================================
+	/** 
+	 * @author Theodore
+	 */
+	@Given("{string} has {int} no-show records")
+	public void has_no_show_records(String string, Integer int1) {
+		Customer cust = null;
+ 		for (Customer c : flexiBook.getCustomers()) {
+ 			if (c.getUsername().equals(string)) {
+ 				cust = c;
+ 			}
+ 		}
+ 		cust.resetNoShowCount();
+ 		for (int i = 0; i < int1; i++) {
+ 			cust.incrementNoShowCount();
+ 		}
+	}
+	@When("{string} makes a {string} appointment without choosing optional services for the date {string} and time {string} at {string}")
+	public void makes_a_appointment_without_choosing_optional_services_for_the_date_and_time_at(String string, String string2, String string3, String string4, String string5) {
+		for (Customer c : flexiBook.getCustomers()) {
+			if (string.equals(c.toString())) {
+				// OVERLAP WITH OTHERS
+			}
+		}
+	}
+	/**
+	 * @author Julie
+	 */
+	@When("the owner attempts to register a no-show for the appointment at {string}")
+	public void the_owner_attempts_to_register_a_no_show_for_the_appointment_at(String string) {
+		Date date = null;
+		Time time = null;
+		try {
+			date = FlexiBookUtil.getDateFromString(string.substring(0,10));
+			time = FlexiBookUtil.getTimeFromString(string.substring(11,16));
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+		}
+		FlexiBookController.registerNoShow(date, time);
+	}
+	@Then("the user {string} shall have {int} no-show records")
+	public void the_user_shall_have_no_show_records(String string, Integer int1) {
+		// OVERLAP WITH OTHERS
+	}
+	@Then("the system shall have {int} appointment")
+	public void the_system_shall_have_appointment(Integer int1) {
+		// OVERLAP WITH OTHERS
+	}
+	
+	@When("{string} makes a {string} appointment for the date {string} and time {string} at {string}")
+	public void makes_a_appointment_for_the_date_and_time_at(String string, String string2, String string3, String string4, String string5) {
+		// OVERLAP WITH OTHERS
+	}
+	@When("the owner starts the appointment at {string}")
+	public void the_owner_starts_the_appointment_at(String string) {
+		// OVERLAP WITH OTHERS
+	}
+	@When("{string} attempts to cancel the appointment at {string}")
+	public void attempts_to_cancel_the_appointment_at(String string, String string2) {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Then("the appointment shall be in progress")
+	public void the_appointment_shall_be_in_progress() {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Then("the service in the appointment shall be {string}")
+	public void the_service_in_the_appointment_shall_be(String string) {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Then("the appointment shall be for the date {string} with start time {string} and end time {string}")
+	public void the_appointment_shall_be_for_the_date_with_start_time_and_end_time(String string, String string2, String string3) {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Then("the username associated with the appointment shall be {string}")
+	public void the_username_associated_with_the_appointment_shall_be(String string) {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+	@Then("the system shall have {int} appointments")
+	public void the_system_shall_have_appointments(Integer int1) {
+	    // Write code here that turns the phrase above into concrete actions
+	    throw new io.cucumber.java.PendingException();
+	}
+	
+	
+
 
 }

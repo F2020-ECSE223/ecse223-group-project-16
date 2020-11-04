@@ -2,15 +2,22 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse.flexibook.model;
+import java.sql.Date;
+import java.sql.Time;
 import java.util.*;
 
-// line 84 "../../../../../FlexiBook.ump"
+// line 1 "../../../../../FlexiBookStates.ump"
+// line 99 "../../../../../FlexiBook.ump"
 public class Appointment
 {
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
+
+  //Appointment State Machines
+  public enum AppointmentStatus { Booked, Final, InProgress }
+  private AppointmentStatus appointmentStatus;
 
   //Appointment Associations
   private Customer customer;
@@ -45,11 +52,212 @@ public class Appointment
     {
       throw new RuntimeException("Unable to create appointment due to flexiBook. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
+    setAppointmentStatus(AppointmentStatus.Booked);
   }
 
   //------------------------
   // INTERFACE
   //------------------------
+
+  public String getAppointmentStatusFullName()
+  {
+    String answer = appointmentStatus.toString();
+    return answer;
+  }
+
+  public AppointmentStatus getAppointmentStatus()
+  {
+    return appointmentStatus;
+  }
+
+  public boolean cancel()
+  {
+    boolean wasEventProcessed = false;
+    
+    AppointmentStatus aAppointmentStatus = appointmentStatus;
+    switch (aAppointmentStatus)
+    {
+      case Booked:
+        setAppointmentStatus(AppointmentStatus.Final);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean noShow()
+  {
+    boolean wasEventProcessed = false;
+    
+    AppointmentStatus aAppointmentStatus = appointmentStatus;
+    switch (aAppointmentStatus)
+    {
+      case Booked:
+        if (isDuringAppointment())
+        {
+        // line 8 "../../../../../FlexiBookStates.ump"
+          incrementCustomerNoShow();
+          setAppointmentStatus(AppointmentStatus.Final);
+          wasEventProcessed = true;
+          break;
+        }
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean startAppointment()
+  {
+    boolean wasEventProcessed = false;
+    
+    AppointmentStatus aAppointmentStatus = appointmentStatus;
+    switch (aAppointmentStatus)
+    {
+      case Booked:
+        if (isDuringAppointment())
+        {
+          setAppointmentStatus(AppointmentStatus.InProgress);
+          wasEventProcessed = true;
+          break;
+        }
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean changeBookableService(String bookableServiceName)
+  {
+    boolean wasEventProcessed = false;
+    
+    AppointmentStatus aAppointmentStatus = appointmentStatus;
+    switch (aAppointmentStatus)
+    {
+      case Booked:
+        if (isDayBeforeAppointment())
+        {
+        // line 12 "../../../../../FlexiBookStates.ump"
+          doChangeBookableService(bookableServiceName);
+          setAppointmentStatus(AppointmentStatus.Booked);
+          wasEventProcessed = true;
+          break;
+        }
+        break;
+      case InProgress:
+        // line 21 "../../../../../FlexiBookStates.ump"
+        rejectChangeBookableService();
+        setAppointmentStatus(AppointmentStatus.InProgress);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean changeOptionalService(String serviceName,boolean isAdd)
+  {
+    boolean wasEventProcessed = false;
+    
+    AppointmentStatus aAppointmentStatus = appointmentStatus;
+    switch (aAppointmentStatus)
+    {
+      case Booked:
+        if (isDayBeforeAppointment()&&isServiceCombo())
+        {
+        // line 13 "../../../../../FlexiBookStates.ump"
+          doChangeOptionalService(serviceName, isAdd);
+          setAppointmentStatus(AppointmentStatus.Booked);
+          wasEventProcessed = true;
+          break;
+        }
+        break;
+      case InProgress:
+        if (isServiceCombo())
+        {
+        // line 20 "../../../../../FlexiBookStates.ump"
+          doChangeOptionalService(serviceName, isAdd);
+          setAppointmentStatus(AppointmentStatus.InProgress);
+          wasEventProcessed = true;
+          break;
+        }
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean changeDateAndTime(Date date,Time time)
+  {
+    boolean wasEventProcessed = false;
+    
+    AppointmentStatus aAppointmentStatus = appointmentStatus;
+    switch (aAppointmentStatus)
+    {
+      case Booked:
+        if (isDayBeforeAppointment())
+        {
+        // line 14 "../../../../../FlexiBookStates.ump"
+          doChangeDateAndTime(date, time);
+          setAppointmentStatus(AppointmentStatus.Booked);
+          wasEventProcessed = true;
+          break;
+        }
+        break;
+      case InProgress:
+        // line 22 "../../../../../FlexiBookStates.ump"
+        rejectChangeDateAndTime();
+        setAppointmentStatus(AppointmentStatus.InProgress);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean endAppointment()
+  {
+    boolean wasEventProcessed = false;
+    
+    AppointmentStatus aAppointmentStatus = appointmentStatus;
+    switch (aAppointmentStatus)
+    {
+      case InProgress:
+        setAppointmentStatus(AppointmentStatus.Final);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  private void setAppointmentStatus(AppointmentStatus aAppointmentStatus)
+  {
+    appointmentStatus = aAppointmentStatus;
+
+    // entry actions and do activities
+    switch(appointmentStatus)
+    {
+      case Final:
+        delete();
+        break;
+    }
+  }
   /* Code from template association_GetOne */
   public Customer getCustomer()
   {
@@ -248,6 +456,51 @@ public class Appointment
     {
       placeholderFlexiBook.removeAppointment(this);
     }
+  }
+
+  // line 27 "../../../../../FlexiBookStates.ump"
+   private boolean isServiceCombo(){
+    return getBookableService() instanceof ServiceCombo;
+  }
+
+  // line 31 "../../../../../FlexiBookStates.ump"
+   private boolean isDayBeforeAppointment(){
+    return true; // placeholder
+  }
+
+  // line 35 "../../../../../FlexiBookStates.ump"
+   private boolean isDuringAppointment(){
+    return true; // placeholder
+  }
+
+  // line 39 "../../../../../FlexiBookStates.ump"
+   private void incrementCustomerNoShow(){
+    getCustomer().incrementNoShowCount();
+  }
+
+  // line 44 "../../../../../FlexiBookStates.ump"
+   private void doChangeOptionalService(String newServiceName, boolean isAdd){
+    
+  }
+
+  // line 48 "../../../../../FlexiBookStates.ump"
+   private void doChangeBookableService(String newBookeableServiceName){
+    
+  }
+
+  // line 52 "../../../../../FlexiBookStates.ump"
+   private void doChangeDateAndTime(Date newDate, Time newTime){
+    
+  }
+
+  // line 55 "../../../../../FlexiBookStates.ump"
+   private void rejectChangeBookableService(){
+    throw new RuntimeException("Cannot change bookeable service of an appointment in progress.");
+  }
+
+  // line 59 "../../../../../FlexiBookStates.ump"
+   private void rejectChangeDateAndTime(){
+    throw new RuntimeException("Cannot change date and time of an appointment in progress.");
   }
 
 }

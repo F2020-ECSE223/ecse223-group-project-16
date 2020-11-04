@@ -1860,7 +1860,6 @@ public class CucumberStepDefinitions {
 			System.err.println(e);
 		}
 	}
-
 	/**
 	 * @author theodore
 	 */
@@ -1948,19 +1947,21 @@ public class CucumberStepDefinitions {
 	public void the_system_shall_have_appointments(Integer int1) {
 		assertEquals(int1, flexiBook.numberOfAppointments());
 	}
-
-
-	// State machine step definitions
-	
-	
-
 	
 	/** 
 	 * @author sarah
 	 */
 	@When("the owner starts the appointment at {string}")
-	public void the_owner_starts_the_appointment_at(String string) {
-		// set system time?
+	public void the_owner_starts_the_appointment_at(String currentDateTime) {
+		setTimeFromString(currentDateTime);
+		
+		String[] dateTime = currentDateTime.split("\\+");
+		Time currentTime = null;
+		try {
+			currentTime = FlexiBookUtil.getTimeFromString(dateTime[1]);
+		} catch (ParseException e) {
+			fail();
+		}
 		
 		Date apptStartDate = null;
 		Time apptStartTime = null;
@@ -1981,18 +1982,21 @@ public class CucumberStepDefinitions {
 				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
 				
 				appt = a;
-				appt.startAppointment();
-				return;
+				
+				if (currentTime.equals(appt.getTimeSlot().getStartTime()) || currentTime.after(appt.getTimeSlot().getStartTime())) {
+					appt.startAppointment();
+					System.out.println("startAppointment: "+a.getAppointmentStatusFullName());
+					return;
+				}
 			}
 		}
-		fail();
 	}
 	/** 
 	 * @author sarah
 	 */
 	@When("the owner ends the appointment at {string}")
 	public void the_owner_ends_the_appointment_at(String string) {
-		// set system time?
+		setTimeFromString(string);
 		
 		Date apptStartDate = null;
 		Time apptStartTime = null;
@@ -2031,36 +2035,27 @@ public class CucumberStepDefinitions {
 	 */
 	@Then("the appointment shall be in progress")
 	public void the_appointment_shall_be_in_progress() {
-		Date apptStartDate = null;
-		Time apptStartTime = null;
-		
 		try {
-			apptStartDate = FlexiBookUtil.getDateFromString(apptDate);
-			apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
+			Date apptStartDate = FlexiBookUtil.getDateFromString(apptDate);
+			Time apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
+			
+			for (Appointment a: flexiBook.getAppointments()) {
+				if (a.getBookableService().getName().equals(apptService) &&
+					a.getTimeSlot().getStartDate().equals(apptStartDate) &&
+					a.getTimeSlot().getStartTime().equals(apptStartTime)) {
+					
+					System.out.println("In progress: " + a.getAppointmentStatusFullName());
+					assertEquals(AppointmentStatus.InProgress, a.getAppointmentStatus());
+				    break;
+				}
+			}
 		} catch (ParseException e) {
 			exception = e;
 			System.out.println(e.getMessage()); // to check
 		}
 		
-		
-		for (Appointment a: flexiBook.getAppointments()) {
-			if (a.getBookableService().getName().equals(apptService) &&
-				a.getTimeSlot().getStartDate().equals(apptStartDate) &&
-				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
-				
-				assertEquals(AppointmentStatus.InProgress, a.getAppointmentStatus());
-			}
-		}
 	}
-
 		
-	
-
-	
-	
-	
-	
-	
-	
+		
 	
 }

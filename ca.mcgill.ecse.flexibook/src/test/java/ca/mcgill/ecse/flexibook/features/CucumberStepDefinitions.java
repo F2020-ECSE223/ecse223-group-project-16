@@ -782,7 +782,6 @@ public class CucumberStepDefinitions {
 		} 
 		catch (InvalidInputException e) {
 			exception = e;
-			System.err.println("tried to update appointment but " + e.getMessage());
 		}
 	}
 	/**
@@ -1798,7 +1797,6 @@ public class CucumberStepDefinitions {
 			FlexiBookController.makeAppointment(cust, adate, bservice, atime);
 		} catch (InvalidInputException e) {
 			exception = e;
-			//System.err.println(e);
 		}
 		apptService = bservice;
 		apptDate = adate;
@@ -1818,7 +1816,6 @@ public class CucumberStepDefinitions {
 				apptService = serv;
 			} catch (InvalidInputException e) {
 				exception = e;
-				//System.err.println(e);
 				try {
 					FlexiBookController.makeAppointment(cust, apptDate, apptService, apptTime);
 				} catch (InvalidInputException _e) {
@@ -1827,7 +1824,6 @@ public class CucumberStepDefinitions {
 			}
 		} catch (InvalidInputException e) {
 			exception = e;
-			//System.err.println(e);
 		}
 	}
 	/**
@@ -1841,7 +1837,6 @@ public class CucumberStepDefinitions {
 			FlexiBookController.makeAppointment(cust, adate, bservice, "", atime);
 		} catch (InvalidInputException e) {
 			exception = e;
-			//System.err.println(e);
 		}
 		apptService = bservice;
 		apptDate = adate;
@@ -1860,7 +1855,6 @@ public class CucumberStepDefinitions {
 			apptTime = atime;
 		} catch (InvalidInputException e) {
 			exception = e;
-			//System.err.println(e);
 		}
 	}
 	/**
@@ -1874,7 +1868,6 @@ public class CucumberStepDefinitions {
 			FlexiBookController.updateAppointment(cust, true, serv, apptService, apptDate, apptTime);
 		} catch (InvalidInputException e) {
 			exception = e;
-			//System.err.println(e);
 		}
 	}
 

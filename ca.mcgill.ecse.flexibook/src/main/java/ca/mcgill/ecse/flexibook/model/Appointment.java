@@ -452,7 +452,7 @@ public class Appointment implements Serializable
 
   // line 41 "../../../../../FlexiBookStates.ump"
    private void doChangeOptionalService(ComboItem newService, boolean isAdd){
-    ServiceCombo sc = (ServiceCombo) this.bookableService;
+    ServiceCombo sc = (ServiceCombo) bookableService;
     if (isAdd) {
       int itemPos = 0;
       for (ComboItem ci : sc.getServices()) {

@@ -457,7 +457,6 @@ public class Appointment implements Serializable
 
   // line 46 "../../../../../FlexiBookStates.ump"
    private void doChangeDateAndTime(Date newDate, Time newTime){
-    
   }
 
   // line 49 "../../../../../FlexiBookStates.ump"

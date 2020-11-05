@@ -358,7 +358,7 @@ public class FlexiBookController {
 
 		Optional<BookableService> optionalService = FlexiBookApplication.getFlexiBook().getBookableServices().stream()
 				.filter(x -> x.getName().equals(serviceName)).findFirst();
-		if(!optionalService.isPresent()) {
+		if (!optionalService.isPresent()) {
 			throw new InvalidInputException(String.format("Service with name %s does not exist", serviceName));
 		}
 
@@ -538,9 +538,7 @@ public class FlexiBookController {
 			String startTimeString, String newdateString, String newStartTimeString) throws InvalidInputException {
 		if (FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
 			throw new InvalidInputException("Error: An owner cannot update a customer's appointment");
-		}
-
-		if (!FlexiBookApplication.getCurrentUser().getUsername().equals(customerString)) {
+		} else if (!FlexiBookApplication.getCurrentUser().getUsername().equals(customerString)) {
 			throw new InvalidInputException("Error: A customer can only update their own appointments");
 		}
 
@@ -577,71 +575,6 @@ public class FlexiBookController {
 		
 		if (!foundAppointment.changeDateAndTime(startDate, startTime)) {
 			throw new InvalidInputException("Cannot update appointment day before");
-		}
-	}
-	/**
-	 * @author theodore
-	 * @category Feature set 6
-	 * 
-	 * Updating a service appointment by changing the booked service for that appointment
-	 * 
-	 * @param customerString    	Customer username
-	 * @param serviceName 			apointment service name
-	 * @param dateString        	start Date of appointment
-	 * @param startTimeString 		start Time of appointment
-	 * @param newServiceName    	tentative new service name of appointment
-	 * @throws InvalidInputException permission issues or new time invalid or attempt to change appointment on same days
-	 */
-	public static void updateAppointment(String customerString, String serviceName, String dateString, String startTimeString, String newServiceName) throws InvalidInputException {
-
-		if(FlexiBookApplication.getCurrentUser().getUsername().equals("owner")){
-			throw new InvalidInputException("Error: An owner cannot update a customer's appointment");
-		}
-
-		if(!FlexiBookApplication.getCurrentUser().getUsername().equals(customerString)){
-			throw new InvalidInputException("Error: A customer can only update their own appointments");
-		}
-
-		Customer c = (Customer) FlexiBookApplication.getCurrentUser();
-		// build Date/Time objects
-		Date oldStartDate = null;
-		Time oldStartTime = null;
-		try {
-			oldStartDate = FlexiBookUtil.getDateFromString(dateString);
-			oldStartTime = FlexiBookUtil.getTimeFromString(startTimeString);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-
-		// find the appointment
-		Appointment foundAppointment = null;
-		for (Appointment a : new ArrayList<Appointment>(c.getAppointments())) {
-			if (a.getBookableService().getName().equals(serviceName)
-					&& a.getTimeSlot().getStartDate().equals(oldStartDate)
-					&& a.getTimeSlot().getStartTime().equals(oldStartTime)) {
-				foundAppointment = a;
-				break;
-			}
-		}
-		BookableService bookableService = null;
-		for (BookableService bs : FlexiBookApplication.getFlexiBook().getBookableServices()) {
-			if (bs.getName().equals(serviceName)) {
-				bookableService = bs;
-				break;
-			}
-		}
-		
-		// if it is a service then try to make new appointment (delete old one and try to use makeappointment)
-		// if that fails, reinstate old one
-		if (bookableService instanceof Service) {
-			
-			checkAppointmentSlots(bookableService, null, oldStartDate, oldStartTime, foundAppointment);
-
-			if (!foundAppointment.changeBookableService(bookableService.getName())) {
-				throw new InvalidInputException("Cannot update appointment day before");
-			}
-		} else {
-			throw new InvalidInputException("Cannot change bookable service to service combo");
 		}
 	}
 	/**
@@ -726,7 +659,7 @@ public class FlexiBookController {
 			}
 		}
 		checkAppointmentSlots(sc, listCI, startDate, startTime, foundAppointment);
-		if (!foundAppointment.changeOptionalService(cI.getService().getName(), isAdd)) {
+		if (!foundAppointment.changeOptionalService(cI.getService(), isAdd)) {
 			throw new InvalidInputException("Cannot update appointment day before");
 		}
 	}
@@ -771,11 +704,13 @@ public class FlexiBookController {
 		// find and delete that appointment
 		for (Appointment a : new ArrayList<Appointment>(c.getAppointments())) {
 			if (a.getBookableService().getName().equals(serviceName) 
-				&& a.getTimeSlot().getStartDate().equals(startDate)
-				&& a.getTimeSlot().getStartTime().equals(startTime)) {
-					a.delete();
+					&& a.getTimeSlot().getStartDate().equals(startDate)
+					&& a.getTimeSlot().getStartTime().equals(startTime)) {
+				a.delete();
+				return;
 			}
-		}		
+		}
+		throw new InvalidInputException("Appointment could not be found");
 	}
 	/**
 	 * @author theodre, heqianw

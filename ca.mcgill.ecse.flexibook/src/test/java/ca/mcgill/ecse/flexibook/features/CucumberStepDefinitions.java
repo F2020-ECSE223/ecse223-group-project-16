@@ -1799,8 +1799,19 @@ public class CucumberStepDefinitions {
 		setCustomerFromString(cust);
 		setTimeFromString(ctime);
 		try {
-			FlexiBookController.updateAppointment(cust, apptService, apptDate, apptTime, serv);
-			apptService = serv;
+			FlexiBookController.cancelAppointment(cust, apptService, apptDate, apptTime);
+			try {
+				FlexiBookController.makeAppointment(cust, apptDate, serv, apptTime);
+				apptService = serv;
+			} catch (InvalidInputException e) {
+				exception = e;
+				System.err.println(e);
+				try {
+					FlexiBookController.makeAppointment(cust, apptDate, apptService, apptTime);
+				} catch (InvalidInputException _e) {
+					fail("could not reinit old appointment with vals " + apptService + " on " + apptDate + " at " + apptTime + "\n    because " + _e.getMessage());
+				}
+			}
 		} catch (InvalidInputException e) {
 			exception = e;
 			System.err.println(e);

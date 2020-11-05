@@ -104,7 +104,7 @@ public class CucumberStepDefinitions {
 			}
 			
 			if (!customerExists) {
-				new Customer(columns.get("username"), columns.get("password"), 0, flexiBook);
+				new Customer(columns.get("username"), columns.get("password"), flexiBook);
 			}
 		}
 	}
@@ -155,7 +155,7 @@ public class CucumberStepDefinitions {
 					return;
 				}
 			}
-			FlexiBookApplication.setCurrentUser(new Customer(string, "customerPass", 0, flexiBook));
+			FlexiBookApplication.setCurrentUser(new Customer(string, "customerPass", flexiBook));
 		}
 		
 	}
@@ -321,7 +321,7 @@ public class CucumberStepDefinitions {
 		    		return;
 		    	}
 		    }
-		    new Customer(string, "customerPass", 0, flexiBook);
+		    new Customer(string, "customerPass", flexiBook);
 		}
 	}
 	/**
@@ -1122,7 +1122,7 @@ public class CucumberStepDefinitions {
 		        return;
 		    }
 		}
-		FlexiBookApplication.setCurrentUser(new Customer(string, "password", 0, flexiBook));
+		FlexiBookApplication.setCurrentUser(new Customer(string, "password", flexiBook));
 	}
 	/**
 	 * @author aayush
@@ -1956,38 +1956,16 @@ public class CucumberStepDefinitions {
 		setTimeFromString(currentDateTime);
 		
 		String[] dateTime = currentDateTime.split("\\+");
-		Time currentTime = null;
-		try {
-			currentTime = FlexiBookUtil.getTimeFromString(dateTime[1]);
-		} catch (ParseException e) {
-			fail();
-		}
-		
-		Date apptStartDate = null;
-		Time apptStartTime = null;
-		Appointment appt = null;
 		
 		try {
-			apptStartDate = FlexiBookUtil.getDateFromString(apptDate);
-			apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
+			Time currentTime = FlexiBookUtil.getTimeFromString(dateTime[1]);
+			Date apptStartDate = FlexiBookUtil.getDateFromString(apptDate);
+			Time apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
+			FlexiBookController.startAppointment(apptService,  apptStartDate,  apptStartTime, currentTime);
 		} catch (ParseException e) {
-			exception = e;
-			System.out.println(e.getMessage()); // to check
-		}
-		
-		
-		for (Appointment a: flexiBook.getAppointments()) {
-			if (a.getBookableService().getName().equals(apptService) &&
-				a.getTimeSlot().getStartDate().equals(apptStartDate) &&
-				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
-				
-				appt = a;
-				
-				if (currentTime.equals(appt.getTimeSlot().getStartTime()) || currentTime.after(appt.getTimeSlot().getStartTime())) {
-					FlexiBookController.startAppointment(appt);
-					return;
-				}
-			}
+			fail(e);
+		} catch (InvalidInputException e) {
+			fail(e);
 		}
 	}
 	/** 
@@ -1997,30 +1975,17 @@ public class CucumberStepDefinitions {
 	public void the_owner_ends_the_appointment_at(String string) {
 		setTimeFromString(string);
 		
-		Date apptStartDate = null;
-		Time apptStartTime = null;
-		Appointment appt = null;
 		
 		try {
-			apptStartDate = FlexiBookUtil.getDateFromString(apptDate);
-			apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
+			Date apptStartDate = FlexiBookUtil.getDateFromString(apptDate);
+			Time apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
+			FlexiBookController.endAppointment(apptService,  apptStartDate, apptStartTime);
 		} catch (ParseException e) {
-			exception = e;
-			System.out.println(e.getMessage()); // to check
+			fail(e);
+		} catch (InvalidInputException e) {
+			fail(e);
 		}
 		
-		
-		for (Appointment a: flexiBook.getAppointments()) {
-			if (a.getBookableService().getName().equals(apptService) &&
-				a.getTimeSlot().getStartDate().equals(apptStartDate) &&
-				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
-				
-				appt = a;
-				FlexiBookController.endAppointment(appt);
-				return;
-			}
-		}
-		fail();
 	}
 	/** 
 	 * @author sarah
@@ -2048,8 +2013,7 @@ public class CucumberStepDefinitions {
 				}
 			}
 		} catch (ParseException e) {
-			exception = e;
-			System.out.println(e.getMessage()); // to check
+			fail(e);
 		}
 		
 	}

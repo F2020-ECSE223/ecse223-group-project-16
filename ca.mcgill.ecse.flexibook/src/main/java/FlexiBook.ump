@@ -24,9 +24,6 @@ class Owner {
 
 class Customer {
   isA User;
-<<<<<<< HEAD
-  int noShow;
-=======
   internal int noShowCount = 0;
   
   public int getNoShowCount() {
@@ -40,7 +37,6 @@ class Customer {
   public void resetNoShowCount() {
   	noShowCount = 0;
   }
->>>>>>> master
 }
 
 class Business {

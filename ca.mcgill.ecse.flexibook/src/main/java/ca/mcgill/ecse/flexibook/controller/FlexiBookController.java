@@ -47,7 +47,7 @@ public class FlexiBookController {
 		}
 
 		try {
-			new Customer(username, password, 0, flexiBook);
+			new Customer(username, password, flexiBook);
 		} catch (RuntimeException e) {
 			if (e.getMessage().startsWith("Cannot create due to duplicate username.")) {
 				throw new InvalidInputException("The username already exists");
@@ -2107,25 +2107,49 @@ public class FlexiBookController {
 	 * Starts an appointment 
 	 * 
 	 * @author sarah
+	 * @throws InvalidInputException 
 	 * @category 
 	 * 
 	 * @param appt appointment to start
 	
 	 */
-	public static void startAppointment (Appointment appt) {
-		appt.startAppointment();
+	public static void startAppointment (String apptService, Date apptStartDate, Time apptStartTime, Time currentTime) throws InvalidInputException {
+		for (Appointment a: FlexiBookApplication.getFlexiBook().getAppointments()) {
+			if (a.getBookableService().getName().equals(apptService) &&
+				a.getTimeSlot().getStartDate().equals(apptStartDate) &&
+				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
+			
+				if (currentTime.equals(a.getTimeSlot().getStartTime()) || currentTime.after(a.getTimeSlot().getStartTime())) {
+					a.startAppointment();
+				}
+				
+				return;
+			}
+		}
+		throw new InvalidInputException ("Appointment not found");
 	}
 	
 	/**
 	 * Ends an appointment 
 	 * 
 	 * @author sarah
+	 * @throws InvalidInputException 
 	 * @category 
 	 * 
 	 * @param appt appointment to end	 
 	
 	 */
-	public static void endAppointment (Appointment appt) {
-		appt.endAppointment();
+	public static void endAppointment (String apptService, Date apptStartDate, Time apptStartTime) throws InvalidInputException {
+		for (Appointment a: FlexiBookApplication.getFlexiBook().getAppointments()) {
+			if (a.getBookableService().getName().equals(apptService) &&
+				a.getTimeSlot().getStartDate().equals(apptStartDate) &&
+				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
+			
+				a.endAppointment();
+				return;
+				
+			}
+		}
+		throw new InvalidInputException ("Appointment not found");
 	}
 }

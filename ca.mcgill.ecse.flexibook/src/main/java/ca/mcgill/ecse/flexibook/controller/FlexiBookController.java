@@ -2271,20 +2271,17 @@ public class FlexiBookController {
 	
 	 */
 	public static void startAppointment (String apptService, Date apptStartDate, Time apptStartTime, Date currentDate, Time currentTime) throws InvalidInputException {
-		for (Appointment a: FlexiBookApplication.getFlexiBook().getAppointments()) {
-			if (a.getBookableService().getName().equals(apptService) &&
-				a.getTimeSlot().getStartDate().equals(apptStartDate) &&
-				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
-			
-				// TODO remove once state machine check implemented
-				if (currentTime.equals(a.getTimeSlot().getStartTime()) || currentTime.after(a.getTimeSlot().getStartTime())) {
-					a.startAppointment(currentDate, currentTime);
-				}
-				
-				return;
+		Appointment appt = findAppointment(apptService, apptStartDate, apptStartTime);
+		
+		if (appt == null) {
+			throw new InvalidInputException ("Appointment not found");
+		}
+		else {
+			// TODO remove once state machine check implemented
+			if (currentTime.equals(appt.getTimeSlot().getStartTime()) || currentTime.after(appt.getTimeSlot().getStartTime())) {
+				appt.startAppointment(currentDate, currentTime);
 			}
 		}
-		throw new InvalidInputException ("Appointment not found");
 	}
 	
 	/**
@@ -2300,16 +2297,29 @@ public class FlexiBookController {
 	
 	 */
 	public static void endAppointment (String apptService, Date apptStartDate, Time apptStartTime) throws InvalidInputException {
+		Appointment appt = findAppointment(apptService, apptStartDate, apptStartTime);
+		
+		if (appt == null) {
+			throw new InvalidInputException ("Appointment not found");
+		}
+		else {
+			appt.endAppointment();
+		}
+	}
+
+	/**
+	 * @author sarah
+	 */
+	private static Appointment findAppointment (String apptService, Date apptStartDate, Time apptStartTime) {
 		for (Appointment a: FlexiBookApplication.getFlexiBook().getAppointments()) {
 			if (a.getBookableService().getName().equals(apptService) &&
 				a.getTimeSlot().getStartDate().equals(apptStartDate) &&
 				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
 			
-				a.endAppointment();
-				return;
+				return a;
 				
 			}
 		}
-		throw new InvalidInputException ("Appointment not found");
+		return null;
 	}
 }

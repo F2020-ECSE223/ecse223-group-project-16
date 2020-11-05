@@ -1958,4 +1958,25 @@ public class CucumberStepDefinitions {
 	public void the_system_shall_have_appointments(Integer int1) {
 		assertEquals(int1, flexiBook.numberOfAppointments());
 	}
+	private String serviceToCancel = "cut";
+	/**
+	 * @author Aayush
+	 */
+	@When("{string} attempts to cancel the appointment at {string}")
+	public void attempts_to_cancel_the_appointment_at(String string, String string2) {
+		String custName = string;
+		String[] dateTime = string2.split("\\+");
+		String dateToCancel = dateTime[0];
+		String startTimeToCancel = dateTime[1];
+		
+		try {
+		   FlexiBookController.cancelAppointment(custName, serviceToCancel, dateToCancel, startTimeToCancel);
+	   } catch (InvalidInputException e) {
+		   exception = e;
+		}
+	}
+	@Then("the system shall have {int} appointment")
+	public void the_system_shall_have_appointment(Integer int1) {
+	    assertEquals(int1, flexiBook.getAppointments().size());
+	}
 }

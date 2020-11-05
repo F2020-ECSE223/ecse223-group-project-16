@@ -2113,14 +2113,15 @@ public class FlexiBookController {
 	 * @param appt appointment to start
 	
 	 */
-	public static void startAppointment (String apptService, Date apptStartDate, Time apptStartTime, Time currentTime) throws InvalidInputException {
+	public static void startAppointment (String apptService, Date apptStartDate, Time apptStartTime, Date currentDate, Time currentTime) throws InvalidInputException {
 		for (Appointment a: FlexiBookApplication.getFlexiBook().getAppointments()) {
 			if (a.getBookableService().getName().equals(apptService) &&
 				a.getTimeSlot().getStartDate().equals(apptStartDate) &&
 				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
 			
+				// TODO maybe remove if statement if already checked in state machine
 				if (currentTime.equals(a.getTimeSlot().getStartTime()) || currentTime.after(a.getTimeSlot().getStartTime())) {
-					a.startAppointment();
+					a.startAppointment(currentDate, currentTime);
 				}
 				
 				return;

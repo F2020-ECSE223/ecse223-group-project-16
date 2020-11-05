@@ -1958,10 +1958,11 @@ public class CucumberStepDefinitions {
 		String[] dateTime = currentDateTime.split("\\+");
 		
 		try {
+			Date currentDate = FlexiBookUtil.getDateFromString(dateTime[0]);
 			Time currentTime = FlexiBookUtil.getTimeFromString(dateTime[1]);
 			Date apptStartDate = FlexiBookUtil.getDateFromString(apptDate);
 			Time apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
-			FlexiBookController.startAppointment(apptService,  apptStartDate,  apptStartTime, currentTime);
+			FlexiBookController.startAppointment(apptService,  apptStartDate,  apptStartTime, currentDate, currentTime);
 		} catch (ParseException e) {
 			fail(e);
 		} catch (InvalidInputException e) {
@@ -2017,7 +2018,4 @@ public class CucumberStepDefinitions {
 		}
 		
 	}
-		
-		
-	
 }

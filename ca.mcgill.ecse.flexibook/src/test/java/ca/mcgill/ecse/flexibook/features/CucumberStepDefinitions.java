@@ -2007,11 +2007,7 @@ public class CucumberStepDefinitions {
 	}
 	@Then("the system shall have {int} appointment")
 	public void the_system_shall_have_appointment(Integer int1) {
-	    int counter = 0;
-		for (Appointment a :flexiBook.getAppointments()) {
-	    	counter ++;
-	    }
-	    assertEquals(int1, counter);
+	    assertEquals(int1, flexiBook.getAppointments().size());
 	}
 
 	

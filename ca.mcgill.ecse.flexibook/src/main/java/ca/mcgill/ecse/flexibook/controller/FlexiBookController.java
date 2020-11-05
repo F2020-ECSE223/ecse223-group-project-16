@@ -2110,7 +2110,11 @@ public class FlexiBookController {
 	 * @throws InvalidInputException 
 	 * @category 
 	 * 
-	 * @param appt appointment to start
+	 * @param apptService   service name of appointment to end	 
+	 * @param apptStartDate start date of appointment to end	
+	 * @param apptStartTime start time of appointment to end	
+	 * @param currentDate   the current date
+	 * @param currentTime   the current time
 	
 	 */
 	public static void startAppointment (String apptService, Date apptStartDate, Time apptStartTime, Date currentDate, Time currentTime) throws InvalidInputException {
@@ -2119,7 +2123,7 @@ public class FlexiBookController {
 				a.getTimeSlot().getStartDate().equals(apptStartDate) &&
 				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
 			
-				// TODO maybe remove if statement if already checked in state machine
+				// TODO remove once state machine check implemented
 				if (currentTime.equals(a.getTimeSlot().getStartTime()) || currentTime.after(a.getTimeSlot().getStartTime())) {
 					a.startAppointment(currentDate, currentTime);
 				}
@@ -2137,7 +2141,9 @@ public class FlexiBookController {
 	 * @throws InvalidInputException 
 	 * @category 
 	 * 
-	 * @param appt appointment to end	 
+	 * @param apptService   service name of appointment to end	 
+	 * @param apptStartDate start date of appointment to end	
+	 * @param apptStartTime start time of appointment to end	
 	
 	 */
 	public static void endAppointment (String apptService, Date apptStartDate, Time apptStartTime) throws InvalidInputException {

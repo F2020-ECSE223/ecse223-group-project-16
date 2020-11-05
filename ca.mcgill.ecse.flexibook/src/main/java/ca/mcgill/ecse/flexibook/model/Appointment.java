@@ -70,7 +70,7 @@ public class Appointment
     return appointmentStatus;
   }
 
-  public boolean startAppointment()
+  public boolean startAppointment(Date currentDate,Time currentTime)
   {
     boolean wasEventProcessed = false;
     
@@ -78,7 +78,7 @@ public class Appointment
     switch (aAppointmentStatus)
     {
       case Booked:
-        if (isDuringAppointment())
+        if (isDuringAppointment(currentDate,currentTime))
         {
           setAppointmentStatus(AppointmentStatus.InProgress);
           wasEventProcessed = true;
@@ -110,7 +110,7 @@ public class Appointment
     return wasEventProcessed;
   }
 
-  public boolean noShow()
+  public boolean noShow(Date currentDate,Time currentTime)
   {
     boolean wasEventProcessed = false;
     
@@ -118,7 +118,7 @@ public class Appointment
     switch (aAppointmentStatus)
     {
       case Booked:
-        if (isDuringAppointment())
+        if (isDuringAppointment(currentDate,currentTime))
         {
         // line 10 "../../../../../FlexiBookStates.ump"
           incrementCustomerNoShow();
@@ -134,7 +134,7 @@ public class Appointment
     return wasEventProcessed;
   }
 
-  public boolean changeOptionalService(Service newService,boolean isAdd)
+  public boolean changeOptionalService(Service newService,boolean isAdd,Date currentDate)
   {
     boolean wasEventProcessed = false;
     
@@ -142,7 +142,7 @@ public class Appointment
     switch (aAppointmentStatus)
     {
       case Booked:
-        if (isDayBeforeAppointment()&&isServiceCombo())
+        if (isDayBeforeAppointment(currentDate)&&isServiceCombo())
         {
         // line 12 "../../../../../FlexiBookStates.ump"
           doChangeOptionalService(newService, isAdd);
@@ -168,7 +168,7 @@ public class Appointment
     return wasEventProcessed;
   }
 
-  public boolean changeDateAndTime(Date date,Time time)
+  public boolean changeDateAndTime(Date newDate,Time newTime,Date currentDate)
   {
     boolean wasEventProcessed = false;
     
@@ -176,10 +176,10 @@ public class Appointment
     switch (aAppointmentStatus)
     {
       case Booked:
-        if (isDayBeforeAppointment())
+        if (isDayBeforeAppointment(currentDate))
         {
         // line 13 "../../../../../FlexiBookStates.ump"
-          doChangeDateAndTime(date, time);
+          doChangeDateAndTime(newDate, newTime);
           setAppointmentStatus(AppointmentStatus.Booked);
           wasEventProcessed = true;
           break;
@@ -434,12 +434,12 @@ public class Appointment
   }
 
   // line 29 "../../../../../FlexiBookStates.ump"
-   private boolean isDayBeforeAppointment(){
+   private boolean isDayBeforeAppointment(Date currentDate){
     return true; // placeholder
   }
 
   // line 33 "../../../../../FlexiBookStates.ump"
-   private boolean isDuringAppointment(){
+   private boolean isDuringAppointment(Date currentDate, Time currentTime){
     return true; // placeholder
   }
 

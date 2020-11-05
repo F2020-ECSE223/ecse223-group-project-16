@@ -4,20 +4,20 @@ class Appointment {
   
   appointmentStatus {
     Booked {
-      startAppointment [isDuringAppointment()] -> InProgress;
+      startAppointment(Date currentDate, Time currentTime) [isDuringAppointment(currentDate, currentTime)] -> InProgress;
       
       cancel -> Final;
-      noShow [isDuringAppointment()] -> /{incrementCustomerNoShow();} Final;
+      noShow(Date currentDate, Time currentTime) [isDuringAppointment(currentDate, currentTime)] -> /{incrementCustomerNoShow();} Final;
         
-      changeOptionalService(Service newService, boolean isAdd) [isDayBeforeAppointment() && isServiceCombo()] -> /{doChangeOptionalService(newService, isAdd);} Booked;
-      changeDateAndTime(Date date, Time time) [isDayBeforeAppointment()] -> /{doChangeDateAndTime(date, time);} Booked;
+      changeOptionalService(Service newService, boolean isAdd, Date currentDate) [isDayBeforeAppointment(currentDate) && isServiceCombo()] -> /{doChangeOptionalService(newService, isAdd);} Booked;
+      changeDateAndTime(Date newDate, Time newTime, Date currentDate) [isDayBeforeAppointment(currentDate)] -> /{doChangeDateAndTime(newDate, newTime);} Booked;
     }  
      
     InProgress {  
       endAppointment -> Final;
       
-      changeOptionalService(Service newService, boolean isAdd) [isServiceCombo()] -> /{doChangeOptionalService(newService, isAdd);} InProgress;
-      changeDateAndTime(Date date, Time time) -> /{rejectChangeDateAndTime();} InProgress;
+      changeOptionalService(Service newService, boolean isAdd, Date currentDate) [isServiceCombo()] -> /{doChangeOptionalService(newService, isAdd);} InProgress;
+      changeDateAndTime(Date newDate, Time newTime, Date currentDate) -> /{rejectChangeDateAndTime();} InProgress;
     }
   }  
   
@@ -25,11 +25,11 @@ class Appointment {
     return getBookableService() instanceof ServiceCombo;
   }
 
-  private boolean isDayBeforeAppointment() {
+  private boolean isDayBeforeAppointment(Date currentDate) {
     return true; // placeholder
   }
   
-  private boolean isDuringAppointment() {
+  private boolean isDuringAppointment(Date currentDate, Time currentTime) {
   	return true; // placeholder
   }
     

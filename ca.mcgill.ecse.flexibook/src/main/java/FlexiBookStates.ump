@@ -7,17 +7,17 @@ class Appointment {
       startAppointment(Date currentDate, Time currentTime) [isDuringAppointment(currentDate, currentTime)] -> InProgress;
       
       cancel -> Final;
-      noShow [isDuringAppointment(currentDate, currentTime)] -> /{incrementCustomerNoShow();} Final;
+      noShow(Date currentDate, Time currentTime) [isDuringAppointment(currentDate, currentTime)] -> /{incrementCustomerNoShow();} Final;
         
       changeOptionalService(Service newService, boolean isAdd, Date currentDate) [isDayBeforeAppointment(currentDate) && isServiceCombo()] -> /{doChangeOptionalService(newService, isAdd);} Booked;
-      changeDateAndTime(Date date, Time time) [isDayBeforeAppointment()] -> /{doChangeDateAndTime(date, time);} Booked;
+      changeDateAndTime(Date newDate, Time newTime, Date currentDate) [isDayBeforeAppointment(currentDate)] -> /{doChangeDateAndTime(newDate, newTime);} Booked;
     }  
      
     InProgress {  
       endAppointment -> Final;
       
       changeOptionalService(Service newService, boolean isAdd) [isServiceCombo()] -> /{doChangeOptionalService(newService, isAdd);} InProgress;
-      changeDateAndTime(Date date, Time time) -> /{rejectChangeDateAndTime();} InProgress;
+      changeDateAndTime(Date date, Time time, Date currentDate) -> /{rejectChangeDateAndTime();} InProgress;
     }
   }  
   

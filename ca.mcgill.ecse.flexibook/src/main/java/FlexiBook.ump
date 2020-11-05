@@ -1,5 +1,6 @@
 namespace ca.mcgill.ecse.flexibook.model;
 
+use FlexiBookPersistence.ump;
 use FlexiBookStates.ump;
 
 class FlexiBook {

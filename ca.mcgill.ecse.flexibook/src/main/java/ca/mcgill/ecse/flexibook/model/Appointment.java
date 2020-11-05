@@ -2,13 +2,15 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse.flexibook.model;
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.*;
 
+// line 90 "../../../../../FlexiBookPersistence.ump"
 // line 1 "../../../../../FlexiBookStates.ump"
-// line 99 "../../../../../FlexiBook.ump"
-public class Appointment
+// line 100 "../../../../../FlexiBook.ump"
+public class Appointment implements Serializable
 {
 
   //------------------------
@@ -480,5 +482,13 @@ public class Appointment
    private void rejectChangeDateAndTime(){
     throw new RuntimeException("Cannot change date and time of an appointment in progress.");
   }
+  
+  //------------------------
+  // DEVELOPER CODE - PROVIDED AS-IS
+  //------------------------
+  
+  // line 93 "../../../../../FlexiBookPersistence.ump"
+  private static final long serialVersionUID = 10L ;
 
+  
 }

@@ -16,8 +16,8 @@ class Appointment {
     InProgress {  
       endAppointment -> Final;
       
-      changeOptionalService(Service newService, boolean isAdd) [isServiceCombo()] -> /{doChangeOptionalService(newService, isAdd);} InProgress;
-      changeDateAndTime(Date date, Time time, Date currentDate) -> /{rejectChangeDateAndTime();} InProgress;
+      changeOptionalService(Service newService, boolean isAdd, Date currentDate) [isServiceCombo()] -> /{doChangeOptionalService(newService, isAdd);} InProgress;
+      changeDateAndTime(Date newDate, Time newTime, Date currentDate) -> /{rejectChangeDateAndTime();} InProgress;
     }
   }  
   

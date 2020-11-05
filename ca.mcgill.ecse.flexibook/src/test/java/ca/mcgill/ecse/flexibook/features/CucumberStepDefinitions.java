@@ -1984,8 +1984,7 @@ public class CucumberStepDefinitions {
 				appt = a;
 				
 				if (currentTime.equals(appt.getTimeSlot().getStartTime()) || currentTime.after(appt.getTimeSlot().getStartTime())) {
-					appt.startAppointment();
-					System.out.println("startAppointment: "+a.getAppointmentStatusFullName());
+					FlexiBookController.startAppointment(appt);
 					return;
 				}
 			}
@@ -2017,7 +2016,7 @@ public class CucumberStepDefinitions {
 				a.getTimeSlot().getStartTime().equals(apptStartTime)) {
 				
 				appt = a;
-				appt.endAppointment();
+				FlexiBookController.endAppointment(appt);
 				return;
 			}
 		}
@@ -2044,7 +2043,6 @@ public class CucumberStepDefinitions {
 					a.getTimeSlot().getStartDate().equals(apptStartDate) &&
 					a.getTimeSlot().getStartTime().equals(apptStartTime)) {
 					
-					System.out.println("In progress: " + a.getAppointmentStatusFullName());
 					assertEquals(AppointmentStatus.InProgress, a.getAppointmentStatus());
 				    break;
 				}

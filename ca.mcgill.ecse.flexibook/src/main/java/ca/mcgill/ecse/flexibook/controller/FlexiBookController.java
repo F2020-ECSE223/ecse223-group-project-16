@@ -2102,4 +2102,30 @@ public class FlexiBookController {
 		
 		return calendar;
 	}
+	
+	/**
+	 * Starts an appointment 
+	 * 
+	 * @author sarah
+	 * @category 
+	 * 
+	 * @param appt appointment to start
+	
+	 */
+	public static void startAppointment (Appointment appt) {
+		appt.startAppointment();
+	}
+	
+	/**
+	 * Ends an appointment 
+	 * 
+	 * @author sarah
+	 * @category 
+	 * 
+	 * @param appt appointment to end	 
+	
+	 */
+	public static void endAppointment (Appointment appt) {
+		appt.endAppointment();
+	}
 }

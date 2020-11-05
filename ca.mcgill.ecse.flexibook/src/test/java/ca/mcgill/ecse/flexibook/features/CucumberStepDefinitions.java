@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.io.File;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.ParseException;
@@ -19,6 +20,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.AfterAll;
+
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
@@ -26,6 +29,7 @@ import ca.mcgill.ecse.flexibook.controller.TOBusiness;
 import ca.mcgill.ecse.flexibook.controller.TOTimeSlot;
 import ca.mcgill.ecse.flexibook.model.*;
 import ca.mcgill.ecse.flexibook.model.Appointment.AppointmentStatus;
+import ca.mcgill.ecse.flexibook.persistence.FlexiBookPersistence;
 import ca.mcgill.ecse.flexibook.util.FlexiBookUtil;
 import ca.mcgill.ecse.flexibook.util.SystemTime;
 import io.cucumber.java.Before;
@@ -36,8 +40,10 @@ import io.cucumber.java.en.When;
 
 public class CucumberStepDefinitions {
 	
-	private FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
+	private FlexiBook flexiBook;
 	private Exception exception;
+
+	private static String filename = "testdata.flexibook";
 	
 	/**
 	 * @author louca
@@ -45,6 +51,12 @@ public class CucumberStepDefinitions {
 	 */
 	@Before
 	public void setup() {
+		FlexiBookPersistence.setFilename(filename);
+		// remove test file
+		File f = new File(filename);
+		f.delete();
+		// clear all data
+		FlexiBookApplication.getFlexiBook().delete();
 		flexiBook = FlexiBookApplication.getFlexiBook();
 	}
 	
@@ -58,9 +70,11 @@ public class CucumberStepDefinitions {
 		
 		flexiBook.delete();
 		flexiBook = null;
-		
 		exception = null;
+		File f = new File(filename);
+		f.delete();
 	}
+
 	/**
 	 * @author louca
 	 */

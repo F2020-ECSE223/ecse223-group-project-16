@@ -26,22 +26,10 @@ class Appointment {
   }
 
   private boolean isDayBeforeAppointment(Date currentDate) {
-	if ((timeSlot.getStartDate.after(currentDate)) && (timeSlot.getStartDate.getDate() - currentDate.getDate() == 1))
-		return true;
-	}else{
-		return false;
-	}
+	return timeSlot.getStartDate.after(currentDate) && timeSlot.getStartDate.getDate() - currentDate.getDate() == 1;
   }
   private boolean isDuringAppointment(Date currentDate, Time currentTime) {
-  	 if (timeSlot.getStartDate().equals(currentDate)){
-	  	 if (!timeSlot.getStartTime.after(currentTime) && !timeSlot.getEndTime().before(currentTime){
-	  	 	return true;
-	     }else{
-	     	return false;
-	     }
-  	 }else{
-  	 	return false;
-  	 }
+	return timeSlot.getStartDate().equals(currentDate) && !timeSlot.getStartTime.after(currentTime) && !timeSlot.getEndTime().before(currentTime);
   }
     
   private void incrementCustomerNoShow() {

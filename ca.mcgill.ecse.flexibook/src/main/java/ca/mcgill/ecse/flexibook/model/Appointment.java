@@ -70,6 +70,28 @@ public class Appointment
     return appointmentStatus;
   }
 
+  public boolean startAppointment()
+  {
+    boolean wasEventProcessed = false;
+    
+    AppointmentStatus aAppointmentStatus = appointmentStatus;
+    switch (aAppointmentStatus)
+    {
+      case Booked:
+        if (isDuringAppointment())
+        {
+          setAppointmentStatus(AppointmentStatus.InProgress);
+          wasEventProcessed = true;
+          break;
+        }
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
   public boolean cancel()
   {
     boolean wasEventProcessed = false;
@@ -98,7 +120,7 @@ public class Appointment
       case Booked:
         if (isDuringAppointment())
         {
-        // line 8 "../../../../../FlexiBookStates.ump"
+        // line 10 "../../../../../FlexiBookStates.ump"
           incrementCustomerNoShow();
           setAppointmentStatus(AppointmentStatus.Final);
           wasEventProcessed = true;
@@ -112,29 +134,7 @@ public class Appointment
     return wasEventProcessed;
   }
 
-  public boolean startAppointment()
-  {
-    boolean wasEventProcessed = false;
-    
-    AppointmentStatus aAppointmentStatus = appointmentStatus;
-    switch (aAppointmentStatus)
-    {
-      case Booked:
-        if (isDuringAppointment())
-        {
-          setAppointmentStatus(AppointmentStatus.InProgress);
-          wasEventProcessed = true;
-          break;
-        }
-        break;
-      default:
-        // Other states do respond to this event
-    }
-
-    return wasEventProcessed;
-  }
-
-  public boolean changeOptionalService(String serviceName,boolean isAdd)
+  public boolean changeOptionalService(Service newService,boolean isAdd)
   {
     boolean wasEventProcessed = false;
     
@@ -145,7 +145,7 @@ public class Appointment
         if (isDayBeforeAppointment()&&isServiceCombo())
         {
         // line 12 "../../../../../FlexiBookStates.ump"
-          doChangeOptionalService(serviceName, isAdd);
+          doChangeOptionalService(newService, isAdd);
           setAppointmentStatus(AppointmentStatus.Booked);
           wasEventProcessed = true;
           break;
@@ -155,7 +155,7 @@ public class Appointment
         if (isServiceCombo())
         {
         // line 19 "../../../../../FlexiBookStates.ump"
-          doChangeOptionalService(serviceName, isAdd);
+          doChangeOptionalService(newService, isAdd);
           setAppointmentStatus(AppointmentStatus.InProgress);
           wasEventProcessed = true;
           break;
@@ -449,7 +449,7 @@ public class Appointment
   }
 
   // line 42 "../../../../../FlexiBookStates.ump"
-   private void doChangeOptionalService(String newServiceName, boolean isAdd){
+   private void doChangeOptionalService(Service newService, boolean isAdd){
     
   }
 

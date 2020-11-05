@@ -681,7 +681,8 @@ public class CucumberStepDefinitions {
 	}
 	/**
 	 * @author heqianw
-	 */	@Then("{string} shall have a {string} appointment on {string} from {string} to {string}")
+	 */	
+	@Then("{string} shall have a {string} appointment on {string} from {string} to {string}")
 	public void shall_have_a_appointment_on_from_to(String string, String string2, String string3, String string4, String string5){
 		Optional<Customer> c = flexiBook.getCustomers().stream().filter(x -> x.getUsername().equals(string)).findFirst();
 		Date date = null;
@@ -738,11 +739,9 @@ public class CucumberStepDefinitions {
 
 		List<ComboItem> chosenItems = new ArrayList<>();	
 		for(ComboItem ci: sc.getServices()){
-			if(ci.getService().getName().equals(string3) || (ci.isMandatory())){
+			if(ci.getService().getName().equals(string3) || (ci.isMandatory())) {
 				duration += ci.getService().getDuration();
-				if(!ci.getService().getName().equals(sc.getMainService().getService().getName())){
-					chosenItems.add(ci);
-				}
+				chosenItems.add(ci);
 			}
 		}
 		Date aEndDate =  aStartDate;
@@ -804,9 +803,9 @@ public class CucumberStepDefinitions {
 	@Then("the system shall report that the update was {string}")
 	public void the_system_shall_report_that_the_update_was(String string) {
 		if(result) {
-			assertEquals("successful", string);
+			assertEquals(string, "successful");
 		} else {
-			assertEquals("unsuccessful", string);
+			assertEquals(string, "unsuccessful");
 		}
 	}
 	
@@ -1785,7 +1784,7 @@ public class CucumberStepDefinitions {
 			FlexiBookController.makeAppointment(cust, adate, bservice, atime);
 		} catch (InvalidInputException e) {
 			exception = e;
-			System.err.println(e);
+			//System.err.println(e);
 		}
 		apptService = bservice;
 		apptDate = adate;
@@ -1805,7 +1804,7 @@ public class CucumberStepDefinitions {
 				apptService = serv;
 			} catch (InvalidInputException e) {
 				exception = e;
-				System.err.println(e);
+				//System.err.println(e);
 				try {
 					FlexiBookController.makeAppointment(cust, apptDate, apptService, apptTime);
 				} catch (InvalidInputException _e) {
@@ -1814,7 +1813,7 @@ public class CucumberStepDefinitions {
 			}
 		} catch (InvalidInputException e) {
 			exception = e;
-			System.err.println(e);
+			//System.err.println(e);
 		}
 	}
 	/**
@@ -1828,7 +1827,7 @@ public class CucumberStepDefinitions {
 			FlexiBookController.makeAppointment(cust, adate, bservice, "", atime);
 		} catch (InvalidInputException e) {
 			exception = e;
-			System.err.println(e);
+			//System.err.println(e);
 		}
 		apptService = bservice;
 		apptDate = adate;
@@ -1847,7 +1846,7 @@ public class CucumberStepDefinitions {
 			apptTime = atime;
 		} catch (InvalidInputException e) {
 			exception = e;
-			System.err.println(e);
+			//System.err.println(e);
 		}
 	}
 	/**
@@ -1861,7 +1860,7 @@ public class CucumberStepDefinitions {
 			FlexiBookController.updateAppointment(cust, true, serv, apptService, apptDate, apptTime);
 		} catch (InvalidInputException e) {
 			exception = e;
-			System.err.println(e);
+			//System.err.println(e);
 		}
 	}
 

@@ -134,7 +134,7 @@ public class Appointment
     return wasEventProcessed;
   }
 
-  public boolean changeOptionalService(Service newService,boolean isAdd,Date currentDate)
+  public boolean changeOptionalService(ComboItem newService,boolean isAdd,Date currentDate)
   {
     boolean wasEventProcessed = false;
     
@@ -448,17 +448,35 @@ public class Appointment
     getCustomer().incrementNoShowCount();
   }
 
-  // line 42 "../../../../../FlexiBookStates.ump"
-   private void doChangeOptionalService(Service newService, boolean isAdd){
-    
+  // line 41 "../../../../../FlexiBookStates.ump"
+   private void doChangeOptionalService(ComboItem newService, boolean isAdd){
+    ServiceCombo sc = (ServiceCombo) this.bookableService;
+    if (isAdd) {
+      int itemPos = 0;
+      for (ComboItem ci : sc.getServices()) {
+        if (chosenItems.contains(ci)) {
+          itemPos++;
+        } else if (ci == newService) {
+          break;
+        }
+      }
+      addChosenItemAt(newService, itemPos);
+      timeSlot.setEndTime(new Time(timeSlot.getEndTime().getTime() + newService.getService().getDuration() * 60 * 1000));
+    } else {
+      removeChosenItem(newService);
+      timeSlot.setEndTime(new Time(timeSlot.getEndTime().getTime() - newService.getService().getDuration() * 60 * 1000));
+    }
   }
 
-  // line 46 "../../../../../FlexiBookStates.ump"
+  // line 60 "../../../../../FlexiBookStates.ump"
    private void doChangeDateAndTime(Date newDate, Time newTime){
-    
+    timeSlot.setStartDate(newDate);
+    timeSlot.setEndDate(newDate);
+    timeSlot.setEndTime(new Time(timeSlot.getEndTime().getTime() - timeSlot.getStartTime().getTime() + newTime.getTime()));
+    timeSlot.setStartTime(newTime);
   }
 
-  // line 49 "../../../../../FlexiBookStates.ump"
+  // line 67 "../../../../../FlexiBookStates.ump"
    private void rejectChangeDateAndTime(){
     throw new RuntimeException("Cannot change date and time of an appointment in progress.");
   }

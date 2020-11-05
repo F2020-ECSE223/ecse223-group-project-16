@@ -573,7 +573,7 @@ public class FlexiBookController {
 		}
 		Time endTime = checkAppointmentSlots(foundAppointment.getBookableService(), foundAppointment.getChosenItems(), startDate, startTime, foundAppointment);
 		
-		if (!foundAppointment.changeDateAndTime(startDate, startTime)) {
+		if (!foundAppointment.changeDateAndTime(startDate, startTime, SystemTime.getDate())) {
 			throw new InvalidInputException("Cannot update appointment day before");
 		}
 	}
@@ -626,7 +626,12 @@ public class FlexiBookController {
 			throw new InvalidInputException("Cannot add / remove combo items from service appointment");
 		}
 		ServiceCombo sc = (ServiceCombo) foundAppointment.getBookableService();
-		ComboItem cI = sc.getServices().stream().filter(x -> x.getService().getName().equals(comboItemName)).findFirst().get();	
+		ComboItem cI = sc.getServices().stream().filter(x -> x.getService().getName().equals(comboItemName)).findFirst().get();
+		System.err.println("\n   thing:");
+		for (ComboItem cc : foundAppointment.getChosenItems()) {
+			System.err.print(cc.getService().getName() + " ");
+		}
+		System.err.print("-> ");
 		List<ComboItem> listCI = new ArrayList<>();
 		if (isAdd) {
 			for (ComboItem ci : sc.getServices()) {
@@ -658,8 +663,12 @@ public class FlexiBookController {
 				}
 			}
 		}
+		for (ComboItem cc : listCI) {
+			System.err.print(cc.getService().getName() + " ");
+		}
+		System.err.println();
 		checkAppointmentSlots(sc, listCI, startDate, startTime, foundAppointment);
-		if (!foundAppointment.changeOptionalService(cI.getService(), isAdd)) {
+		if (!foundAppointment.changeOptionalService(cI, isAdd, SystemTime.getDate())) {
 			throw new InvalidInputException("Cannot update appointment day before");
 		}
 	}
@@ -718,15 +727,15 @@ public class FlexiBookController {
 	 * helper method to find conflicting appointments and whether we can fit the appointment during downtimes
 	 */
 	private static boolean validateConflictingAppointments(Date startDate, Time startTime, Time finalEndTime, Time downTimeStart, Time downTimeEnd, Appointment existingAppt) throws InvalidInputException {
-		//System.err.println(String.format("Appempting to validate appointment on %s from %s to %s, downtime %s to %s", startDate.toString(), startTime.toString(), finalEndTime.toString(), downTimeStart.toString(), downTimeEnd.toString()));
+		System.err.println(String.format("Appempting to validate on %s from %s to %s, downtime %s to %s", startDate.toString(), startTime.toString(), finalEndTime.toString(), downTimeStart.toString(), downTimeEnd.toString()));
 		for(Appointment app: FlexiBookApplication.getFlexiBook().getAppointments()) {
-			//System.err.print(String.format("appt for %s on %s from %s to %s ...", app.getBookableService().getName(), app.getTimeSlot().getStartDate().toString(), app.getTimeSlot().getStartTime().toString(), app.getTimeSlot().getEndTime().toString()));
+			System.err.print(String.format("appt for %s on %s from %s to %s ...", app.getBookableService().getName(), app.getTimeSlot().getStartDate().toString(), app.getTimeSlot().getStartTime().toString(), app.getTimeSlot().getEndTime().toString()));
 			if(app != existingAppt && app.getTimeSlot().getStartDate().equals(startDate) && app.getTimeSlot().getStartTime().before(finalEndTime) && app.getTimeSlot().getEndTime().after(startTime)) {
 				if(app.getBookableService() instanceof Service) {
 					Service s = (Service) app.getBookableService();
 					Time servStartTime = app.getTimeSlot().getStartTime();
 					Time servEndTime = app.getTimeSlot().getEndTime();
-					//System.err.println(" investigating service");
+					System.err.println(" investigating service");
 					if (s.getDowntimeDuration() == 0) {
 						if (downTimeEnd.equals(downTimeStart)) {
 							return false;
@@ -761,17 +770,17 @@ public class FlexiBookController {
 							}
 						}
 					}
-					//System.err.println(" ..... found no conflicts");
+					System.err.println(" ..... found no conflicts");
 				} else {
 					ServiceCombo sc = (ServiceCombo) app.getBookableService();
-					//System.err.println(" investigating service combo");
+					System.err.println(" investigating service combo");
 					Time servStartTime = null;
 					Time servEndTime = app.getTimeSlot().getStartTime();
 					for (ComboItem ci : app.getChosenItems()) {
 						Service s = ci.getService();
 						servStartTime = servEndTime;
 						servEndTime = new Time(servStartTime.getTime() + s.getDuration() * 60 * 1000);
-						//System.err.println(String.format("investigating ci for %s from %s to %s", s.getName(), servStartTime.toString(), servEndTime.toString()));
+						System.err.println(String.format("investigating ci for %s from %s to %s", s.getName(), servStartTime.toString(), servEndTime.toString()));
 						if (servStartTime.before(finalEndTime) && servEndTime.after(startTime)) {
 							if (s.getDowntimeDuration() == 0) {
 								if (downTimeEnd.equals(downTimeStart)) {
@@ -808,10 +817,10 @@ public class FlexiBookController {
 								}
 							}
 						}
-						//System.err.println(" ..... found no conflicts");
+						System.err.println(" ..... found no conflicts");
 					}
 				}
-			} //else System.err.println(" ignoring");
+			} else System.err.println(" ignoring");
 		}
 		return true;
 	}

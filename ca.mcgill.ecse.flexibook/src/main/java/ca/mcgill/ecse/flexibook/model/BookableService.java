@@ -4,7 +4,8 @@
 package ca.mcgill.ecse.flexibook.model;
 import java.util.*;
 
-// line 73 "../../../../../FlexiBook.ump"
+// line 60 "../../../../../FlexiBookPersistence.ump"
+// line 74 "../../../../../FlexiBook.ump"
 public abstract class BookableService
 {
 
@@ -221,6 +222,14 @@ public abstract class BookableService
       Appointment aAppointment = appointments.get(i - 1);
       aAppointment.delete();
     }
+  }
+
+  // line 63 "../../../../../FlexiBookPersistence.ump"
+   public static  void reinitializeBookableServicesName(List<BookableService> bookableServices){
+    bookableservicesByName = new HashMap<String, BookableService>();
+      for(BookableService bs : bookableServices){
+        bookableservicesByName.put(bs.getName(), bs);
+      }
   }
 
 

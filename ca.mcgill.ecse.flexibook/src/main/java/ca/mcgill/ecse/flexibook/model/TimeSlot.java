@@ -2,11 +2,13 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse.flexibook.model;
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
 
-// line 66 "../../../../../FlexiBook.ump"
-public class TimeSlot
+// line 54 "../../../../../FlexiBookPersistence.ump"
+// line 67 "../../../../../FlexiBook.ump"
+public class TimeSlot implements Serializable
 {
 
   //------------------------
@@ -138,5 +140,13 @@ public class TimeSlot
             "  " + "endDate" + "=" + (getEndDate() != null ? !getEndDate().equals(this)  ? getEndDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "endTime" + "=" + (getEndTime() != null ? !getEndTime().equals(this)  ? getEndTime().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "flexiBook = "+(getFlexiBook()!=null?Integer.toHexString(System.identityHashCode(getFlexiBook())):"null");
-  }
+  }  
+  //------------------------
+  // DEVELOPER CODE - PROVIDED AS-IS
+  //------------------------
+  
+  // line 57 "../../../../../FlexiBookPersistence.ump"
+  private static final long serialVersionUID = 6L ;
+
+  
 }

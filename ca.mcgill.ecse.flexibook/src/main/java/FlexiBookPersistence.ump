@@ -3,7 +3,7 @@ external interface Serializable {}
 class FlexiBook {
   depend java.io.Serializable;
   isA Serializable;
-  private static final long serialVersionUID = 1L;
+  internal const long SerialVersionUID = 1L;
 
     public void reinitialize() {
         List<User> users = new ArrayList<>();
@@ -29,32 +29,32 @@ class Owner {
   depend java.io.Serializable;
   isA Serializable;
   isA User;
-  private static final long serialVersionUID = 2L;
+  internal const long SerialVersionUID = 2L;
 }
 
 class Customer {
   depend java.io.Serializable;
   isA Serializable;
   isA User;
-  private static final long serialVersionUID = 3L;
+  internal const long SerialVersionUID = 3L;
 }
 
 class Business {
   depend java.io.Serializable;
   isA Serializable;
-  private static final long serialVersionUID = 4L;
+  internal const long SerialVersionUID = 4L;
 }
 
 class BusinessHour {
   depend java.io.Serializable;
   isA Serializable;
-  private static final long serialVersionUID = 5L;
+  internal const long SerialVersionUID = 5L;
 }
   
 class TimeSlot {
   depend java.io.Serializable;
   isA Serializable;
-  private static final long serialVersionUID = 6L;
+  internal const long SerialVersionUID = 6L;
 }
 
 class BookableService {
@@ -71,24 +71,24 @@ class Service {
   depend java.io.Serializable;
   isA Serializable;
   isA BookableService;
-  private static final long serialVersionUID = 7L;
+  internal const long SerialVersionUID = 7L;
 }
 
 class ServiceCombo {
   depend java.io.Serializable;
   isA Serializable;
   isA BookableService;
-  private static final long serialVersionUID = 8L;
+  internal const long SerialVersionUID = 8L;
 }
 
 class ComboItem {
   depend java.io.Serializable;
   isA Serializable;
-  private static final long serialVersionUID = 9L;
+  internal const long SerialVersionUID = 9L;
 }
 
 class Appointment {
   depend java.io.Serializable;
   isA Serializable;
-  private static final long serialVersionUID = 10L;
+  internal const long SerialVersionUID = 10L;
 }

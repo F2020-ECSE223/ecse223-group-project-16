@@ -398,6 +398,12 @@ public class FlexiBookController {
 		// calculate the total duration of the appointment
 		Service service = (Service) optionalService.get();
 		
+		if(startDate.before(SystemTime.getDate())){
+			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", serviceName, dateString, startTimeString));
+		} else if(startDate.equals(SystemTime.getDate()) && startTime.before(SystemTime.getTime())){
+			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", serviceName, dateString, startTimeString));
+		}
+		
 		Time endTimeWithDowntime = checkAppointmentSlots(service, null, startDate, startTime);
 
 		// make the appointment
@@ -463,6 +469,12 @@ public class FlexiBookController {
 			}
 		}
 
+		if(startDate.before(SystemTime.getDate())){
+			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", serviceName, dateString, startTimeString));
+		} else if(startDate.equals(SystemTime.getDate()) && startTime.before(SystemTime.getTime())){
+			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", serviceName, dateString, startTimeString));
+		}
+		
 		Time endTimeWithDowntime = checkAppointmentSlots(serviceCombo, chosenItems, startDate, startTime);
 
 		// make the appointment
@@ -499,11 +511,6 @@ public class FlexiBookController {
 		if(startTime.after(endTimeWithNoDownTime) || startTime.after(endTimeWithDownTime)){
 			throw new InvalidInputException("Start date and end date must be the same");
 		}	
-		if(startDate.before(SystemTime.getDate())){
-			throw new InvalidInputException(noTimeSlotMessage);
-		} else if(startDate.equals(SystemTime.getDate()) && startTime.before(SystemTime.getTime())){
-			throw new InvalidInputException(noTimeSlotMessage);
-		}
 
 		// checks if the appointment is during business hours
 		Calendar c = Calendar.getInstance();
@@ -2101,8 +2108,7 @@ public class FlexiBookController {
 		
 		if (appt == null) {
 			throw new InvalidInputException ("Appointment not found");
-		}
-		else {
+		} else {
 			appt.startAppointment(currentDate, currentTime);
 		}
 	}
@@ -2124,8 +2130,7 @@ public class FlexiBookController {
 		
 		if (appt == null) {
 			throw new InvalidInputException ("Appointment not found");
-		}
-		else {
+		} else {
 			appt.endAppointment();
 		}
 	}

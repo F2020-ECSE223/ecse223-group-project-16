@@ -1828,11 +1828,15 @@ public class CucumberStepDefinitions {
 			exception = e;
 		}
 	}
+	
+	String customerUsername;
+	
 	/**
 	 * @author theodore
 	 */
 	@When("{string} makes a {string} appointment without choosing optional services for the date {string} and time {string} at {string}")
 	public void makes_a_appointment_without_choosing_optional_services_for_the_date_and_time_at(String cust, String bservice, String adate, String atime, String ctime) {
+		customerUsername = cust;
 		setCustomerFromString(cust);
 		setTimeFromString(ctime);
 		try {
@@ -1967,20 +1971,10 @@ public class CucumberStepDefinitions {
 	public void the_owner_starts_the_appointment_at(String currentDateTime) {
 		setTimeFromString(currentDateTime);
 		
-		String[] dateTime = currentDateTime.split("\\+");
-		
 		try {
-			Date currentDate = FlexiBookUtil.getDateFromString(dateTime[0]);
-			Time currentTime = FlexiBookUtil.getTimeFromString(dateTime[1]);
-			Date apptStartDate = FlexiBookUtil.getDateFromString(apptDate);
-			Time apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
-			FlexiBookController.startAppointment(apptService,  apptStartDate,  apptStartTime, currentDate, currentTime);
-		} catch (ParseException e) {
-			exception = e;
-			fail(e);
+			FlexiBookController.startAppointment(customerUsername, apptService, apptDate, apptTime);
 		} catch (InvalidInputException e) {
 			exception = e;
-			fail(e);
 		}
 	}
 	/** 
@@ -1991,15 +1985,9 @@ public class CucumberStepDefinitions {
 		setTimeFromString(string);
 		
 		try {
-			Date apptStartDate = FlexiBookUtil.getDateFromString(apptDate);
-			Time apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
-			FlexiBookController.endAppointment(apptService,  apptStartDate, apptStartTime);
-		} catch (ParseException e) {
-			exception = e;
-			fail(e);
+			FlexiBookController.endAppoitment(customerUsername, apptService, apptDate, apptTime);
 		} catch (InvalidInputException e) {
 			exception = e;
-			fail(e);
 		}
 		
 	}

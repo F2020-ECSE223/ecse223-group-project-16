@@ -437,15 +437,15 @@ public class Appointment implements Serializable
 
   // line 29 "../../../../../FlexiBookStates.ump"
    private boolean isDayBeforeAppointment(Date currentDate){
-    return true; // placeholder
+    return timeSlot.getStartDate().after(currentDate);
   }
 
-  // line 33 "../../../../../FlexiBookStates.ump"
+  // line 32 "../../../../../FlexiBookStates.ump"
    private boolean isDuringAppointment(Date currentDate, Time currentTime){
-    return true; // placeholder
+    return timeSlot.getStartDate().equals(currentDate) && !timeSlot.getStartTime().after(currentTime) && !timeSlot.getEndTime().before(currentTime);
   }
 
-  // line 37 "../../../../../FlexiBookStates.ump"
+  // line 36 "../../../../../FlexiBookStates.ump"
    private void incrementCustomerNoShow(){
     getCustomer().incrementNoShowCount();
   }

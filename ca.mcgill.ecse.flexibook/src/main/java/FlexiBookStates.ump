@@ -26,11 +26,10 @@ class Appointment {
   }
 
   private boolean isDayBeforeAppointment(Date currentDate) {
-    return true; // placeholder
+	return timeSlot.getStartDate().after(currentDate);
   }
-  
   private boolean isDuringAppointment(Date currentDate, Time currentTime) {
-  	return true; // placeholder
+	return timeSlot.getStartDate().equals(currentDate) && !timeSlot.getStartTime().after(currentTime) && !timeSlot.getEndTime().before(currentTime);
   }
     
   private void incrementCustomerNoShow() {

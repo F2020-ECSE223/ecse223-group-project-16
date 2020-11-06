@@ -173,7 +173,7 @@ public class FlexiBookController {
 	}
 	
 	/**
-	 * @author louca
+	 * @author louca, Julie
 	 * 
 	 * Register a no-show for an appointment for the given customer and bookable service at the given start date and time
 	 * 
@@ -2231,20 +2231,5 @@ public class FlexiBookController {
 		
 		return calendar;
 	}
-	/**
-	 * Owner registers an appointment as a 'no-show' on a specific date
-	 * @author Julie
-	 * 
-	 * @param date of the appointment where the customer did not show up (noShowDate)
-	 * @param time of the appointment where the customer did not show up (noShowTime)
-	 */
-	public static void registerNoShow(Date noShowDate, Time noShowTime) {
-		for (Appointment a : FlexiBookApplication.getFlexiBook().getAppointments()) {
-			if (noShowDate.equals(a.getTimeSlot().getStartDate()) && noShowTime.equals(a.getTimeSlot().getStartTime()))  {
-				if (SystemTime.getDate().after(a.getTimeSlot().getEndDate()) || (SystemTime.getDate().equals(a.getTimeSlot().getEndDate()) && SystemTime.getTime().after(a.getTimeSlot().getEndTime()))) {
-					a.getCustomer().incrementNoShowCount();
-				}
-			}
-		}
-	}
+
 }

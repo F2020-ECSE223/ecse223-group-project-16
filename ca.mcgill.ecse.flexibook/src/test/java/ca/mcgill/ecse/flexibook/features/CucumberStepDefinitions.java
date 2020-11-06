@@ -1964,17 +1964,13 @@ public class CucumberStepDefinitions {
 	/**
 	 * @author Julie
 	 */
-	Date apptDateDate = null;
-	Time apptTimeTime = null;
 	@When("the owner attempts to register a no-show for the appointment at {string}")
 	public void the_owner_attempts_to_register_a_no_show_for_the_appointment_at(String string) {
 		try {
-			apptDateDate = FlexiBookUtil.getDateFromString(apptDate);
-			apptTimeTime = FlexiBookUtil.getTimeFromString(apptTime);
-		} catch (ParseException e1) {
-			e1.printStackTrace();
+			FlexiBookController.registerNoShow(customerUsername, apptService, apptDate, apptTime);
+		} catch (InvalidInputException e) {
+			exception = e;
 		}
-		FlexiBookController.registerNoShow(apptDateDate, apptTimeTime);
 	}
 	/** 
 	 * @author sarah

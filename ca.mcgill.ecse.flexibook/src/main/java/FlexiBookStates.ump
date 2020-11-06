@@ -6,7 +6,7 @@ class Appointment {
     Booked {
       start(Date currentDate, Time currentTime) [isDuringAppointment(currentDate, currentTime)] -> InProgress;
       
-      cancel -> Final;
+      cancel(Date currentDate) [isDayBeforeAppointment(currentDate)] -> Final;
       noShow(Date currentDate, Time currentTime) [isDuringAppointment(currentDate, currentTime)] -> /{incrementCustomerNoShow();} Final;
         
       changeOptionalService(ComboItem newService, boolean isAdd, Date currentDate) [isDayBeforeAppointment(currentDate) && isServiceCombo()] -> /{doChangeOptionalService(newService, isAdd);} Booked;
@@ -20,8 +20,8 @@ class Appointment {
       
       changeOptionalService(ComboItem newService, boolean isAdd, Date currentDate) [isServiceCombo()] -> /{doChangeOptionalService(newService, isAdd);} InProgress;
       
-      start -> /{rejectStart();} InProgress;
-      cancel -> /{rejectCancel();} InProgress;
+      start(Date currentDate, Time currentTime) -> /{rejectStart();} InProgress;
+      cancel(Date currentDate) -> /{rejectCancel();} InProgress;
       
       noShow(Date currentDate, Time currentTime) -> /{rejectNoShow();} InProgress;
       changeDateAndTime(Date newDate, Time newTime, Date currentDate) -> /{rejectChangeDateAndTime();} InProgress;
@@ -74,7 +74,7 @@ class Appointment {
   	throw new RuntimeException("Cannot start an appointment after it was already started");
   }
   private void rejectCancel() {
-  	throw new RuntimeException("Cannot cancel an appointment on the appointment date");
+  	throw new RuntimeException("Cannot cancel an appointment while it is on progress");
   }
   private void rejectNoShow() {
   	throw new RuntimeException("Cannot register a no-show for an appointment while it is on progress");

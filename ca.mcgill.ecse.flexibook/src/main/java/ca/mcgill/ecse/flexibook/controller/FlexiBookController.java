@@ -190,9 +190,11 @@ public class FlexiBookController {
 		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDateString, startTimeString);
 		
 		try {
-			appointment.noShow(SystemTime.getDate(), SystemTime.getTime());
+			if (!appointment.noShow(SystemTime.getDate(), SystemTime.getTime())) {
+				throw new InvalidInputException("Cannot register a no-show before the appointment date and time");
+			}
 		} catch (RuntimeException e) {
-			if (e.getMessage().equals("Cannot register a no-show for an appointment while it is on progress")) {
+			if (e.getMessage().equals("Cannot register a no-show for an appointment while it is in progress")) {
 				throw new InvalidInputException(e.getMessage());
 			}
 			throw e;
@@ -773,9 +775,11 @@ public class FlexiBookController {
 		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDateString, startTimeString);
 		
 		try {
-			appointment.start(SystemTime.getDate(), SystemTime.getTime());
+			if (!appointment.start(SystemTime.getDate(), SystemTime.getTime())) {
+				throw new InvalidInputException("Cannot start the appointment before the appointment date and time");
+			}
 		} catch (RuntimeException e) {
-			if (e.getMessage().equals("Cannot start an appointment after it was already started")) { // make this reject in SM
+			if (e.getMessage().equals("Cannot start an appointment after it was already started")) {
 				throw new InvalidInputException(e.getMessage());
 			}
 			throw e;
@@ -814,9 +818,11 @@ public class FlexiBookController {
 		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDateString, startTimeString);
 		
 		try {
-			appointment.cancel();
+			if (!appointment.cancel(SystemTime.getDate())) {
+				throw new InvalidInputException("Cannot cancel an appointment on the appointment date");
+			}
 		} catch (RuntimeException e) {
-			if (e.getMessage().equals("Cannot cancel an appointment on the appointment date")) {
+			if (e.getMessage().equals("Cannot cancel an appointment while it is on progress")) {
 				throw new InvalidInputException(e.getMessage());
 			}
 			throw e;

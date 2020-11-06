@@ -106,7 +106,7 @@ private static final long SerialVersionUID = 10L;
     return wasEventProcessed;
   }
 
-  public boolean cancel()
+  public boolean cancel(Date currentDate)
   {
     boolean wasEventProcessed = false;
     
@@ -114,8 +114,12 @@ private static final long SerialVersionUID = 10L;
     switch (aAppointmentStatus)
     {
       case Booked:
-        setAppointmentStatus(AppointmentStatus.Final);
-        wasEventProcessed = true;
+        if (isDayBeforeAppointment(currentDate))
+        {
+          setAppointmentStatus(AppointmentStatus.Final);
+          wasEventProcessed = true;
+          break;
+        }
         break;
       case InProgress:
         // line 24 "../../../../../FlexiBookStates.ump"
@@ -515,7 +519,7 @@ private static final long SerialVersionUID = 10L;
 
   // line 77 "../../../../../FlexiBookStates.ump"
    private void rejectCancel(){
-    throw new RuntimeException("Cannot cancel an appointment on the appointment date");
+    throw new RuntimeException("Cannot cancel an appointment while it is on progress");
   }
 
   // line 80 "../../../../../FlexiBookStates.ump"

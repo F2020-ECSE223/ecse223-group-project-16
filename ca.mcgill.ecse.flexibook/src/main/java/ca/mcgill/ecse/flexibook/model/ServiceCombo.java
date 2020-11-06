@@ -8,7 +8,13 @@ import java.util.*;
 // line 77 "../../../../../FlexiBookPersistence.ump"
 // line 87 "../../../../../FlexiBook.ump"
 public class ServiceCombo extends BookableService implements Serializable
-{
+{ 
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+ 
+private static final long SerialVersionUID = 8L;
+
 
   //------------------------
   // MEMBER VARIABLES
@@ -189,13 +195,5 @@ public class ServiceCombo extends BookableService implements Serializable
     
     super.delete();
   }
-  
-  //------------------------
-  // DEVELOPER CODE - PROVIDED AS-IS
-  //------------------------
-  
-  // line 81 "../../../../../FlexiBookPersistence.ump"
-  private static final long serialVersionUID = 8L ;
 
-  
 }

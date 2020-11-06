@@ -10,7 +10,13 @@ import java.sql.Date;
 // line 3 "../../../../../FlexiBookPersistence.ump"
 // line 6 "../../../../../FlexiBook.ump"
 public class FlexiBook implements Serializable
-{
+{ 
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+ 
+private static final long SerialVersionUID = 1L;
+
 
   //------------------------
   // MEMBER VARIABLES
@@ -687,13 +693,5 @@ public class FlexiBook implements Serializable
         User.reinitializeUsernames(users);
         BookableService.reinitializeBookableServicesName(this.getBookableServices());
   }
-  
-  //------------------------
-  // DEVELOPER CODE - PROVIDED AS-IS
-  //------------------------
-  
-  // line 6 "../../../../../FlexiBookPersistence.ump"
-  private static final long serialVersionUID = 1L ;
 
-  
 }

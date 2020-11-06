@@ -11,7 +11,13 @@ import java.util.*;
 // line 1 "../../../../../FlexiBookStates.ump"
 // line 100 "../../../../../FlexiBook.ump"
 public class Appointment implements Serializable
-{
+{ 
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+ 
+private static final long SerialVersionUID = 10L;
+
 
   //------------------------
   // MEMBER VARIABLES
@@ -482,13 +488,5 @@ public class Appointment implements Serializable
    private void rejectChangeDateAndTime(){
     throw new RuntimeException("Cannot change date and time of an appointment in progress.");
   }
-  
-  //------------------------
-  // DEVELOPER CODE - PROVIDED AS-IS
-  //------------------------
-  
-  // line 93 "../../../../../FlexiBookPersistence.ump"
-  private static final long serialVersionUID = 10L ;
 
-  
 }

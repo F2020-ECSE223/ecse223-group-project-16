@@ -8,7 +8,13 @@ import java.util.*;
 // line 42 "../../../../../FlexiBookPersistence.ump"
 // line 43 "../../../../../FlexiBook.ump"
 public class Business implements Serializable
-{
+{ 
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+ 
+private static final long SerialVersionUID = 4L;
+
 
   //------------------------
   // MEMBER VARIABLES
@@ -425,13 +431,5 @@ public class Business implements Serializable
             "phoneNumber" + ":" + getPhoneNumber()+ "," +
             "email" + ":" + getEmail()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "flexiBook = "+(getFlexiBook()!=null?Integer.toHexString(System.identityHashCode(getFlexiBook())):"null");
-  }  
-  //------------------------
-  // DEVELOPER CODE - PROVIDED AS-IS
-  //------------------------
-  
-  // line 45 "../../../../../FlexiBookPersistence.ump"
-  private static final long serialVersionUID = 4L ;
-
-  
+  }
 }

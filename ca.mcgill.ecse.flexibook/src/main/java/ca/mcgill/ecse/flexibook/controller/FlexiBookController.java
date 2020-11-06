@@ -2103,10 +2103,7 @@ public class FlexiBookController {
 			throw new InvalidInputException ("Appointment not found");
 		}
 		else {
-			// TODO remove once state machine check implemented
-			if (currentTime.equals(appt.getTimeSlot().getStartTime()) || currentTime.after(appt.getTimeSlot().getStartTime())) {
-				appt.startAppointment(currentDate, currentTime);
-			}
+			appt.startAppointment(currentDate, currentTime);
 		}
 	}
 	

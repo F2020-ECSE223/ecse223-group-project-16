@@ -8,7 +8,13 @@ import java.util.*;
 // line 35 "../../../../../FlexiBookPersistence.ump"
 // line 26 "../../../../../FlexiBook.ump"
 public class Customer extends User implements Serializable
-{
+{ 
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+ 
+private static final long SerialVersionUID = 3L;
+
 
   //------------------------
   // MEMBER VARIABLES
@@ -203,13 +209,5 @@ public class Customer extends User implements Serializable
   {
     return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "flexiBook = "+(getFlexiBook()!=null?Integer.toHexString(System.identityHashCode(getFlexiBook())):"null");
-  }  
-  //------------------------
-  // DEVELOPER CODE - PROVIDED AS-IS
-  //------------------------
-  
-  // line 39 "../../../../../FlexiBookPersistence.ump"
-  private static final long serialVersionUID = 3L ;
-
-  
+  }
 }

@@ -1988,7 +1988,6 @@ public class CucumberStepDefinitions {
 	public void the_owner_ends_the_appointment_at(String string) {
 		setTimeFromString(string);
 		
-		
 		try {
 			Date apptStartDate = FlexiBookUtil.getDateFromString(apptDate);
 			Time apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
@@ -1999,13 +1998,6 @@ public class CucumberStepDefinitions {
 			fail(e);
 		}
 		
-	}
-	/** 
-	 * @author sarah
-	 */
-	@Then("the system shall have {int} appointment")
-	public void the_system_shall_have_appointment(Integer int1) {
-		assertEquals(int1, flexiBook.numberOfAppointments());
 	}
 	/** 
 	 * @author sarah
@@ -2021,13 +2013,50 @@ public class CucumberStepDefinitions {
 					a.getTimeSlot().getStartDate().equals(apptStartDate) &&
 					a.getTimeSlot().getStartTime().equals(apptStartTime)) {
 					
-					assertEquals(AppointmentStatus.InProgress, a.getAppointmentStatus());
+					appt = a;
+					assertEquals(AppointmentStatus.InProgress, appt.getAppointmentStatus());
 				    break;
 				}
 			}
 		} catch (ParseException e) {
 			fail(e);
 		}
+	}	
+	/**
+	 * @author Aayush
+	 */
+	@When("{string} attempts to cancel the appointment at {string}")
+	public void attempts_to_cancel_the_appointment_at(String string, String string2) {
+		String custName = string;
+		String[] dateTime = string2.split("\\+");
+		String stringSystemDate = dateTime[0];
+		String stringSystemTime = dateTime[1];
 		
+		Date systemDate = null;
+		try {
+			systemDate = FlexiBookUtil.getDateFromString(stringSystemDate);
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+		}
+		
+		Time systemTime = null;
+		try {
+			systemTime = FlexiBookUtil.getTimeFromString(stringSystemTime);
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		SystemTime.setTesting(systemDate,systemTime);
+		
+		try {
+		   FlexiBookController.cancelAppointment(custName, apptService, apptDate, apptTime);
+	   } catch (InvalidInputException e) {
+		   exception = e;
+		}
+	}
+	@Then("the system shall have {int} appointment")
+	public void the_system_shall_have_appointment(Integer int1) {
+	    assertEquals(int1, flexiBook.getAppointments().size());
 	}
 }

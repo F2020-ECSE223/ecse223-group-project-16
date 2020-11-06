@@ -173,7 +173,7 @@ public class FlexiBookController {
 	}
 	
 	/**
-	 * @author louca, Julie
+	 * @author louca, julie
 	 * 
 	 * Register a no-show for an appointment for the given customer and bookable service at the given start date and time
 	 * 
@@ -2231,5 +2231,4 @@ public class FlexiBookController {
 		
 		return calendar;
 	}
-
 }

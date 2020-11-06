@@ -20,8 +20,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.AfterAll;
-
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
@@ -86,6 +84,7 @@ public class CucumberStepDefinitions {
 	//================================================================================
     // DeleteCustomerAccount
     //================================================================================
+	
 	/**
 	 * @author louca
 	 */
@@ -350,8 +349,7 @@ public class CucumberStepDefinitions {
     // UpdateAccount
     //================================================================================
 	
-	String priorUsername;
-	String priorPassword;
+	String priorUsername, priorPassword;
 	
 	/**
 	 * @author louca
@@ -375,6 +373,7 @@ public class CucumberStepDefinitions {
 	    assertEquals(priorUsername, FlexiBookApplication.getCurrentUser().getUsername());
 	    assertEquals(priorPassword, FlexiBookApplication.getCurrentUser().getPassword());
 	}
+	
 	//================================================================================
     // Login
     //================================================================================
@@ -589,7 +588,6 @@ public class CucumberStepDefinitions {
 	@Then("the following slots shall be unavailable:")
 	public void the_following_slots_shall_be_unavailable(io.cucumber.datatable.DataTable dataTable) {
 		List<Map<String, String>> rows = dataTable.asMaps();
-		boolean isMatch;
 		
 		for (Map<String, String> columns : rows) {
 			for (TOTimeSlot t: unavailableTimeSlots) {
@@ -616,9 +614,11 @@ public class CucumberStepDefinitions {
 	public void the_system_shall_report(String string) {
 	    assertEquals(string, exception.getMessage());
 	}
+	
 	//================================================================================
     // DefineServiceCombo
     //================================================================================
+	
     /**
 	/**
 	 * @author heqianw
@@ -2020,16 +2020,14 @@ public class CucumberStepDefinitions {
 	public void attempts_to_cancel_the_appointment_at(String customerUsername, String dateTimeString) {
 		String[] dateTime = dateTimeString.split("\\+");
 		
-		Date systemDate = null;
-		Time systemTime = null;
 		try {
-			systemDate = FlexiBookUtil.getDateFromString(dateTime[0]);
-			systemTime = FlexiBookUtil.getTimeFromString(dateTime[1]);
+			Date systemDate = FlexiBookUtil.getDateFromString(dateTime[0]);
+			Time systemTime = FlexiBookUtil.getTimeFromString(dateTime[1]);
+			SystemTime.setTesting(systemDate,systemTime);
 		} catch (ParseException e) {
 			fail(e);
 		}
 		
-		SystemTime.setTesting(systemDate,systemTime);
 		for (Customer c : flexiBook.getCustomers()) {
 			if (c.getUsername().equals(customerUsername)) {
 				FlexiBookApplication.setCurrentUser(c);

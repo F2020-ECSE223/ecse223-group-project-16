@@ -11,7 +11,13 @@ import java.util.*;
 // line 1 "../../../../../FlexiBookStates.ump"
 // line 100 "../../../../../FlexiBook.ump"
 public class Appointment implements Serializable
-{
+{ 
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+ 
+private static final long SerialVersionUID = 10L;
+
 
   //------------------------
   // MEMBER VARIABLES
@@ -437,15 +443,15 @@ public class Appointment implements Serializable
 
   // line 29 "../../../../../FlexiBookStates.ump"
    private boolean isDayBeforeAppointment(Date currentDate){
-    return true; // placeholder
+    return timeSlot.getStartDate().after(currentDate);
   }
 
-  // line 33 "../../../../../FlexiBookStates.ump"
+  // line 32 "../../../../../FlexiBookStates.ump"
    private boolean isDuringAppointment(Date currentDate, Time currentTime){
-    return true; // placeholder
+    return timeSlot.getStartDate().equals(currentDate) && !timeSlot.getStartTime().after(currentTime) && !timeSlot.getEndTime().before(currentTime);
   }
 
-  // line 37 "../../../../../FlexiBookStates.ump"
+  // line 36 "../../../../../FlexiBookStates.ump"
    private void incrementCustomerNoShow(){
     getCustomer().incrementNoShowCount();
   }
@@ -482,13 +488,5 @@ public class Appointment implements Serializable
    private void rejectChangeDateAndTime(){
     throw new RuntimeException("Cannot change date and time of an appointment in progress.");
   }
-  
-  //------------------------
-  // DEVELOPER CODE - PROVIDED AS-IS
-  //------------------------
-  
-  // line 93 "../../../../../FlexiBookPersistence.ump"
-  private static final long serialVersionUID = 10L ;
 
-  
 }

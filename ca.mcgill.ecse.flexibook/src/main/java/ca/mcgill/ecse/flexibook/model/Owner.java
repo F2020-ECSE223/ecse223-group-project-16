@@ -8,7 +8,13 @@ import java.util.*;
 // line 28 "../../../../../FlexiBookPersistence.ump"
 // line 22 "../../../../../FlexiBook.ump"
 public class Owner extends User implements Serializable
-{
+{ 
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+ 
+private static final long SerialVersionUID = 2L;
+
 
   //------------------------
   // MEMBER VARIABLES
@@ -78,13 +84,5 @@ public class Owner extends User implements Serializable
     }
     super.delete();
   }
-  
-  //------------------------
-  // DEVELOPER CODE - PROVIDED AS-IS
-  //------------------------
-  
-  // line 32 "../../../../../FlexiBookPersistence.ump"
-  private static final long serialVersionUID = 2L ;
 
-  
 }

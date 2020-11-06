@@ -1945,7 +1945,6 @@ public class CucumberStepDefinitions {
 	 * @author theodore
 	 */
 	@Then("the system shall have {int} appointments")
-	@Then("the system shall have {int} appointment")
 	public void the_system_shall_have_appointments(Integer int1) {
 		assertEquals(int1, flexiBook.numberOfAppointments());
 	}
@@ -1963,29 +1962,24 @@ public class CucumberStepDefinitions {
 			e1.printStackTrace();
 		}
 		FlexiBookController.registerNoShow(apptDateDate, apptTimeTime);
-		
-		for (Appointment a : FlexiBookApplication.getFlexiBook().getAppointments()) {
-			if (apptDateDate.equals(a.getTimeSlot().getStartDate()) && apptTimeTime.equals(a.getTimeSlot().getStartTime())) {
-				appt = a;
-			}
-		}
-		appt.delete();
 	}
-	@When("the owner starts the appointment at {string}")
-	public void the_owner_starts_the_appointment_at(String string) {
-		//FlexiBookController.startAppointment(apptDateDate, apptTimeTime);
-	    // Write code here that turns the phrase above into concrete actions
-	}
+	/**
+	 * @author Julie
+	 */
 	@When("{string} attempts to cancel the appointment at {string}")
 	public void attempts_to_cancel_the_appointment_at(String string, String string2) {
-	    // Write code here that turns the phrase above into concrete actions
-	}
-	@Then("the appointment shall be in progress")
-	public void the_appointment_shall_be_in_progress() {
-	    // Write code here that turns the phrase above into concrete actions
+		try {
+			FlexiBookController.cancelAppointment(string, apptService, apptDate, apptTime);
+		} catch (InvalidInputException e) {
+			e.printStackTrace();
+		}
 	}
 	@When("the owner attempts to end the appointment at {string}")
 	public void the_owner_attempts_to_end_the_appointment_at(String string) {
-	    // Write code here that turns the phrase above into concrete actions
+		for (Appointment a : flexiBook.getAppointments()) {
+			if (apptDate.equals(a.getTimeSlot().getStartDate().toString()) && apptTime.equals(a.getTimeSlot().getStartTime().toString())) {
+			    FlexiBookController.endAppointment(a);
+			}
+		}
 	}
 }

@@ -2117,11 +2117,4 @@ public class FlexiBookController {
 			}
 		}
 	}
-	public static void deleteAppointment(Appointment appointment) {
-		appointment.delete();
-	}
-	
-	public static void startAppointment(Date startDate, Time startTime) {
-		
-	}
 }

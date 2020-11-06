@@ -4,19 +4,26 @@ class Appointment {
   
   appointmentStatus {
     Booked {
-      startAppointment(Date currentDate, Time currentTime) [isDuringAppointment(currentDate, currentTime)] -> InProgress;
+      start(Date currentDate, Time currentTime) [isDuringAppointment(currentDate, currentTime)] -> InProgress;
       
-      cancel -> Final;
+      cancel(Date currentDate) [isDayBeforeAppointment(currentDate)] -> Final;
       noShow(Date currentDate, Time currentTime) [isDuringAppointment(currentDate, currentTime)] -> /{incrementCustomerNoShow();} Final;
         
       changeOptionalService(ComboItem newService, boolean isAdd, Date currentDate) [isDayBeforeAppointment(currentDate) && isServiceCombo()] -> /{doChangeOptionalService(newService, isAdd);} Booked;
       changeDateAndTime(Date newDate, Time newTime, Date currentDate) [isDayBeforeAppointment(currentDate)] -> /{doChangeDateAndTime(newDate, newTime);} Booked;
+      
+      end -> /{rejectEnd();} Booked;
     }  
      
     InProgress {  
-      endAppointment -> Final;
+      end -> Final;
       
       changeOptionalService(ComboItem newService, boolean isAdd, Date currentDate) [isServiceCombo()] -> /{doChangeOptionalService(newService, isAdd);} InProgress;
+      
+      start(Date currentDate, Time currentTime) -> /{rejectStart();} InProgress;
+      cancel(Date currentDate) -> /{rejectCancel();} InProgress;
+      
+      noShow(Date currentDate, Time currentTime) -> /{rejectNoShow();} InProgress;
       changeDateAndTime(Date newDate, Time newTime, Date currentDate) -> /{rejectChangeDateAndTime();} InProgress;
     }
   }  
@@ -28,6 +35,7 @@ class Appointment {
   private boolean isDayBeforeAppointment(Date currentDate) {
 	return timeSlot.getStartDate().after(currentDate);
   }
+  
   private boolean isDuringAppointment(Date currentDate, Time currentTime) {
 	return timeSlot.getStartDate().equals(currentDate) && !timeSlot.getStartTime().after(currentTime) && !timeSlot.getEndTime().before(currentTime);
   }
@@ -62,7 +70,19 @@ class Appointment {
     timeSlot.setStartTime(newTime);
   }
   
-   private void rejectChangeDateAndTime() {
-     throw new RuntimeException("Cannot change date and time of an appointment in progress.");
+  private void rejectStart() {
+  	throw new RuntimeException("Cannot start an appointment after it was already started");
+  }
+  private void rejectCancel() {
+  	throw new RuntimeException("Cannot cancel an appointment while it is on progress");
+  }
+  private void rejectNoShow() {
+  	throw new RuntimeException("Cannot register a no-show for an appointment while it is on progress");
+  }
+  private void rejectEnd() {
+  	throw new RuntimeException("Cannot end an appointment before it is started");
+  }
+  private void rejectChangeDateAndTime() {
+     throw new RuntimeException("Cannot change date and time of an appointment in progress");
   }
 }

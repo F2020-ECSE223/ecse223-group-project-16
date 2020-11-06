@@ -1780,10 +1780,7 @@ public class CucumberStepDefinitions {
 		}
 	}
 	
-	String customerUsername;
-	String apptService;
-	String apptDate;
-	String apptTime;
+	String customerUsername, apptService, apptDate, apptTime;
 	
 	/**
 	 * @author theodore
@@ -1887,7 +1884,7 @@ public class CucumberStepDefinitions {
 			for (Appointment a : flexiBook.getAppointments()) {
 				if (a.getBookableService().getName().equals(apptService) && a.getTimeSlot().getStartDate().equals(startDate) && a.getTimeSlot().getStartTime().equals(startTime)) {
 					appt = a;
-					assertEquals(appt.getAppointmentStatus(), Appointment.AppointmentStatus.Booked);
+					assertEquals(Appointment.AppointmentStatus.Booked, appt.getAppointmentStatus());
 					return;
 				}
 			}
@@ -1914,12 +1911,12 @@ public class CucumberStepDefinitions {
 	 * @author theodore
 	 */
 	@Then("the service combo shall have {string} selected services")
-	public void the_service_combo_shall_have_selected_services(String selectedServices) {
-		List<String> services = Arrays.asList(selectedServices.split(","));
-		assertEquals(appt.numberOfChosenItems(), services.size());
+	public void the_service_combo_shall_have_selected_services(String selectedServiceNamesString) {
+		List<String> selectedServiceNames = Arrays.asList(selectedServiceNamesString.split(","));
+		assertEquals(selectedServiceNames.size(), appt.numberOfChosenItems());
 		int i = 0;
 		for (ComboItem cI : appt.getChosenItems()) {
-			assertEquals(services.get(i), cI.getService().getName());
+			assertEquals(selectedServiceNames.get(i), cI.getService().getName());
 			i++;
 		}
 	}
@@ -2001,13 +1998,10 @@ public class CucumberStepDefinitions {
 	@Then("the appointment shall be in progress")
 	public void the_appointment_shall_be_in_progress() {
 		try {
-			Date apptStartDate = FlexiBookUtil.getDateFromString(apptDate);
-			Time apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
-			
 			for (Appointment a: flexiBook.getAppointments()) {
 				if (a.getBookableService().getName().equals(apptService) &&
-					a.getTimeSlot().getStartDate().equals(apptStartDate) &&
-					a.getTimeSlot().getStartTime().equals(apptStartTime)) {
+					a.getTimeSlot().getStartDate().equals(FlexiBookUtil.getDateFromString(apptDate)) &&
+					a.getTimeSlot().getStartTime().equals(FlexiBookUtil.getTimeFromString(apptTime))) {
 					
 					appt = a;
 					assertEquals(AppointmentStatus.InProgress, appt.getAppointmentStatus());
@@ -2025,14 +2019,12 @@ public class CucumberStepDefinitions {
 	@When("{string} attempts to cancel the appointment at {string}")
 	public void attempts_to_cancel_the_appointment_at(String customerUsername, String dateTimeString) {
 		String[] dateTime = dateTimeString.split("\\+");
-		String stringSystemDate = dateTime[0];
-		String stringSystemTime = dateTime[1];
 		
 		Date systemDate = null;
 		Time systemTime = null;
 		try {
-			systemDate = FlexiBookUtil.getDateFromString(stringSystemDate);
-			systemTime = FlexiBookUtil.getTimeFromString(stringSystemTime);
+			systemDate = FlexiBookUtil.getDateFromString(dateTime[0]);
+			systemTime = FlexiBookUtil.getTimeFromString(dateTime[1]);
 		} catch (ParseException e) {
 			fail(e);
 		}

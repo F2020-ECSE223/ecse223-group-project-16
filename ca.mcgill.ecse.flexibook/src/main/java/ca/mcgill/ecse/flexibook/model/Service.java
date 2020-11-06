@@ -8,7 +8,13 @@ import java.util.*;
 // line 70 "../../../../../FlexiBookPersistence.ump"
 // line 79 "../../../../../FlexiBook.ump"
 public class Service extends BookableService implements Serializable
-{
+{ 
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+ 
+private static final long SerialVersionUID = 7L;
+
 
   //------------------------
   // MEMBER VARIABLES
@@ -89,13 +95,5 @@ public class Service extends BookableService implements Serializable
             "duration" + ":" + getDuration()+ "," +
             "downtimeDuration" + ":" + getDowntimeDuration()+ "," +
             "downtimeStart" + ":" + getDowntimeStart()+ "]";
-  }  
-  //------------------------
-  // DEVELOPER CODE - PROVIDED AS-IS
-  //------------------------
-  
-  // line 74 "../../../../../FlexiBookPersistence.ump"
-  private static final long serialVersionUID = 7L ;
-
-  
+  }
 }

@@ -7,7 +7,13 @@ import java.io.Serializable;
 // line 84 "../../../../../FlexiBookPersistence.ump"
 // line 95 "../../../../../FlexiBook.ump"
 public class ComboItem implements Serializable
-{
+{ 
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+ 
+private static final long SerialVersionUID = 9L;
+
 
   //------------------------
   // MEMBER VARIABLES
@@ -129,13 +135,5 @@ public class ComboItem implements Serializable
             "mandatory" + ":" + getMandatory()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "service = "+(getService()!=null?Integer.toHexString(System.identityHashCode(getService())):"null") + System.getProperties().getProperty("line.separator") +
             "  " + "serviceCombo = "+(getServiceCombo()!=null?Integer.toHexString(System.identityHashCode(getServiceCombo())):"null");
-  }  
-  //------------------------
-  // DEVELOPER CODE - PROVIDED AS-IS
-  //------------------------
-  
-  // line 87 "../../../../../FlexiBookPersistence.ump"
-  private static final long serialVersionUID = 9L ;
-
-  
+  }
 }

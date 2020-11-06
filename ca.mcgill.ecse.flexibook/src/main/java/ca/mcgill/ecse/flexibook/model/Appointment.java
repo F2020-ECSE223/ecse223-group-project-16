@@ -7,7 +7,7 @@ import java.sql.Date;
 import java.sql.Time;
 import java.util.*;
 
-// line 90 "../../../../../FlexiBookPersistence.ump"
+// line 93 "../../../../../FlexiBookPersistence.ump"
 // line 1 "../../../../../FlexiBookStates.ump"
 // line 100 "../../../../../FlexiBook.ump"
 public class Appointment implements Serializable
@@ -16,7 +16,7 @@ public class Appointment implements Serializable
   // STATIC VARIABLES
   //------------------------
  
-private static final long SerialVersionUID = 10L;
+private static final long serialVersionUID = 10L;
 
 
   //------------------------
@@ -456,7 +456,7 @@ private static final long SerialVersionUID = 10L;
     getCustomer().incrementNoShowCount();
   }
 
-  // line 41 "../../../../../FlexiBookStates.ump"
+  // line 40 "../../../../../FlexiBookStates.ump"
    private void doChangeOptionalService(ComboItem newService, boolean isAdd){
     ServiceCombo sc = (ServiceCombo) bookableService;
     if (isAdd) {
@@ -476,7 +476,7 @@ private static final long SerialVersionUID = 10L;
     }
   }
 
-  // line 60 "../../../../../FlexiBookStates.ump"
+  // line 59 "../../../../../FlexiBookStates.ump"
    private void doChangeDateAndTime(Date newDate, Time newTime){
     timeSlot.setStartDate(newDate);
     timeSlot.setEndDate(newDate);
@@ -484,7 +484,7 @@ private static final long SerialVersionUID = 10L;
     timeSlot.setStartTime(newTime);
   }
 
-  // line 67 "../../../../../FlexiBookStates.ump"
+  // line 66 "../../../../../FlexiBookStates.ump"
    private void rejectChangeDateAndTime(){
     throw new RuntimeException("Cannot change date and time of an appointment in progress.");
   }

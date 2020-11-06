@@ -6,7 +6,9 @@ package ca.mcgill.ecse.flexibook.application;
 import org.junit.jupiter.api.Test;
 
 import ca.mcgill.ecse.flexibook.model.Business;
+import ca.mcgill.ecse.flexibook.model.Customer;
 import ca.mcgill.ecse.flexibook.model.FlexiBook;
+import ca.mcgill.ecse.flexibook.model.Owner;
 import ca.mcgill.ecse.flexibook.persistence.FlexiBookPersistence;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,18 +46,46 @@ class FlexiBookApplicationTest {
 		FlexiBook flexibook = FlexiBookApplication.getFlexiBook();
 		flexibook.delete();
 	}
-
+	
+	/**
+	 * @author heqianw
+	 * 
+	 * This unit test is responsible for the loading part and the reinitialization part of persistence
+	 */
 	@Test
 	public void testPersistence() {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
-        Business b = new Business("BusinessTest", "101McGill", "5148888888", "leeroy@jenkins.com", flexiBook);
-        flexiBook.setBusiness(b);
+		Business b = new Business("BusinessTest", "101McGill", "5148888888", "leeroy@jenkins.com", flexiBook);
+		flexiBook.setBusiness(b);
+		Customer c1 = new Customer("Customer1", "password", flexiBook);
+		Customer c2 = new Customer("Customer2", "password", flexiBook);
+		Owner owner = new Owner("owner", "ownerPass", flexiBook);
 
 		FlexiBookPersistence.save(flexiBook);
 		FlexiBook flexiBook2 = FlexiBookPersistence.load();
-        assertEquals(b.getName(), flexiBook2.getBusiness().getName());
-        assertEquals(b.getAddress(), flexiBook2.getBusiness().getAddress());;
-        assertEquals(b.getPhoneNumber(), flexiBook2.getBusiness().getPhoneNumber());;
-        assertEquals(b.getEmail(), flexiBook2.getBusiness().getEmail());;
+		
+		assertEquals(b.getName(), flexiBook2.getBusiness().getName());
+		assertEquals(b.getAddress(), flexiBook2.getBusiness().getAddress());
+		assertEquals(b.getPhoneNumber(), flexiBook2.getBusiness().getPhoneNumber());
+		assertEquals(b.getEmail(), flexiBook2.getBusiness().getEmail());
+		
+		assertEquals(flexiBook.getCustomers().size(), 2);
+
+		try{
+			Customer c3 = new Customer("Customer2", "password", flexiBook);
+		}
+		catch(RuntimeException e){
+			assertTrue(e.getMessage().contains("Cannot create due to duplicate username."));
+		}
+
+		try{
+			Owner owner2 = new Owner("owner", "ownerPass", flexiBook);
+		}
+		catch(RuntimeException e){
+			assertTrue(e.getMessage().contains("Cannot create due to duplicate username."));
+		}
+
+		assertEquals(flexiBook.getCustomers().size(), 2);
 	}
+
 }

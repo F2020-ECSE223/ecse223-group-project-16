@@ -15,7 +15,7 @@ public class FlexiBook implements Serializable
   // STATIC VARIABLES
   //------------------------
  
-private static final long SerialVersionUID = 1L;
+private static final long serialVersionUID = 1L;
 
 
   //------------------------
@@ -689,6 +689,9 @@ private static final long SerialVersionUID = 1L;
     List<User> users = new ArrayList<>();
         for(Customer user : this.getCustomers()){
           users.add(user);
+        }
+        if(this.getOwner() != null){
+          users.add(this.getOwner());
         }
         User.reinitializeUsernames(users);
         BookableService.reinitializeBookableServicesName(this.getBookableServices());

@@ -1746,11 +1746,10 @@ public class CucumberStepDefinitions {
 		}
 	}	
 	
-	
-	//================================================================================
+ 	//================================================================================
     // AppointmentManagement
     //================================================================================
-	
+
 	/**
 	 * @author theodore
 	 */
@@ -1962,7 +1961,26 @@ public class CucumberStepDefinitions {
 	public void the_system_shall_have_appointments(Integer numberAppointments) {
 		assertEquals(numberAppointments, flexiBook.numberOfAppointments());
 	}
-	
+	/**
+	 * @author Julie
+	 */
+	@When("the owner attempts to register a no-show for the appointment at {string}")
+	public void the_owner_attempts_to_register_a_no_show_for_the_appointment_at(String string) throws InvalidInputException {
+		FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
+		String[] dateTime = string.split("\\+");
+		try {
+			Date systemDate = FlexiBookUtil.getDateFromString(dateTime[0]);
+			Time systemTime = FlexiBookUtil.getTimeFromString(dateTime[1]);
+			SystemTime.setTesting(systemDate, systemTime);
+		} catch (ParseException e) {
+			fail(e);
+		}
+		try {
+			FlexiBookController.registerNoShow(customerUsername, apptService, apptDate, apptTime);
+		} catch (InvalidInputException e) {
+			exception = e;
+		}
+	}
 	/** 
 	 * @author sarah
 	 */
@@ -1986,7 +2004,7 @@ public class CucumberStepDefinitions {
 		FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
 		
 		try {
-			FlexiBookController.endAppoitment(customerUsername, apptService, apptDate, apptTime);
+			FlexiBookController.endAppointment(customerUsername, apptService, apptDate, apptTime);
 		} catch (InvalidInputException e) {
 			exception = e;
 		}
@@ -2039,6 +2057,21 @@ public class CucumberStepDefinitions {
 		   FlexiBookController.cancelAppointment(customerUsername, apptService, apptDate, apptTime);
 	   } catch (InvalidInputException e) {
 		   exception = e;
+		}
+	}
+	/**
+	 * @author Julie
+	 */
+	@When("the owner attempts to end the appointment at {string}")
+	public void the_owner_attempts_to_end_the_appointment_at(String string) {
+		for (Appointment a : flexiBook.getAppointments()) {
+			if (apptDate.equals(a.getTimeSlot().getStartDate().toString()) && apptTime.equals(a.getTimeSlot().getStartTime().toString())) {
+			    try {
+					FlexiBookController.endAppointment(customerUsername, apptService, apptDate, apptTime);
+				} catch (InvalidInputException e) {
+					exception = e;
+				}
+			}
 		}
 	}
 }

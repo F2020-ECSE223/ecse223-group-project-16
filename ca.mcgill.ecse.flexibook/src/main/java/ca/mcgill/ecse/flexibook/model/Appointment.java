@@ -524,7 +524,7 @@ private static final long SerialVersionUID = 10L;
 
   // line 80 "../../../../../FlexiBookStates.ump"
    private void rejectNoShow(){
-    throw new RuntimeException("Cannot register a no-show for an appointment while it is on progress");
+    throw new RuntimeException("Cannot register a no-show for an appointment while it is in progress");
   }
 
   // line 83 "../../../../../FlexiBookStates.ump"

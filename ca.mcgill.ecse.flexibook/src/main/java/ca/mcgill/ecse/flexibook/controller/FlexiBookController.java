@@ -20,6 +20,8 @@ import ca.mcgill.ecse.flexibook.persistence.FlexiBookPersistence;
 import ca.mcgill.ecse.flexibook.util.FlexiBookUtil;
 import ca.mcgill.ecse.flexibook.util.SystemTime;
 
+import ca.mcgill.ecse.flexibook.model.Appointment.AppointmentStatus;
+
 public class FlexiBookController {
 	/**
 	 * Create a new Customer account with the provided username and password.
@@ -171,7 +173,7 @@ public class FlexiBookController {
 	}
 	
 	/**
-	 * @author louca
+	 * @author louca, julie
 	 * 
 	 * Register a no-show for an appointment for the given customer and bookable service at the given start date and time
 	 * 
@@ -866,8 +868,7 @@ public class FlexiBookController {
 	 * 
 	 * @throws InvalidInputException if a customer tries to end the appointment, or the appointment has not yet started
 	 */
-	public static void endAppoitment(String customerUsername, String bookableServiceName, String startDateString, 
-			String startTimeString) throws InvalidInputException {
+	public static void endAppointment(String customerUsername, String bookableServiceName, String startDateString, String startTimeString) throws InvalidInputException {
 		if (!FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
 			throw new InvalidInputException("A customer cannot end an appointment");
 		}
@@ -2222,7 +2223,7 @@ public class FlexiBookController {
 		
 		for (TOTimeSlot tS : availableTimeSlots) {
 			calendar.addAvailableTimeSlot(tS);
-		} 
+		}
 		
 		for (TOTimeSlot tS : unavailableTimeSlots) {
 			calendar.addUnavailableTimeSlot(tS);

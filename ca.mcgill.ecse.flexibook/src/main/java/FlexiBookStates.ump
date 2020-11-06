@@ -16,6 +16,8 @@ class Appointment {
     InProgress {  
       endAppointment -> Final;
       
+      cancel -> /{rejectCancel();} InProgress;
+      
       changeOptionalService(ComboItem newService, boolean isAdd, Date currentDate) [isServiceCombo()] -> /{doChangeOptionalService(newService, isAdd);} InProgress;
       changeDateAndTime(Date newDate, Time newTime, Date currentDate) -> /{rejectChangeDateAndTime();} InProgress;
     }
@@ -62,7 +64,15 @@ class Appointment {
     timeSlot.setStartTime(newTime);
   }
   
-   private void rejectChangeDateAndTime() {
-     throw new RuntimeException("Cannot change date and time of an appointment in progress.");
+  private void rejectCancel() {
+  	throw new RuntimeException("Cannot cancel an appointment on the appointment date");
+  }
+  
+  private void rejectNoShow() {
+  	throw new RuntimeException("Cannot register a no-show for an appointment while it is on progress");
+  }
+  
+  private void rejectChangeDateAndTime() {
+     throw new RuntimeException("Cannot change date and time of an appointment in progress");
   }
 }

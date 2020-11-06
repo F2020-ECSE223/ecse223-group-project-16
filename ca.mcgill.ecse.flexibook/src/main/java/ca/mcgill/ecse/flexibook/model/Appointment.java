@@ -450,7 +450,7 @@ public class Appointment implements Serializable
     getCustomer().incrementNoShowCount();
   }
 
-  // line 40 "../../../../../FlexiBookStates.ump"
+  // line 41 "../../../../../FlexiBookStates.ump"
    private void doChangeOptionalService(ComboItem newService, boolean isAdd){
     ServiceCombo sc = (ServiceCombo) bookableService;
     if (isAdd) {
@@ -470,7 +470,7 @@ public class Appointment implements Serializable
     }
   }
 
-  // line 59 "../../../../../FlexiBookStates.ump"
+  // line 60 "../../../../../FlexiBookStates.ump"
    private void doChangeDateAndTime(Date newDate, Time newTime){
     timeSlot.setStartDate(newDate);
     timeSlot.setEndDate(newDate);
@@ -478,7 +478,7 @@ public class Appointment implements Serializable
     timeSlot.setStartTime(newTime);
   }
 
-  // line 66 "../../../../../FlexiBookStates.ump"
+  // line 67 "../../../../../FlexiBookStates.ump"
    private void rejectChangeDateAndTime(){
     throw new RuntimeException("Cannot change date and time of an appointment in progress.");
   }

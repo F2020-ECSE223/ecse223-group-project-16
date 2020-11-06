@@ -77,7 +77,7 @@ class Appointment {
   	throw new RuntimeException("Cannot cancel an appointment while it is on progress");
   }
   private void rejectNoShow() {
-  	throw new RuntimeException("Cannot register a no-show for an appointment while it is on progress");
+	throw new RuntimeException("Cannot register a no-show for an appointment while it is in progress");
   }
   private void rejectEnd() {
   	throw new RuntimeException("Cannot end an appointment before it is started");

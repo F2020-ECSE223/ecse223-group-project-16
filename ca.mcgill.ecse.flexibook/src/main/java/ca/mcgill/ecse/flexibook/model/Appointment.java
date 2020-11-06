@@ -93,6 +93,12 @@ private static final long SerialVersionUID = 10L;
           break;
         }
         break;
+      case InProgress:
+        // line 23 "../../../../../FlexiBookStates.ump"
+        rejectStart();
+        setAppointmentStatus(AppointmentStatus.InProgress);
+        wasEventProcessed = true;
+        break;
       default:
         // Other states do respond to this event
     }
@@ -112,7 +118,7 @@ private static final long SerialVersionUID = 10L;
         wasEventProcessed = true;
         break;
       case InProgress:
-        // line 19 "../../../../../FlexiBookStates.ump"
+        // line 24 "../../../../../FlexiBookStates.ump"
         rejectCancel();
         setAppointmentStatus(AppointmentStatus.InProgress);
         wasEventProcessed = true;
@@ -140,6 +146,12 @@ private static final long SerialVersionUID = 10L;
           wasEventProcessed = true;
           break;
         }
+        break;
+      case InProgress:
+        // line 26 "../../../../../FlexiBookStates.ump"
+        rejectNoShow();
+        setAppointmentStatus(AppointmentStatus.InProgress);
+        wasEventProcessed = true;
         break;
       default:
         // Other states do respond to this event
@@ -200,7 +212,7 @@ private static final long SerialVersionUID = 10L;
         }
         break;
       case InProgress:
-        // line 22 "../../../../../FlexiBookStates.ump"
+        // line 27 "../../../../../FlexiBookStates.ump"
         rejectChangeDateAndTime();
         setAppointmentStatus(AppointmentStatus.InProgress);
         wasEventProcessed = true;
@@ -219,6 +231,12 @@ private static final long SerialVersionUID = 10L;
     AppointmentStatus aAppointmentStatus = appointmentStatus;
     switch (aAppointmentStatus)
     {
+      case Booked:
+        // line 15 "../../../../../FlexiBookStates.ump"
+        rejectEnd();
+        setAppointmentStatus(AppointmentStatus.Booked);
+        wasEventProcessed = true;
+        break;
       case InProgress:
         setAppointmentStatus(AppointmentStatus.Final);
         wasEventProcessed = true;
@@ -442,27 +460,27 @@ private static final long SerialVersionUID = 10L;
     }
   }
 
-  // line 27 "../../../../../FlexiBookStates.ump"
+  // line 32 "../../../../../FlexiBookStates.ump"
    private boolean isServiceCombo(){
     return getBookableService() instanceof ServiceCombo;
   }
 
-  // line 31 "../../../../../FlexiBookStates.ump"
+  // line 36 "../../../../../FlexiBookStates.ump"
    private boolean isDayBeforeAppointment(Date currentDate){
     return timeSlot.getStartDate().after(currentDate);
   }
 
-  // line 34 "../../../../../FlexiBookStates.ump"
+  // line 40 "../../../../../FlexiBookStates.ump"
    private boolean isDuringAppointment(Date currentDate, Time currentTime){
     return timeSlot.getStartDate().equals(currentDate) && !timeSlot.getStartTime().after(currentTime) && !timeSlot.getEndTime().before(currentTime);
   }
 
-  // line 38 "../../../../../FlexiBookStates.ump"
+  // line 44 "../../../../../FlexiBookStates.ump"
    private void incrementCustomerNoShow(){
     getCustomer().incrementNoShowCount();
   }
 
-  // line 42 "../../../../../FlexiBookStates.ump"
+  // line 48 "../../../../../FlexiBookStates.ump"
    private void doChangeOptionalService(ComboItem newService, boolean isAdd){
     ServiceCombo sc = (ServiceCombo) bookableService;
     if (isAdd) {
@@ -482,7 +500,7 @@ private static final long SerialVersionUID = 10L;
     }
   }
 
-  // line 61 "../../../../../FlexiBookStates.ump"
+  // line 67 "../../../../../FlexiBookStates.ump"
    private void doChangeDateAndTime(Date newDate, Time newTime){
     timeSlot.setStartDate(newDate);
     timeSlot.setEndDate(newDate);
@@ -490,17 +508,27 @@ private static final long SerialVersionUID = 10L;
     timeSlot.setStartTime(newTime);
   }
 
-  // line 68 "../../../../../FlexiBookStates.ump"
+  // line 74 "../../../../../FlexiBookStates.ump"
+   private void rejectStart(){
+    throw new RuntimeException("Cannot start an appointment after it was already started");
+  }
+
+  // line 77 "../../../../../FlexiBookStates.ump"
    private void rejectCancel(){
     throw new RuntimeException("Cannot cancel an appointment on the appointment date");
   }
 
-  // line 72 "../../../../../FlexiBookStates.ump"
+  // line 80 "../../../../../FlexiBookStates.ump"
    private void rejectNoShow(){
     throw new RuntimeException("Cannot register a no-show for an appointment while it is on progress");
   }
 
-  // line 76 "../../../../../FlexiBookStates.ump"
+  // line 83 "../../../../../FlexiBookStates.ump"
+   private void rejectEnd(){
+    throw new RuntimeException("Cannot end an appointment before it is started");
+  }
+
+  // line 86 "../../../../../FlexiBookStates.ump"
    private void rejectChangeDateAndTime(){
     throw new RuntimeException("Cannot change date and time of an appointment in progress");
   }

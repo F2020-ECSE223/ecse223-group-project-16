@@ -436,6 +436,11 @@ public class FlexiBookController {
 		// calculate the total duration of the appointment
 		Service service = (Service) optionalService.get();
 		
+
+		if(startDate.before(SystemTime.getDate()) || (startDate.equals(SystemTime.getDate()) && startTime.before(SystemTime.getTime()))) {
+			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", serviceName, dateString, startTimeString));
+		}
+		
 		checkAppointmentSlots(service, null, startDate, startTime);
 		Time endTimeWithDowntime = getEndTimeWithDowntime(service, null, startDate, startTime);
 
@@ -501,6 +506,10 @@ public class FlexiBookController {
 			}
 		}
 
+		if(startDate.before(SystemTime.getDate()) || (startDate.equals(SystemTime.getDate()) && startTime.before(SystemTime.getTime()))) {
+			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", serviceComboName, dateString, startTimeString));
+		}
+		
 		checkAppointmentSlots(serviceCombo, chosenItems, startDate, startTime);
 		Time endTimeWithDowntime = getEndTimeWithDowntime(serviceCombo, chosenItems, startDate, startTime);
 
@@ -526,11 +535,6 @@ public class FlexiBookController {
 		if(startTime.after(endTimeWithNoDowntime) || startTime.after(endTimeWithDowntime)){
 			throw new InvalidInputException("Start date and end date must be the same");
 		}	
-		if(startDate.before(SystemTime.getDate())){
-			throw new InvalidInputException(noTimeSlotMessage);
-		} else if(startDate.equals(SystemTime.getDate()) && startTime.before(SystemTime.getTime())){
-			throw new InvalidInputException(noTimeSlotMessage);
-		}
 
 		// checks if the appointment is during business hours
 		Calendar c = Calendar.getInstance();
@@ -665,9 +669,16 @@ public class FlexiBookController {
 		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDateString, startTimeString);
 		checkAppointmentSlots(appointment.getBookableService(), appointment.getChosenItems(), startDate, startTime, appointment);
 		
-		if (!appointment.changeDateAndTime(startDate, startTime, SystemTime.getDate())) {
-			throw new InvalidInputException("Cannot update appointment day before");
+		try {
+			if (!appointment.changeDateAndTime(startDate, startTime, SystemTime.getDate())) {
+				throw new InvalidInputException("Cannot update appointment day before");
+			}
+		} catch (RuntimeException e) {
+			if (e.getMessage().equals("Cannot change date and time of an appointment in progress")) {
+				throw new InvalidInputException(e.getMessage());
+			}
 		}
+		
 		try {
 			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());
 		} catch(RuntimeException e) {
@@ -758,7 +769,7 @@ public class FlexiBookController {
 	}
 	
 	/**
-	 * @author louca
+	 * @author louca, sarah
 	 * 
 	 * Start an appointment for the given user and service at the given start date and time  
 	 * 
@@ -775,6 +786,10 @@ public class FlexiBookController {
 		}
 		
 		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDateString, startTimeString);
+		
+		if (appointment == null) {
+			throw new InvalidInputException("Appointment not found");
+		}
 		
 		try {
 			if (!appointment.start(SystemTime.getDate(), SystemTime.getTime())) {
@@ -819,6 +834,10 @@ public class FlexiBookController {
 		
 		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDateString, startTimeString);
 		
+		if (appointment == null) {
+			throw new InvalidInputException("Appointment not found");
+		}
+		
 		try {
 			if (!appointment.cancel(SystemTime.getDate())) {
 				throw new InvalidInputException("Cannot cancel an appointment on the appointment date");
@@ -838,7 +857,7 @@ public class FlexiBookController {
 	}
 	
 	/**
-	 * @author louca
+	 * @author louca, sarah
 	 * 
 	 * End an appointment for the given user and bookable service at the given start date and time
 	 * 
@@ -849,13 +868,16 @@ public class FlexiBookController {
 	 * 
 	 * @throws InvalidInputException if a customer tries to end the appointment, or the appointment has not yet started
 	 */
-	public static void endAppoitment(String customerUsername, String bookableServiceName, String startDateString, 
-			String startTimeString) throws InvalidInputException {
+	public static void endAppointment(String customerUsername, String bookableServiceName, String startDateString, String startTimeString) throws InvalidInputException {
 		if (!FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
 			throw new InvalidInputException("A customer cannot end an appointment");
 		}
 		
 		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDateString, startTimeString);
+		
+		if (appointment == null) {
+			throw new InvalidInputException("Appointment not found");
+		}
 		
 		try {
 			appointment.end();
@@ -978,7 +1000,7 @@ public class FlexiBookController {
 	}
 	
 	/**
-	 * @author louca
+	 * @author louca, sarah
 	 */
 	private static Appointment getAppointment(String customerUsername, String bookableServiceName, String startDateString, String startTimeString) {
 		Customer customer = getCustomerByUsername(customerUsername);
@@ -2209,7 +2231,6 @@ public class FlexiBookController {
 		
 		return calendar;
 	}
-
 	/**
 	 * Owner registers an appointment as a 'no-show' on a specific date
 	 * @author Julie
@@ -2219,8 +2240,10 @@ public class FlexiBookController {
 	 */
 	public static void registerNoShow(Date noShowDate, Time noShowTime) {
 		for (Appointment a : FlexiBookApplication.getFlexiBook().getAppointments()) {
-			if (noShowDate.equals(a.getTimeSlot().getStartDate()) && noShowTime.equals(a.getTimeSlot().getStartTime())) {
-				a.getCustomer().incrementNoShowCount();
+			if (noShowDate.equals(a.getTimeSlot().getStartDate()) && noShowTime.equals(a.getTimeSlot().getStartTime()))  {
+				if (SystemTime.getDate().after(a.getTimeSlot().getEndDate()) || (SystemTime.getDate().equals(a.getTimeSlot().getEndDate()) && SystemTime.getTime().after(a.getTimeSlot().getEndTime()))) {
+					a.getCustomer().incrementNoShowCount();
+				}
 			}
 		}
 	}

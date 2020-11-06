@@ -78,7 +78,7 @@ private static final long SerialVersionUID = 10L;
     return appointmentStatus;
   }
 
-  public boolean startAppointment(Date currentDate,Time currentTime)
+  public boolean start(Date currentDate,Time currentTime)
   {
     boolean wasEventProcessed = false;
     
@@ -109,6 +109,12 @@ private static final long SerialVersionUID = 10L;
     {
       case Booked:
         setAppointmentStatus(AppointmentStatus.Final);
+        wasEventProcessed = true;
+        break;
+      case InProgress:
+        // line 19 "../../../../../FlexiBookStates.ump"
+        rejectCancel();
+        setAppointmentStatus(AppointmentStatus.InProgress);
         wasEventProcessed = true;
         break;
       default:
@@ -162,7 +168,7 @@ private static final long SerialVersionUID = 10L;
       case InProgress:
         if (isServiceCombo())
         {
-        // line 19 "../../../../../FlexiBookStates.ump"
+        // line 21 "../../../../../FlexiBookStates.ump"
           doChangeOptionalService(newService, isAdd);
           setAppointmentStatus(AppointmentStatus.InProgress);
           wasEventProcessed = true;
@@ -194,7 +200,7 @@ private static final long SerialVersionUID = 10L;
         }
         break;
       case InProgress:
-        // line 20 "../../../../../FlexiBookStates.ump"
+        // line 22 "../../../../../FlexiBookStates.ump"
         rejectChangeDateAndTime();
         setAppointmentStatus(AppointmentStatus.InProgress);
         wasEventProcessed = true;
@@ -206,7 +212,7 @@ private static final long SerialVersionUID = 10L;
     return wasEventProcessed;
   }
 
-  public boolean endAppointment()
+  public boolean end()
   {
     boolean wasEventProcessed = false;
     
@@ -436,27 +442,27 @@ private static final long SerialVersionUID = 10L;
     }
   }
 
-  // line 25 "../../../../../FlexiBookStates.ump"
+  // line 27 "../../../../../FlexiBookStates.ump"
    private boolean isServiceCombo(){
     return getBookableService() instanceof ServiceCombo;
   }
 
-  // line 29 "../../../../../FlexiBookStates.ump"
+  // line 31 "../../../../../FlexiBookStates.ump"
    private boolean isDayBeforeAppointment(Date currentDate){
     return timeSlot.getStartDate().after(currentDate);
   }
 
-  // line 32 "../../../../../FlexiBookStates.ump"
+  // line 34 "../../../../../FlexiBookStates.ump"
    private boolean isDuringAppointment(Date currentDate, Time currentTime){
     return timeSlot.getStartDate().equals(currentDate) && !timeSlot.getStartTime().after(currentTime) && !timeSlot.getEndTime().before(currentTime);
   }
 
-  // line 36 "../../../../../FlexiBookStates.ump"
+  // line 38 "../../../../../FlexiBookStates.ump"
    private void incrementCustomerNoShow(){
     getCustomer().incrementNoShowCount();
   }
 
-  // line 41 "../../../../../FlexiBookStates.ump"
+  // line 42 "../../../../../FlexiBookStates.ump"
    private void doChangeOptionalService(ComboItem newService, boolean isAdd){
     ServiceCombo sc = (ServiceCombo) bookableService;
     if (isAdd) {
@@ -476,7 +482,7 @@ private static final long SerialVersionUID = 10L;
     }
   }
 
-  // line 60 "../../../../../FlexiBookStates.ump"
+  // line 61 "../../../../../FlexiBookStates.ump"
    private void doChangeDateAndTime(Date newDate, Time newTime){
     timeSlot.setStartDate(newDate);
     timeSlot.setEndDate(newDate);
@@ -484,9 +490,19 @@ private static final long SerialVersionUID = 10L;
     timeSlot.setStartTime(newTime);
   }
 
-  // line 67 "../../../../../FlexiBookStates.ump"
+  // line 68 "../../../../../FlexiBookStates.ump"
+   private void rejectCancel(){
+    throw new RuntimeException("Cannot cancel an appointment on the appointment date");
+  }
+
+  // line 72 "../../../../../FlexiBookStates.ump"
+   private void rejectNoShow(){
+    throw new RuntimeException("Cannot register a no-show for an appointment while it is on progress");
+  }
+
+  // line 76 "../../../../../FlexiBookStates.ump"
    private void rejectChangeDateAndTime(){
-    throw new RuntimeException("Cannot change date and time of an appointment in progress.");
+    throw new RuntimeException("Cannot change date and time of an appointment in progress");
   }
 
 }

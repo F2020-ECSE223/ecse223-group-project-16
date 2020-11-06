@@ -723,6 +723,18 @@ public class FlexiBookController {
 		}
 	}
 	
+	/**
+	 * @author louca
+	 * 
+	 * Start an appointment for the given user and service at the given start date and time  
+	 * 
+	 * @param customerUsername of the customer whose appointment to start
+	 * @param serviceName of the service of the appointment to start
+	 * @param startDateString of the appointment to start
+	 * @param startTimeString of the appointment to start
+	 * 
+	 * @throws InvalidInputException if a customer tries to start the appointment, or the appointment was already started
+	 */
 	public static void startAppointment(String customerUsername, String serviceName, String startDateString, String startTimeString) throws InvalidInputException {
 		if (!FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
 			throw new InvalidInputException("A customer cannot start an appointment");
@@ -731,9 +743,9 @@ public class FlexiBookController {
 		Appointment appointment = getAppointment(customerUsername, serviceName, startDateString, startTimeString);
 		
 		try {
-			appointment.startAppointment(SystemTime.getDate(), SystemTime.getTime());
+			appointment.start(SystemTime.getDate(), SystemTime.getTime());
 		} catch (RuntimeException e) {
-			if (e.getMessage().equals("Cannot cancel an appointment on the appointment date")) {
+			if (e.getMessage().equals("Cannot start an appointment after it was already started")) { // make this reject in SM
 				throw new InvalidInputException(e.getMessage());
 			}
 			throw e;
@@ -744,8 +756,6 @@ public class FlexiBookController {
 		} catch(RuntimeException e) {
 			throw new InvalidInputException(e.getMessage());
 		}
-		
-		return;
 	}
 
 	/**
@@ -786,7 +796,42 @@ public class FlexiBookController {
 		} catch(RuntimeException e) {
 			throw new InvalidInputException(e.getMessage());
 		}
-		return;
+	}
+	
+	/**
+	 * @author louca
+	 * 
+	 * End an appointment for the given user and service and the given start date and time
+	 * 
+	 * @param customerUsername of the customer whose appointment to end
+	 * @param serviceName of the service of the appointment to end
+	 * @param startDateString of the appointment to end
+	 * @param startTimeString of the service of the appointment to end
+	 * 
+	 * @throws InvalidInputException if a customer tries to end the appointment, or the appointment has not yet started
+	 */
+	public static void endAppoitment(String customerUsername, String serviceName, String startDateString, 
+			String startTimeString) throws InvalidInputException {
+		if (!FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
+			throw new InvalidInputException("A customer cannot end an appointment");
+		}
+		
+		Appointment appointment = getAppointment(customerUsername, serviceName, startDateString, startTimeString);
+		
+		try {
+			appointment.end();
+		} catch (RuntimeException e) {
+			if (e.getMessage().equals("Cannot end an appointment before it is started")) {
+				throw new InvalidInputException(e.getMessage());
+			}
+			throw e;
+		}
+		try {
+			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());
+		} catch(RuntimeException e) {
+			throw new InvalidInputException(e.getMessage());
+		}
+		
 	}
 	/**
 	 * @author theodre, heqianw

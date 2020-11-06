@@ -4,7 +4,7 @@ class Appointment {
   
   appointmentStatus {
     Booked {
-      startAppointment(Date currentDate, Time currentTime) [isDuringAppointment(currentDate, currentTime)] -> InProgress;
+      start(Date currentDate, Time currentTime) [isDuringAppointment(currentDate, currentTime)] -> InProgress;
       
       cancel -> Final;
       noShow(Date currentDate, Time currentTime) [isDuringAppointment(currentDate, currentTime)] -> /{incrementCustomerNoShow();} Final;
@@ -14,7 +14,7 @@ class Appointment {
     }  
      
     InProgress {  
-      endAppointment -> Final;
+      end -> Final;
       
       cancel -> /{rejectCancel();} InProgress;
       

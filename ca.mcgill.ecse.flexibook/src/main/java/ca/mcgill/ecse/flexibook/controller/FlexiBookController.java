@@ -518,6 +518,12 @@ public class FlexiBookController {
 		for(ComboItem ci : chosenItems) {
 			a.addChosenItem(ci);
 		}
+		try{
+			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());
+		}
+		catch(RuntimeException e){
+			throw new InvalidInputException(e.getMessage());
+		}
 	}
 	/**
 	 * @author theodore

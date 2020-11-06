@@ -1976,8 +1976,10 @@ public class CucumberStepDefinitions {
 			Time apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
 			FlexiBookController.startAppointment(apptService,  apptStartDate,  apptStartTime, currentDate, currentTime);
 		} catch (ParseException e) {
+			exception = e;
 			fail(e);
 		} catch (InvalidInputException e) {
+			exception = e;
 			fail(e);
 		}
 	}
@@ -1993,8 +1995,10 @@ public class CucumberStepDefinitions {
 			Time apptStartTime = FlexiBookUtil.getTimeFromString(apptTime);
 			FlexiBookController.endAppointment(apptService,  apptStartDate, apptStartTime);
 		} catch (ParseException e) {
+			exception = e;
 			fail(e);
 		} catch (InvalidInputException e) {
+			exception = e;
 			fail(e);
 		}
 		
@@ -2020,6 +2024,7 @@ public class CucumberStepDefinitions {
 			}
 		} catch (ParseException e) {
 			fail(e);
+			exception = e;
 		}
 	}	
 	/**

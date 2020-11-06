@@ -611,8 +611,13 @@ public class FlexiBookController {
 		}
 		Time endTime = checkAppointmentSlots(foundAppointment.getBookableService(), foundAppointment.getChosenItems(), startDate, startTime, foundAppointment);
 		
-		if (!foundAppointment.changeDateAndTime(startDate, startTime, SystemTime.getDate())) {
-			throw new InvalidInputException("Cannot update appointment day before");
+		try {
+			if (!foundAppointment.changeDateAndTime(startDate, startTime, SystemTime.getDate())) {
+				throw new InvalidInputException("Cannot update appointment day before");
+			}
+		}
+		catch (RuntimeException e) {
+			throw new InvalidInputException("Cannot update an appointment in progress");
 		}
 		try {
 			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());

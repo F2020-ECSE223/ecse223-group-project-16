@@ -186,7 +186,9 @@ public class FlexiBookController {
 		if (!FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
 			throw new InvalidInputException("A customer cannot register a no-show");
 		}
+		
 		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDateString, startTimeString);
+		
 		try {
 			appointment.noShow(SystemTime.getDate(), SystemTime.getTime());
 		} catch (RuntimeException e) {
@@ -194,6 +196,12 @@ public class FlexiBookController {
 				throw new InvalidInputException(e.getMessage());
 			}
 			throw e;
+		}
+		
+		try {
+			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());
+		} catch(RuntimeException e) {
+			throw new InvalidInputException(e.getMessage());
 		}
 	}
 	
@@ -401,7 +409,6 @@ public class FlexiBookController {
 	 * @throws InvalidInputException if appointment cannot be made
 	 * 								 if owner tries to make appointment       
 	 */
-
 	public static void makeAppointment(String customerString, String dateString, String serviceName, String startTimeString) throws InvalidInputException {
 		if(customerString.equals("owner")) {
 			throw new InvalidInputException("An owner cannot make an appointment");
@@ -502,7 +509,7 @@ public class FlexiBookController {
 		}
 	}
 	/**
-	 *  @author theodore
+	 * @author theodore
 	 *  
 	 * checks if a bookable service appointment would have any time conflicts.
 	 */
@@ -636,17 +643,13 @@ public class FlexiBookController {
 			throw new InvalidInputException("Error: A customer can only update their own appointments");
 		}
 
-		Customer c = (Customer) FlexiBookApplication.getCurrentUser();
 		// build Date/Time objects
 		Date startDate = null;
 		Time startTime = null;
-		Date oldStartDate = null;
-		Time oldStartTime = null;
 		try {
 			startDate = FlexiBookUtil.getDateFromString(newdateString);
 			startTime = FlexiBookUtil.getTimeFromString(newStartTimeString);
-			oldStartDate = FlexiBookUtil.getDateFromString(startDateString);
-			oldStartTime = FlexiBookUtil.getTimeFromString(startTimeString);
+
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -818,6 +821,7 @@ public class FlexiBookController {
 			}
 			throw e;
 		}
+		
 		try {
 			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());
 		} catch(RuntimeException e) {
@@ -853,6 +857,7 @@ public class FlexiBookController {
 			}
 			throw e;
 		}
+		
 		try {
 			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());
 		} catch(RuntimeException e) {
@@ -861,7 +866,7 @@ public class FlexiBookController {
 		
 	}
 	/**
-	 * @author theodre, heqianw
+	 * @author theodore, heqianw
 	 * 
 	 * helper method to find conflicting appointments and whether we can fit the appointment during downtimes
 	 */

@@ -171,6 +171,33 @@ public class FlexiBookController {
 	}
 	
 	/**
+	 * @author louca
+	 * 
+	 * Register a no-show for an appointment for the given customer and bookable service at the given start date and time
+	 * 
+	 * @param customerUsername of the customer for whom to register a no show
+	 * @param bookableServiceName of the bookable service of the appointment for which to register the no-show
+	 * @param startDateString of the appointment for which to register the no-show
+	 * @param startTimeString of the appointment for which to register the no-show
+	 * 
+	 * @throws InvalidInputException if a customer tries to register a no-show, or the appointment is already in progress
+	 */
+	public static void registerNoShow(String customerUsername, String bookableServiceName, String startDateString, String startTimeString) throws InvalidInputException {
+		if (!FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
+			throw new InvalidInputException("A customer cannot register a no-show");
+		}
+		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDateString, startTimeString);
+		try {
+			appointment.noShow(SystemTime.getDate(), SystemTime.getTime());
+		} catch (RuntimeException e) {
+			if (e.getMessage().equals("Cannot register a no-show for an appointment while it is on progress")) {
+				throw new InvalidInputException(e.getMessage());
+			}
+			throw e;
+		}
+	}
+	
+	/**
 	 * Attempts to define a service combo with the provided data.
 	 * 
 	 * @author theodore
@@ -421,12 +448,12 @@ public class FlexiBookController {
 	 * 
 	 * @param customerString    	Customer username
 	 * @param dateString        	start Date of appointment
-	 * @param serviceName 			apointment service name
+	 * @param serviceComboName 		appointment service combo name
 	 * @param optServices        	list of chosen services
 	 * @param startTimeString 		start Time of appointment
 	 * @throws InvalidInputException if appointment cannot be updated
 	 */
-	public static void makeAppointment(String customerString, String dateString, String serviceName, String optServices, 
+	public static void makeAppointment(String customerString, String dateString, String serviceComboName, String optServices, 
 			String startTimeString) throws InvalidInputException {
 		if(customerString.equals("owner")){
 			throw new InvalidInputException("An owner cannot make an appointment");
@@ -442,9 +469,9 @@ public class FlexiBookController {
 		}
 
 		Optional<BookableService> possibleService = FlexiBookApplication.getFlexiBook().getBookableServices().stream()
-				.filter(x -> x.getName().equals(serviceName)).findFirst();
+				.filter(x -> x.getName().equals(serviceComboName)).findFirst();
 		if(!possibleService.isPresent()){
-			throw new InvalidInputException(String.format("Service with name %s does not exist", serviceName));
+			throw new InvalidInputException(String.format("Service with name %s does not exist", serviceComboName));
 		}
 		ServiceCombo serviceCombo = (ServiceCombo) possibleService.get();
 
@@ -594,14 +621,14 @@ public class FlexiBookController {
 	 * Updating appointment for a new time for a specific user
 	 * 
 	 * @param customerString    	Customer username
-	 * @param serviceName 			apointment service name
+	 * @param bookableServiceName 	appointment bookable service name
 	 * @param dateString        	start Date of appointment
 	 * @param startTimeString 		start Time of appointment
 	 * @param newdateString    		tentative new start Date of appointment
 	 * @param newStartTimeString 	tentative new start Time of appointment
 	 * @throws InvalidInputException permission issues or new time invalid or attempt to change appointment on same days
 	 */
-	public static void updateAppointment(String customerUsername, String serviceName, String startDateString,
+	public static void updateAppointment(String customerUsername, String bookableServiceName, String startDateString,
 			String startTimeString, String newdateString, String newStartTimeString) throws InvalidInputException {
 		if (FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
 			throw new InvalidInputException("Error: An owner cannot update a customer's appointment");
@@ -628,7 +655,7 @@ public class FlexiBookController {
 			throw new InvalidInputException("Cannot cancel an appointment on the appointment date");
 		}
 
-		Appointment appointment = getAppointment(customerUsername, serviceName, startDateString, startTimeString);
+		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDateString, startTimeString);
 		checkAppointmentSlots(appointment.getBookableService(), appointment.getChosenItems(), startDate, startTime, appointment);
 		
 		if (!appointment.changeDateAndTime(startDate, startTime, SystemTime.getDate())) {
@@ -649,13 +676,13 @@ public class FlexiBookController {
 	 * @param customerString    Customer username
 	 * @param isAdd    			adding or removing comboItem
 	 * @param comboItemName 	comboitem name to add/remove
-	 * @param serviceName 		apointment service name
+	 * @param serviceComboName	apointment service combo name
 	 * @param dateString        start Date of appointment
 	 * @param startTimeString 	start Time of appointment
 	 * 
 	 * @throws InvalidInputException if owner tries to update appointment, other customer, invalid timeslot
 	 */
-	public static void updateAppointment(String customerUsername, boolean isAdd, String comboItemName, String serviceName, 
+	public static void updateAppointment(String customerUsername, boolean isAdd, String comboItemName, String serviceComboName, 
 			String startDateString, String startTimeString) throws InvalidInputException {
 		if (FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
 			throw new InvalidInputException("Error: An owner cannot update a customer's appointment");
@@ -673,7 +700,7 @@ public class FlexiBookController {
 			e.printStackTrace();
 		}
 		
-		Appointment appointment = getAppointment(customerUsername, serviceName, startDateString, startTimeString);
+		Appointment appointment = getAppointment(customerUsername, serviceComboName, startDateString, startTimeString);
 		
 		if (appointment.getBookableService() instanceof Service) {
 			throw new InvalidInputException("Cannot add / remove combo items from service appointment");
@@ -729,18 +756,18 @@ public class FlexiBookController {
 	 * Start an appointment for the given user and service at the given start date and time  
 	 * 
 	 * @param customerUsername of the customer whose appointment to start
-	 * @param serviceName of the service of the appointment to start
+	 * @param bookableServiceName of the bookable service of the appointment to start
 	 * @param startDateString of the appointment to start
 	 * @param startTimeString of the appointment to start
 	 * 
 	 * @throws InvalidInputException if a customer tries to start the appointment, or the appointment was already started
 	 */
-	public static void startAppointment(String customerUsername, String serviceName, String startDateString, String startTimeString) throws InvalidInputException {
+	public static void startAppointment(String customerUsername, String bookableServiceName, String startDateString, String startTimeString) throws InvalidInputException {
 		if (!FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
 			throw new InvalidInputException("A customer cannot start an appointment");
 		}
 		
-		Appointment appointment = getAppointment(customerUsername, serviceName, startDateString, startTimeString);
+		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDateString, startTimeString);
 		
 		try {
 			appointment.start(SystemTime.getDate(), SystemTime.getTime());
@@ -764,14 +791,14 @@ public class FlexiBookController {
 	 * 
 	 * Cancels an appointment for a specific user for a specific service at a specific date and time
 	 * 
-	 * @param customerString    Customer username
-	 * @param serviceName 		apointment service name
-	 * @param dateString        start Date of appointment
-	 * @param startTimeString 	start Time of appointment
+	 * @param customerString    	Customer username
+	 * @param bookableServiceName 	appointment bookable service name
+	 * @param dateString        	start Date of appointment
+	 * @param startTimeString 		start Time of appointment
 	 * 
-	 * @throws InvalidInputException if owner cancels appointment or another customer attemps to cancel the appointment or on appointment date
+	 * @throws InvalidInputException if owner cancels appointment or another customer attempts to cancel the appointment or on appointment date
 	 */
-	public static void cancelAppointment(String customerUsername, String serviceName, String startDateString,
+	public static void cancelAppointment(String customerUsername, String bookableServiceName, String startDateString,
 			String startTimeString) throws InvalidInputException {		
 		if (FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
 			throw new InvalidInputException("An owner cannot cancel an appointment");
@@ -781,7 +808,7 @@ public class FlexiBookController {
 			throw new InvalidInputException("A customer can only cancel their own appointments");
 		}
 		
-		Appointment appointment = getAppointment(customerUsername, serviceName, startDateString, startTimeString);
+		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDateString, startTimeString);
 		
 		try {
 			appointment.cancel();
@@ -801,22 +828,22 @@ public class FlexiBookController {
 	/**
 	 * @author louca
 	 * 
-	 * End an appointment for the given user and service and the given start date and time
+	 * End an appointment for the given user and bookable service at the given start date and time
 	 * 
 	 * @param customerUsername of the customer whose appointment to end
-	 * @param serviceName of the service of the appointment to end
+	 * @param bookableServiceName of the bookable service of the appointment to end
 	 * @param startDateString of the appointment to end
 	 * @param startTimeString of the service of the appointment to end
 	 * 
 	 * @throws InvalidInputException if a customer tries to end the appointment, or the appointment has not yet started
 	 */
-	public static void endAppoitment(String customerUsername, String serviceName, String startDateString, 
+	public static void endAppoitment(String customerUsername, String bookableServiceName, String startDateString, 
 			String startTimeString) throws InvalidInputException {
 		if (!FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
 			throw new InvalidInputException("A customer cannot end an appointment");
 		}
 		
-		Appointment appointment = getAppointment(customerUsername, serviceName, startDateString, startTimeString);
+		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDateString, startTimeString);
 		
 		try {
 			appointment.end();
@@ -940,7 +967,7 @@ public class FlexiBookController {
 	/**
 	 * @author louca
 	 */
-	private static Appointment getAppointment(String customerUsername, String serviceName, String startDateString, String startTimeString) {
+	private static Appointment getAppointment(String customerUsername, String bookableServiceName, String startDateString, String startTimeString) {
 		Customer customer = getCustomerByUsername(customerUsername);
 
 		Date startDate = null;
@@ -953,7 +980,7 @@ public class FlexiBookController {
 		}
 		
 		for (Appointment a : customer.getAppointments()) {
-			if (a.getBookableService().getName().equals(serviceName) 
+			if (a.getBookableService().getName().equals(bookableServiceName) 
 					&& a.getTimeSlot().getStartDate().equals(startDate)
 					&& a.getTimeSlot().getStartTime().equals(startTime)) {
 				return a;

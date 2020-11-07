@@ -2,12 +2,19 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse.flexibook.model;
+import java.io.Serializable;
 import java.util.*;
 
-// line 18 "../../../../../FlexiBookPersistence.ump"
+// line 21 "../../../../../FlexiBookPersistence.ump"
 // line 16 "../../../../../FlexiBook.ump"
-public abstract class User
-{
+public abstract class User implements Serializable
+{ 
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+ 
+private static final long serialVersionUID = 11L;
+
 
   //------------------------
   // STATIC VARIABLES
@@ -92,7 +99,7 @@ public abstract class User
     usersByUsername.remove(getUsername());
   }
 
-  // line 21 "../../../../../FlexiBookPersistence.ump"
+  // line 26 "../../../../../FlexiBookPersistence.ump"
    public static  void reinitializeUsernames(List<User> users){
     usersByUsername = new HashMap<String, User>();
       for(User user : users){

@@ -4,7 +4,7 @@
 package ca.mcgill.ecse.flexibook.model;
 import java.io.Serializable;
 
-// line 84 "../../../../../FlexiBookPersistence.ump"
+// line 87 "../../../../../FlexiBookPersistence.ump"
 // line 95 "../../../../../FlexiBook.ump"
 public class ComboItem implements Serializable
 { 
@@ -12,7 +12,7 @@ public class ComboItem implements Serializable
   // STATIC VARIABLES
   //------------------------
  
-private static final long SerialVersionUID = 9L;
+private static final long serialVersionUID = 9L;
 
 
   //------------------------

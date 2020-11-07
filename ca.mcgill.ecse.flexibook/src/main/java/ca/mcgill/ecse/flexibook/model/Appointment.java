@@ -7,7 +7,7 @@ import java.sql.Date;
 import java.sql.Time;
 import java.util.*;
 
-// line 90 "../../../../../FlexiBookPersistence.ump"
+// line 93 "../../../../../FlexiBookPersistence.ump"
 // line 1 "../../../../../FlexiBookStates.ump"
 // line 100 "../../../../../FlexiBook.ump"
 public class Appointment implements Serializable
@@ -16,7 +16,7 @@ public class Appointment implements Serializable
   // STATIC VARIABLES
   //------------------------
  
-private static final long SerialVersionUID = 10L;
+private static final long serialVersionUID = 10L;
 
 
   //------------------------

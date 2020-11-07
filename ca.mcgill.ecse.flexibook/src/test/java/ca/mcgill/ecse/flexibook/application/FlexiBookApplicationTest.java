@@ -5,13 +5,24 @@ package ca.mcgill.ecse.flexibook.application;
 
 import org.junit.jupiter.api.Test;
 
+import ca.mcgill.ecse.flexibook.model.Appointment;
 import ca.mcgill.ecse.flexibook.model.Business;
+import ca.mcgill.ecse.flexibook.model.BusinessHour;
+import ca.mcgill.ecse.flexibook.model.ComboItem;
+import ca.mcgill.ecse.flexibook.model.Customer;
 import ca.mcgill.ecse.flexibook.model.FlexiBook;
+import ca.mcgill.ecse.flexibook.model.Owner;
+import ca.mcgill.ecse.flexibook.model.Service;
+import ca.mcgill.ecse.flexibook.model.ServiceCombo;
+import ca.mcgill.ecse.flexibook.model.TimeSlot;
+import ca.mcgill.ecse.flexibook.model.BusinessHour.DayOfWeek;
 import ca.mcgill.ecse.flexibook.persistence.FlexiBookPersistence;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
+import java.sql.Date;
+import java.sql.Time;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,11 +31,17 @@ import org.junit.jupiter.api.BeforeEach;
 class FlexiBookApplicationTest {
 	private static String filename = "testdata.flexibook";
 	
+	/**
+	 * @author heqianw
+	 */
 	@BeforeAll
 	public static void setUpOnce() {
 		FlexiBookPersistence.setFilename(filename);
 	}
 	
+	/**
+	 * @author heqianw
+	 */
 	@BeforeEach
 	public void setUp() {
 		// remove test file
@@ -34,7 +51,10 @@ class FlexiBookApplicationTest {
 		FlexiBook flexibook = FlexiBookApplication.getFlexiBook();
 		flexibook.delete();
 	}
-	
+
+	/**
+	 * @author heqianw
+	 */
 	@AfterAll
 	public static void tearDownOnce() {
 		// remove test file
@@ -44,18 +64,82 @@ class FlexiBookApplicationTest {
 		FlexiBook flexibook = FlexiBookApplication.getFlexiBook();
 		flexibook.delete();
 	}
-
+	
+	/**
+	 * @author heqianw
+	 * 
+	 * This unit test is responsible for the loading part and the reinitialization part of persistence
+	 */
 	@Test
 	public void testPersistence() {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
-        Business b = new Business("BusinessTest", "101McGill", "5148888888", "leeroy@jenkins.com", flexiBook);
-        flexiBook.setBusiness(b);
+		Business b = new Business("BusinessTest", "101McGill", "5148888888", "leeroy@jenkins.com", flexiBook);
+		
+		Date date = new Date(System.currentTimeMillis());
+		Time time = new Time(System.currentTimeMillis());
+
+		BusinessHour bh = new BusinessHour(DayOfWeek.Monday, time, time, flexiBook);
+		b.addBusinessHour(bh);
+		flexiBook.setBusiness(b);
+		Customer c1 = new Customer("Customer1", "password", flexiBook);
+		Customer c2 = new Customer("Customer2", "password", flexiBook);
+		Owner owner = new Owner("owner", "ownerPass", flexiBook);
+
+		Service s1 = new Service("cut", flexiBook, 10, 15, 10);
+		ServiceCombo sc = new ServiceCombo("cut-combo", flexiBook);
+		ComboItem cI = new ComboItem(true, s1, sc);
+		sc.setMainService(cI);
+
+		TimeSlot t = new TimeSlot(date, time, date, time, flexiBook);
+		Appointment app = new Appointment(c1, sc, t, flexiBook);
+		flexiBook.addAppointment(app);
 
 		FlexiBookPersistence.save(flexiBook);
 		FlexiBook flexiBook2 = FlexiBookPersistence.load();
-        assertEquals(b.getName(), flexiBook2.getBusiness().getName());
-        assertEquals(b.getAddress(), flexiBook2.getBusiness().getAddress());;
-        assertEquals(b.getPhoneNumber(), flexiBook2.getBusiness().getPhoneNumber());;
-        assertEquals(b.getEmail(), flexiBook2.getBusiness().getEmail());;
+		
+		assertEquals(b.getName(), flexiBook2.getBusiness().getName());
+		assertEquals(b.getAddress(), flexiBook2.getBusiness().getAddress());
+		assertEquals(b.getPhoneNumber(), flexiBook2.getBusiness().getPhoneNumber());
+		assertEquals(b.getEmail(), flexiBook2.getBusiness().getEmail());
+		assertEquals(b.getBusinessHours().size(), 1);
+
+		
+		assertEquals(flexiBook2.getCustomers().size(), 2);
+
+		try{
+			Customer c3 = new Customer("Customer2", "password", flexiBook2);
+		}
+		catch(RuntimeException e){
+			assertTrue(e.getMessage().contains("Cannot create due to duplicate username."));
+		}
+
+		try{
+			Owner owner2 = new Owner("owner", "ownerPass", flexiBook2);
+		}
+		catch(RuntimeException e){
+			assertTrue(e.getMessage().contains("Cannot create due to duplicate username."));
+		}
+
+		assertEquals(flexiBook2.getCustomers().size(), 2);
+
+		try{
+			Service s2 = new Service("cut", flexiBook2, 10, 15, 10);
+		}
+		catch(RuntimeException e){
+			assertTrue(e.getMessage().contains("Cannot create due to duplicate name."));
+		}
+		
+		try{
+			ServiceCombo s2 = new ServiceCombo("cut-combo", flexiBook2);
+		}
+		catch(RuntimeException e){
+			assertTrue(e.getMessage().contains("Cannot create due to duplicate name."));
+		}
+		assertEquals(flexiBook2.getBookableServices().size(), 2);
+		
+		ServiceCombo sc2 = (ServiceCombo) flexiBook2.getBookableServices().stream().filter(x -> x.getName().equals(sc.getName())).findAny().get();
+		assertEquals(sc2.getMainService().getService().getName(), "cut");
+		assertEquals(flexiBook.getAppointments().size(), 1);
 	}
+
 }

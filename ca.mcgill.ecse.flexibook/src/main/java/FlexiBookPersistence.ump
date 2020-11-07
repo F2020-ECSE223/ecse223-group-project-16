@@ -3,12 +3,15 @@ external interface Serializable {}
 class FlexiBook {
   depend java.io.Serializable;
   isA Serializable;
-  internal const long SerialVersionUID = 1L;
+  internal const long serialVersionUID = 1L;
 
     public void reinitialize() {
         List<User> users = new ArrayList<>();
         for(Customer user : this.getCustomers()){
           users.add(user);
+        }
+        if(this.getOwner() != null){
+          users.add(this.getOwner());
         }
         User.reinitializeUsernames(users);
         BookableService.reinitializeBookableServicesName(this.getBookableServices());
@@ -16,7 +19,9 @@ class FlexiBook {
 }
 
 class User {
-  abstract;
+  depend java.io.Serializable;
+  isA Serializable;
+  internal const long serialVersionUID = 11L;
     public static void reinitializeUsernames(List<User> users){
       usersByUsername = new HashMap<String, User>();
       for(User user : users){
@@ -28,37 +33,37 @@ class User {
 class Owner {
   depend java.io.Serializable;
   isA Serializable;
-  isA User;
-  internal const long SerialVersionUID = 2L;
+  internal const long serialVersionUID = 2L;
 }
 
 class Customer {
   depend java.io.Serializable;
+  internal const long serialVersionUID = 3L;
   isA Serializable;
-  isA User;
-  internal const long SerialVersionUID = 3L;
 }
 
 class Business {
   depend java.io.Serializable;
   isA Serializable;
-  internal const long SerialVersionUID = 4L;
+  internal const long serialVersionUID = 4L;
 }
 
 class BusinessHour {
   depend java.io.Serializable;
   isA Serializable;
-  internal const long SerialVersionUID = 5L;
+  internal const long serialVersionUID = 5L;
 }
   
 class TimeSlot {
   depend java.io.Serializable;
   isA Serializable;
-  internal const long SerialVersionUID = 6L;
+  internal const long serialVersionUID = 6L;
 }
 
 class BookableService {
-  abstract;
+  depend java.io.Serializable;
+  isA Serializable;
+  internal const long serialVersionUID = 12L;
     public static void reinitializeBookableServicesName(List<BookableService> bookableServices){
       bookableservicesByName = new HashMap<String, BookableService>();
       for(BookableService bs : bookableServices){
@@ -70,25 +75,23 @@ class BookableService {
 class Service {
   depend java.io.Serializable;
   isA Serializable;
-  isA BookableService;
-  internal const long SerialVersionUID = 7L;
+  internal const long serialVersionUID = 7L;
 }
 
 class ServiceCombo {
   depend java.io.Serializable;
   isA Serializable;
-  isA BookableService;
-  internal const long SerialVersionUID = 8L;
+  internal const long serialVersionUID = 8L;
 }
 
 class ComboItem {
   depend java.io.Serializable;
   isA Serializable;
-  internal const long SerialVersionUID = 9L;
+  internal const long serialVersionUID = 9L;
 }
 
 class Appointment {
   depend java.io.Serializable;
   isA Serializable;
-  internal const long SerialVersionUID = 10L;
+  internal const long serialVersionUID = 10L;
 }

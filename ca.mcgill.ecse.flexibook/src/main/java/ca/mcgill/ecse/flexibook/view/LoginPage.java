@@ -101,21 +101,6 @@ public class LoginPage extends JFrame {
     pack();
   }
   
-  private void refreshData() {
-		// error
-		errorMessage.setText(error);
-		if (error != null) {
-			userTextField.setText("");
-			passTextField.setText("");
-		}	
-		
-		// daily overview
-		//refreshDailyOverview();
-
-		// this is needed because the size of the window changes depending on whether an error message is shown or not
-		pack();
-  }
-  
   private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		// clear error message and basic input validation
 		error = null;
@@ -129,11 +114,13 @@ public class LoginPage extends JFrame {
 			this.setVisible(false);
 		} catch (InvalidInputException e) {
 			error = e.getMessage();
+			
+			errorMessage.setText(error);
+			userTextField.setText("");
+			passTextField.setText("");
+			
+			pack();
 		} 
-		
-		
-		// update visuals
-		refreshData();
   }
 	
 }

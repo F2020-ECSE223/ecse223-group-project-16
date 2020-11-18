@@ -111,7 +111,7 @@ public class LoginPage extends JFrame {
 		// call the controller
 		try {
 			FlexiBookController.login(username, password);
-			this.setVisible(false);
+			dispose();
 		} catch (InvalidInputException e) {
 			error = e.getMessage();
 			

@@ -67,8 +67,6 @@ public class SignUpPage extends JFrame {
 	// password
 	private JLabel passwordLabel;
 	private JPasswordField passwordField;
-	private JLabel confirmPasswordLabel;
-	private JTextField confirmPasswordTextField;
 	private JButton passwordVisibilityButton;
 	// onboarding flow
 	private JButton signUpButton;

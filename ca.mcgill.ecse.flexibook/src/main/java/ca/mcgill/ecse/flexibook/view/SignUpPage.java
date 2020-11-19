@@ -26,7 +26,7 @@ public class SignUpPage extends JFrame {
 	private void resizeTextField(JTextField textField) {
 		Dimension textFieldDimension = new Dimension(TEXT_FIELD_WIDTH, textField.getPreferredSize().height);
 		textField.setPreferredSize(textFieldDimension);
-		textField.setMaximumSize(textFieldDimension);
+//		textField.setMaximumSize(textFieldDimension);
 	}
 
 	private void makePlaceholder(JTextField textField, String placeholderText) {
@@ -67,6 +67,7 @@ public class SignUpPage extends JFrame {
 	private JPasswordField passwordField;
 	private JLabel confirmPasswordLabel;
 	private JTextField confirmPasswordTextField;
+	private JButton passwordVisibilityButton;
 	// onboarding flow
 	private JButton signUpButton;
 	private JButton goToLoginButton;
@@ -103,11 +104,12 @@ public class SignUpPage extends JFrame {
 		passwordField = new JPasswordField(); // placeholder
 		resizeTextField(passwordField);
 		passwordField.setEchoChar('*');
+		passwordVisibilityButton = new JButton("Show");
 		// elements for Sign Up button
 		signUpButton = new JButton("Sign Up");
 		signUpButton.setBackground(Color.BLUE);
 		// elements for go to Login button
-		goToLoginButton = new JButton("Sign in instead");
+		goToLoginButton = new JButton("Login instead");
 		goToLoginButton.setForeground(Color.DARK_GRAY);
 
 		// global settings
@@ -115,6 +117,12 @@ public class SignUpPage extends JFrame {
 		setTitle("Create your FlexiBook Account");
 
 		// listeners
+		passwordVisibilityButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent event) {
+				passwordVisibilityButtonActionPerformed(event);
+			}
+		});
+		
 		signUpButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent event) {
 				signUpButtonActionPerformed(event);
@@ -134,6 +142,54 @@ public class SignUpPage extends JFrame {
 		layout.setAutoCreateContainerGaps(true);
 
 		//@formatter:off
+//		layout.setHorizontalGroup(
+//				layout.createParallelGroup()
+//				.addGroup(
+//						layout.createSequentialGroup()
+//						.addGroup(
+//								layout.createParallelGroup()
+//								.addComponent(usernameLabel, Alignment.TRAILING)
+//								.addComponent(passwordLabel, Alignment.TRAILING)
+//								)
+//						.addGroup(
+//								layout.createParallelGroup()
+//								.addComponent(usernameTextField)
+//								.addGroup(
+//										layout.createSequentialGroup()
+//										.addComponent(passwordField)
+//										.addComponent(passwordVisibilityButton)
+//										)
+//								.addGroup(
+//										Alignment.TRAILING,
+//										layout.createSequentialGroup()
+//										.addComponent(goToLoginButton)
+//										.addComponent(signUpButton)
+//										)
+//								)
+//						)
+//				.addComponent(errorMessageTextArea, Alignment.CENTER)
+//				);
+//
+//		layout.setVerticalGroup(layout.createSequentialGroup()
+//				.addGroup(
+//						layout.createParallelGroup(Alignment.CENTER)
+//						.addComponent(usernameLabel)
+//						.addComponent(usernameTextField)
+//						)
+//				.addGroup(
+//						layout.createParallelGroup(Alignment.CENTER)
+//						.addComponent(passwordLabel)
+//						.addComponent(passwordField)
+//						.addComponent(passwordVisibilityButton)
+//						)
+//				.addComponent(errorMessageTextArea)
+//				.addGroup(
+//						layout.createParallelGroup()
+//						.addComponent(goToLoginButton, Alignment.LEADING)
+//						.addComponent(signUpButton, Alignment.TRAILING)
+//						)
+//				);
+		
 		layout.setHorizontalGroup(
 				layout.createParallelGroup()
 				.addGroup(
@@ -146,11 +202,18 @@ public class SignUpPage extends JFrame {
 						.addGroup(
 								layout.createParallelGroup()
 								.addComponent(usernameTextField)
-								.addComponent(passwordField)
 								.addGroup(
 										layout.createSequentialGroup()
-										.addComponent(goToLoginButton)
-										.addComponent(signUpButton)
+										.addGroup(
+												layout.createParallelGroup()
+												.addComponent(passwordField)
+												.addComponent(goToLoginButton, Alignment.LEADING)
+												)
+										.addGroup(
+												layout.createParallelGroup(Alignment.TRAILING)
+												.addComponent(passwordVisibilityButton)
+												.addComponent(signUpButton)
+												)									
 										)
 								)
 						)
@@ -159,20 +222,21 @@ public class SignUpPage extends JFrame {
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
 				.addGroup(
-						layout.createParallelGroup()
+						layout.createParallelGroup(Alignment.CENTER)
 						.addComponent(usernameLabel)
 						.addComponent(usernameTextField)
 						)
 				.addGroup(
-						layout.createParallelGroup()
+						layout.createParallelGroup(Alignment.CENTER)
 						.addComponent(passwordLabel)
 						.addComponent(passwordField)
+						.addComponent(passwordVisibilityButton)
 						)
 				.addComponent(errorMessageTextArea)
 				.addGroup(
 						layout.createParallelGroup()
 						.addComponent(goToLoginButton, Alignment.LEADING)
-						.addComponent(signUpButton, Alignment.TRAILING)
+						.addComponent(signUpButton, Alignment.LEADING)
 						)
 				);
 		//@formatter:on
@@ -180,12 +244,11 @@ public class SignUpPage extends JFrame {
 		pack();
 		setResizable(true);
 		
-		getRootPane().setDefaultButton(signUpButton);
+		getRootPane().setDefaultButton(signUpButton); // Enter key wired to signUpButton
 	}
 
 	private void refreshData() {
 		errorMessageTextArea.setText(errorMessage);
-//		errorMessageTextArea.setColumns(2);
 		if (errorMessage == null || errorMessage.trim().length() == 0) {
 			// populate
 		}
@@ -194,8 +257,18 @@ public class SignUpPage extends JFrame {
 		pack();
 	}
 	
+	private void passwordVisibilityButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		if (passwordVisibilityButton.getText().equals("Show")) {
+			passwordVisibilityButton.setText("Hide");
+			passwordField.setEchoChar((char) 0);
+		} else {
+			passwordVisibilityButton.setText("Show");
+			passwordField.setEchoChar('*');
+		}
+	}
+	
 	private void goToLogin() {
-		LoginPage loginPage = new LoginPage();
+		LoginPage loginPage = new LoginPage(); // would like to be able to pass in a username here into the login constructor, to use as a default value
 		loginPage.setVisible(true);
 		loginPage.setLocationRelativeTo(this); // center spawned login page on own center
 		dispose(); // self-destruct

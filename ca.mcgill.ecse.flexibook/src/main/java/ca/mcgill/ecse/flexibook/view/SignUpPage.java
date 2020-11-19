@@ -5,6 +5,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -107,7 +109,7 @@ public class SignUpPage extends JFrame {
 		passwordVisibilityButton = new JButton("Show");
 		// elements for Sign Up button
 		signUpButton = new JButton("Sign Up");
-		signUpButton.setBackground(Color.BLUE);
+		signUpButton.setForeground(Color.WHITE);
 		// elements for go to Login button
 		goToLoginButton = new JButton("Login instead");
 		goToLoginButton.setForeground(Color.DARK_GRAY);
@@ -133,6 +135,16 @@ public class SignUpPage extends JFrame {
 			public void actionPerformed(java.awt.event.ActionEvent event) {
 				goToLoginButtonActionPerformed(event);
 			}
+		});
+		
+		addWindowFocusListener(new WindowAdapter() {
+		    public void windowGainedFocus(WindowEvent event) {
+		    	signUpButton.setForeground(Color.WHITE);
+		    }
+		    
+		    public void windowLostFocus(WindowEvent event) {
+		    	signUpButton.setForeground(Color.BLACK);
+		    }
 		});
 
 		// layout

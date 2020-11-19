@@ -1,44 +1,220 @@
 package ca.mcgill.ecse.flexibook.view;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+
+import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+
+import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
+import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
+
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
 public class SignUpPage extends JFrame {
-  private static final long serialVersionUID = -6027711256830801450L;
-  private JLabel signUpLabel;
+	private void resizeTextField(JTextField textField) {
+		Dimension textFieldDimension = new Dimension(TEXT_FIELD_WIDTH, textField.getPreferredSize().height);
+		textField.setPreferredSize(textFieldDimension);
+		textField.setMaximumSize(textFieldDimension);
+	}
 
-  public SignUpPage() {
-      initComponents();
-  }
-  private void initComponents(){
-    signUpLabel = new JLabel();
-    signUpLabel.setText("SignUp Tab here");
+	private void makePlaceholder(JTextField textField, String placeholderText) {
+		textField.setText(placeholderText);
+		textField.setForeground(Color.GRAY);
+		textField.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				if (textField.getText().equals(placeholderText)) {
+					textField.setText("");
+					textField.setForeground(Color.BLACK);
+				}
+			}
 
-    setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    setTitle("SignUp Tab");
+			@Override
+			public void focusLost(FocusEvent e) {
+				if (textField.getText().isEmpty()) {
+					textField.setForeground(Color.GRAY);
+					textField.setText(placeholderText);
+				}
+			}
+		});
+	}
 
-    GroupLayout layout = new GroupLayout(getContentPane());
-    getContentPane().setLayout(layout);
-    layout.setAutoCreateGaps(true);
-    layout.setAutoCreateContainerGaps(true);
-    layout.setHorizontalGroup(
-      layout.createSequentialGroup()
-      .addGroup(layout.createParallelGroup()
-        .addGroup(layout.createSequentialGroup()
-          .addGroup(layout.createParallelGroup()
-          .addComponent(signUpLabel)
-          )
-        )
-      )
-    );
-    layout.setVerticalGroup(
-      layout.createParallelGroup()
-        .addGroup(layout.createSequentialGroup()
-        .addComponent(signUpLabel)
-      )
-    );
-    pack();
-  }
+	private static final long serialVersionUID = -6027711256830801450L;
+
+	// constants
+	private static final int TEXT_FIELD_WIDTH = 300;
+
+	// UI elements
+	// error
+	private JTextArea errorMessageTextArea; // for line wrapping
+	// username
+	private JLabel usernameLabel;
+	private JTextField usernameTextField;
+	// password
+	private JLabel passwordLabel;
+	private JPasswordField passwordField;
+	private JLabel confirmPasswordLabel;
+	private JTextField confirmPasswordTextField;
+	// onboarding flow
+	private JButton signUpButton;
+	private JButton goToLoginButton;
+
+	// data elements
+	private String errorMessage = "";
+
+	public SignUpPage() {
+		initComponents();
+		refreshData();
+	}
+
+	private void initComponents() {
+		// UI elements
+		// elements for error message
+	    errorMessageTextArea = new JTextArea();
+	    errorMessageTextArea.setForeground(Color.RED);
+	    errorMessageTextArea.setWrapStyleWord(true);
+	    // mimic a JLabel
+	    errorMessageTextArea.setLineWrap(true);
+	    errorMessageTextArea.setOpaque(false);
+	    errorMessageTextArea.setEditable(false);
+//	    errorMessageTextArea.setFocusable(false);
+	    errorMessageTextArea.setBackground(UIManager.getColor("Label.background"));
+	    errorMessageTextArea.setFont(UIManager.getFont("Label.font"));
+	    errorMessageTextArea.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
+	    
+		// elements for username field
+		usernameLabel = new JLabel("Username");
+		usernameTextField = new JTextField(); // placeholder
+		resizeTextField(usernameTextField);
+		// elements for password field
+		passwordLabel = new JLabel("Password");
+		passwordField = new JPasswordField(); // placeholder
+		resizeTextField(passwordField);
+		passwordField.setEchoChar('*');
+		// elements for Sign Up button
+		signUpButton = new JButton("Sign Up");
+		signUpButton.setBackground(Color.BLUE);
+		// elements for go to Login button
+		goToLoginButton = new JButton("Sign in instead");
+		goToLoginButton.setForeground(Color.DARK_GRAY);
+
+		// global settings
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // JFrame.DISPOSE_ON_CLOSE ??
+		setTitle("Create your FlexiBook Account");
+
+		// listeners
+		signUpButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent event) {
+				signUpButtonActionPerformed(event);
+			}
+		});
+		
+		goToLoginButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent event) {
+				goToLoginButtonActionPerformed(event);
+			}
+		});
+
+		// layout
+		GroupLayout layout = new GroupLayout(getContentPane());
+		getContentPane().setLayout(layout);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+
+		//@formatter:off
+		layout.setHorizontalGroup(
+				layout.createParallelGroup()
+				.addGroup(
+						layout.createSequentialGroup()
+						.addGroup(
+								layout.createParallelGroup()
+								.addComponent(usernameLabel, Alignment.TRAILING)
+								.addComponent(passwordLabel, Alignment.TRAILING)
+								)
+						.addGroup(
+								layout.createParallelGroup()
+								.addComponent(usernameTextField)
+								.addComponent(passwordField)
+								.addGroup(
+										layout.createSequentialGroup()
+										.addComponent(goToLoginButton)
+										.addComponent(signUpButton)
+										)
+								)
+						)
+				.addComponent(errorMessageTextArea, Alignment.CENTER)
+				);
+
+		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addGroup(
+						layout.createParallelGroup()
+						.addComponent(usernameLabel)
+						.addComponent(usernameTextField)
+						)
+				.addGroup(
+						layout.createParallelGroup()
+						.addComponent(passwordLabel)
+						.addComponent(passwordField)
+						)
+				.addComponent(errorMessageTextArea)
+				.addGroup(
+						layout.createParallelGroup()
+						.addComponent(goToLoginButton, Alignment.LEADING)
+						.addComponent(signUpButton, Alignment.TRAILING)
+						)
+				);
+		//@formatter:on
+		
+		pack();
+		setResizable(true);
+		
+		getRootPane().setDefaultButton(signUpButton);
+	}
+
+	private void refreshData() {
+		errorMessageTextArea.setText(errorMessage);
+//		errorMessageTextArea.setColumns(2);
+		if (errorMessage == null || errorMessage.trim().length() == 0) {
+			// populate
+		}
+
+		// this is needed because the size of the window changes depending on whether an error message is shown or not
+		pack();
+	}
+	
+	private void goToLogin() {
+		LoginPage loginPage = new LoginPage();
+		loginPage.setVisible(true);
+		loginPage.setLocationRelativeTo(this); // center spawned login page on own center
+		dispose(); // self-destruct
+	}
+	
+	private void signUpButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		// clear error message
+		errorMessage = null;
+		try {
+			FlexiBookController.createCustomerAccount(usernameTextField.getText(), String.valueOf(passwordField.getPassword()));
+			goToLogin();
+		} catch (InvalidInputException e) {
+			errorMessage = e.getMessage();
+		} finally {
+			refreshData();
+		}
+	}
+	
+	private void goToLoginButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		goToLogin();
+	}
 }

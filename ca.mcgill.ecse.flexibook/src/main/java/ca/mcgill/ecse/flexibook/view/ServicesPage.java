@@ -122,19 +122,19 @@ public class ServicesPage extends JFrame {
     //Listeners
     deleteServiceButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            deleteServiceButtonActionPerformed(evt);
+           // deleteServiceButtonActionPerformed(evt);
         }
     });
     
     updateServiceButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            updateServiceButtonActionPerformed(evt);
+           // updateServiceButtonActionPerformed(evt);
         }
     });
     
     addServiceButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            addServiceButtonActionPerformed(evt);
+           // addServiceButtonActionPerformed(evt);
         }
     });
     
@@ -150,14 +150,56 @@ public class ServicesPage extends JFrame {
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
     layout.setHorizontalGroup(
-      layout.createSequentialGroup()
-      .addGroup(layout.createParallelGroup()
-        .addGroup(layout.createSequentialGroup()
-          .addGroup(layout.createParallelGroup()
-          .addComponent(serviceLabel)
-          )
-        )
-      )
+    	  layout.createParallelGroup()
+    	  .addComponent(serviceLabel)
+    	  .addComponent(horizontalLineTop)
+    	  .addComponent(horizontalLineBottom)
+    	  .addGroup(layout.createSequentialGroup()
+    			  .addGroup(layout.createParallelGroup()
+    					  .addComponent(addServiceLabel)
+    					  .addComponent(updateServiceLabel)
+    					  .addComponent(updateServiceList)
+    					  .addComponent(deleteServiceLabel)
+    					  .addComponent(deleteServiceList)
+    					  )
+    			  )
+    	  		.addGroup(layout.createParallelGroup()
+    	  				.addComponent(addServiceNameLabel)
+    	  				.addComponent(updateServiceNameLabel)
+    	  				)
+    	  		.addGroup(layout.createParallelGroup()
+    	  				.addComponent(addServiceNameTextField)
+    	  				.addComponent(updateServiceNameTextField)
+    	  				)
+    	  		.addGroup(layout.createParallelGroup()
+    	  				.addComponent(addServiceDurationLabel)
+    	  				.addComponent(updateServiceDurationLabel)
+    	  				)
+    	  		.addGroup(layout.createParallelGroup()
+    	  				.addComponent(addServiceDurationTextField)
+    	  				.addComponent(updateServiceDurationTextField)
+    	  				)
+    	  		.addGroup(layout.createParallelGroup()
+    	  				.addComponent(addServiceDownTimeLabel)
+    	  				.addComponent(updateServiceDownTimeLabel)
+    	  				)
+    	  		.addGroup(layout.createParallelGroup()
+    	  				.addComponent(addServiceDownTimeTextField)
+    	  				.addComponent(updateServiceDownTimeTextField)
+    	  				)
+    	  		.addGroup(layout.createParallelGroup()
+    	  				.addComponent(addServiceDTDurationLabel)
+    	  				.addComponent(updateServiceDTDurationLabel)
+    	  				)
+    	  		.addGroup(layout.createParallelGroup()
+    	  				.addComponent(addServiceDTDurationTextField)
+    	  				.addComponent(updateServiceDTDurationTextField)
+    	  				)
+    	  		.addGroup(layout.createParallelGroup()
+    	  				.addComponent(addServiceButton)
+    	  				.addComponent(updateServiceButton)
+    	  				.addComponent(deleteServiceButton)
+    	  				)
     );
     
     
@@ -166,10 +208,47 @@ public class ServicesPage extends JFrame {
     layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {addServiceButton, addServiceNameTextField});
     
     layout.setVerticalGroup(
-      layout.createParallelGroup()
-        .addGroup(layout.createSequentialGroup()
-        .addComponent(serviceLabel)
-      )
+	      layout.createSequentialGroup()
+	      .addGroup(layout.createParallelGroup()
+				.addComponent(addServiceLabel)
+				.addComponent(addServiceNameLabel)
+				.addComponent(addServiceNameTextField)
+				.addComponent(addServiceDurationLabel)
+				.addComponent(addServiceDurationTextField)
+				.addComponent(addServiceDownTimeLabel)
+				.addComponent(addServiceDownTimeTextField)
+				.addComponent(addServiceDTDurationLabel)  
+				.addComponent(addServiceDTDurationTextField)
+				)
+	      .addComponent(addServiceButton)
+	      .addGroup(layout.createParallelGroup()
+	    		.addComponent(horizontalLineTop) 
+	    		)
+	      .addGroup(layout.createParallelGroup()
+	    		.addComponent(updateServiceLabel)
+	  			.addComponent(updateServiceNameLabel)
+	  			.addComponent(updateServiceNameTextField)
+	  			.addComponent(updateServiceDurationLabel)
+	  			.addComponent(updateServiceDurationTextField)
+	  			.addComponent(updateServiceDownTimeLabel)
+	  			.addComponent(updateServiceDownTimeTextField)
+	  			.addComponent(updateServiceDTDurationLabel)  
+	  			.addComponent(updateServiceDTDurationTextField)
+	    		)
+	     .addGroup(layout.createParallelGroup()
+	    		 .addComponent(updateServiceList)
+	    		 .addComponent(updateServiceButton)
+	    		 )
+	     .addGroup(layout.createParallelGroup()
+	    		.addComponent(horizontalLineBottom)
+	    		)
+	     .addGroup(layout.createParallelGroup()
+	    		.addComponent(deleteServiceLabel)
+	    		)
+		.addGroup(layout.createParallelGroup()
+				.addComponent(deleteServiceList)
+				.addComponent(deleteServiceButton)	
+	  	    )
     );
     pack();
   }

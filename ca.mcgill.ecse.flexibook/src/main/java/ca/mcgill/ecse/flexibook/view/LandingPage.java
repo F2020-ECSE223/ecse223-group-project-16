@@ -1,6 +1,8 @@
 package ca.mcgill.ecse.flexibook.view;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -21,6 +23,7 @@ public class LandingPage extends JFrame {
 	private JLabel welcomeLabel;
 	private JButton goToSignUpButton;
 	private JButton goToLoginButton;
+	private JButton launcherButton;
 	
 	public LandingPage() {
 		initComponents();
@@ -28,12 +31,13 @@ public class LandingPage extends JFrame {
 	}
 	
 	private void initComponents() {
-		welcomeLabel = new JLabel("Welcome to FlexiBook.");
+		welcomeLabel = new JLabel("Welcome to FlexiBook");
 		welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(32.0f));
 		// set thick width border
 		goToSignUpButton = new JButton("Sign Up");
 		goToLoginButton = new JButton("Login");
 		
+		launcherButton = new JButton("Launch Page (debug)");
 		
 		// global settings
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -52,31 +56,40 @@ public class LandingPage extends JFrame {
 		    	  Utils.switchToFrame(that, new LoginPage());
 		      }
 		    });
+		launcherButton.addActionListener(new java.awt.event.ActionListener() {
+		      public void actionPerformed(java.awt.event.ActionEvent evt) {
+		    	  Utils.switchToFrame(that, new FlexiBookPage());
+		      }
+		    });
 		
 		// layout
 		JPanel contents = new JPanel(true);
 		contents.setLayout(new BoxLayout(contents, BoxLayout.Y_AXIS));
-		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
 
 		contents.add(welcomeLabel);
 		contents.add(Box.createVerticalStrut(25));
 		contents.add(goToSignUpButton);
 		contents.add(goToLoginButton);
+
 		
 		welcomeLabel.setAlignmentX(CENTER_ALIGNMENT);
 		goToSignUpButton.setAlignmentX(CENTER_ALIGNMENT);
 		goToLoginButton.setAlignmentX(CENTER_ALIGNMENT);
 		
-		contents.setAlignmentY(CENTER_ALIGNMENT);
+		contents.setAlignmentX(CENTER_ALIGNMENT);
 		
-		add(Box.createHorizontalGlue());
-		add(contents);
-		add(Box.createHorizontalGlue());
+
+		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+		
+		getContentPane().add(Box.createVerticalGlue());
+		getContentPane().add(contents);
+		getContentPane().add(Box.createVerticalGlue());
+		getContentPane().add(launcherButton);
+		launcherButton.setAlignmentX(CENTER_ALIGNMENT);
 		
 		setLocationRelativeTo(null);
 		setMinimumSize(new Dimension(600, 400));
 		
-		contents.setPreferredSize(getMinimumSize());
 		pack();
 		
 		getRootPane().setDefaultButton(goToLoginButton); // Enter key wired to signUpButton

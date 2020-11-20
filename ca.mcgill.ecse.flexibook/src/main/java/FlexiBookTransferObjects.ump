@@ -1,5 +1,10 @@
 namespace ca.mcgill.ecse.flexibook.controller;
 
+class TOUser {
+	String username;
+	String password;
+}
+
 class TOBusiness {
 	String name;
 	String address;
@@ -14,6 +19,9 @@ class TOBookableService {
 
 class TOService {
 	isA TOBookableService;
+	int duration;
+	int downtimeDuration;
+	int downtimeStart;
 }
 
 class TOServiceCombo {

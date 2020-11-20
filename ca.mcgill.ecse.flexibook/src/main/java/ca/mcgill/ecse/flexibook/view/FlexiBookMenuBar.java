@@ -1,30 +1,24 @@
 package ca.mcgill.ecse.flexibook.view;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
 
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
-import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOUser;
-import ca.mcgill.ecse.flexibook.model.User;
 
 @SuppressWarnings("serial")
 public class FlexiBookMenuBar extends JMenuBar {
 	// constants
 	private static final int USERNAME_CUTOFF = 15;
 	
+	// UI elements
 	// navigation
 	private JMenu navigationMenu;
 	private JMenuItem goToHomeMenuItem;
@@ -39,17 +33,17 @@ public class FlexiBookMenuBar extends JMenuBar {
 	private JMenuItem goToAccountSettingsMenuItem;
 
 	// data elements
-	private JFrame parent;
-	private static String activePageName;
-	private static Map<String, JMenuItem> navigationMenuItemsByPageName = new LinkedHashMap<String, JMenuItem>();
+	private JFrame parentFrame;
+	private String activePageName;
+	private Map<String, JMenuItem> navigationMenuItemsByPageName = new LinkedHashMap<String, JMenuItem>();
 
 	public FlexiBookMenuBar(JFrame parent) {
 		initComponents();
 		refreshData();
 	}
 
-	public FlexiBookMenuBar(JFrame parent, String currentPageName) {
-		this.parent = parent;
+	public FlexiBookMenuBar(JFrame parentFrame, String currentPageName) {
+		this.parentFrame = parentFrame;
 		activePageName = currentPageName;
 		initComponents();
 		refreshData();
@@ -83,13 +77,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 		// account menu
 		TOUser currentUser = FlexiBookController.getCurrentUser();
 		if (currentUser == null) {
-			try {
-				FlexiBookController.createCustomerAccount("myCustUName12345678", "myCustPass");
-				FlexiBookController.login("myCustUName12345678", "myCustPass");
-			} catch (InvalidInputException e) {
-				e.printStackTrace();
-			}
-//			throw new IllegalStateException("Current user cannot be null");
+			throw new IllegalStateException("Current user cannot be null");
 		}
 		currentUser = FlexiBookController.getCurrentUser();
 		String username = currentUser.getUsername();
@@ -110,46 +98,43 @@ public class FlexiBookMenuBar extends JMenuBar {
 		// navigation menu items
 		goToHomeMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Utils.switchToFrame(parent, new LandingPage());
+				Utils.switchToFrame(parentFrame, new LandingPage());
 			}
 		});
 		goToBusinessInfoMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Utils.switchToFrame(parent, new BusinessInfoPage());
+				Utils.switchToFrame(parentFrame, new BusinessInfoPage());
 			}
 		});
 		goToServicesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Utils.switchToFrame(parent, new ServicesPage());
+				Utils.switchToFrame(parentFrame, new ServicesPage());
 			}
 		});
 		goToAppointmentsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Utils.switchToFrame(parent, new AppointmentsPage());
+				Utils.switchToFrame(parentFrame, new AppointmentsPage());
 			}
 		});
 		goToViewCalendarMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Utils.switchToFrame(parent, new ViewCalendarPage());
+				Utils.switchToFrame(parentFrame, new ViewCalendarPage());
 			}
 		});
 		refreshMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				clickMenuItemByName(activePageName);
-				parent.dispose();
+				parentFrame.dispose();
 			}
 		});
-		
 		// account menu
 		accountMenu.addMenuListener(new javax.swing.event.MenuListener() {
 			@Override
 			public void menuSelected(javax.swing.event.MenuEvent e) {
-				System.out.println("selectted");
 				accountMenu.setText(toggleCaret(accountMenu.getText()));
 			}
 			@Override
 	        public void menuCanceled(javax.swing.event.MenuEvent e) {
-				System.out.println("canceld");
 				toggleCaret(accountMenu.getText());
 	        }
 			@Override
@@ -162,12 +147,13 @@ public class FlexiBookMenuBar extends JMenuBar {
 		logoutMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				logout();
+				Utils.switchToFrame(parentFrame, new LandingPage());
 			}
 		});
 		goToAccountSettingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				parent.setEnabled(false);
-				Utils.goToFrame(parent, new AccountSettingsPage(), true);
+				parentFrame.setEnabled(false);
+				Utils.goToFrame(parentFrame, new AccountSettingsPage(), true);
 			}
 		});
 		
@@ -185,7 +171,8 @@ public class FlexiBookMenuBar extends JMenuBar {
 	private void setActivePage(String targetPageName) {
 		JMenuItem activePageMenuItem = navigationMenuItemsByPageName.get(activePageName);		
 		if (activePageMenuItem != null) {
-			activePageMenuItem.setSelected(false);
+//			activePageMenuItem.setBackground(UIManager.getColor("MenuItem.background"));
+//			activePageMenuItem.setOpaque(false);
 			activePageMenuItem.setEnabled(true);
 		}
 
@@ -197,7 +184,8 @@ public class FlexiBookMenuBar extends JMenuBar {
 				throw new IllegalArgumentException("Page with name '" + targetPageName + "' was not found.");
 			}
 		}
-		targetPageMenuItem.setSelected(true);
+//		targetPageMenuItem.setOpaque(true);
+//		targetPageMenuItem.setBackground(Color.CYAN);
 		targetPageMenuItem.setEnabled(false);
 		activePageName = targetPageName;
 	}
@@ -223,9 +211,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 	}
 	
 	private void logout() {
-		clickMenuItemByName("Home");
-		
-		System.out.println("logging out");
+		// do logout
 	}
 	
 	private String toggleCaret(String text) { 

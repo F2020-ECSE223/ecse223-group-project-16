@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.time.LocalTime;
+import java.util.UUID;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -18,7 +19,11 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
+import java.nio.ByteBuffer;
+
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
+import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
+import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 
 @SuppressWarnings("serial")
 public class LandingPage extends JFrame {
@@ -28,8 +33,9 @@ public class LandingPage extends JFrame {
 	private JButton goToSignUpButton;
 	private JButton goToLoginButton;
 	private JLabel debugSectionHeader;
-	private JLabel debugInfo;
 	private JButton debugLauncherButton;
+	private JLabel debugInfo;
+	private JLabel debugCurrentMockUser;
 	
 	public LandingPage() {
 		initComponents();
@@ -46,7 +52,8 @@ public class LandingPage extends JFrame {
 		if (DEBUG_MODE) {
 			debugSectionHeader = new JLabel("Debug");
 			debugLauncherButton = new JButton("Launch Page");
-			debugInfo = new JLabel("<html>Opened at: " + LocalTime.now() + "<br/>Loaded from persistence: " + FlexiBookApplication.LOAD_PERSISTENCE + "</html>");
+			debugInfo = new JLabel("Opened at: " + LocalTime.now() + " – Loaded from persistence: " + FlexiBookApplication.LOAD_PERSISTENCE);
+			debugCurrentMockUser = new JLabel();
 		}
 		
 		// global settings
@@ -100,9 +107,11 @@ public class LandingPage extends JFrame {
 			getContentPane().add(debugSectionHeader);
 			getContentPane().add(debugLauncherButton);
 			getContentPane().add(debugInfo);
+			getContentPane().add(debugCurrentMockUser);
 			debugSectionHeader.setAlignmentX(CENTER_ALIGNMENT);
 			debugLauncherButton.setAlignmentX(CENTER_ALIGNMENT);
 			debugInfo.setAlignmentX(CENTER_ALIGNMENT);
+			debugCurrentMockUser.setAlignmentX(CENTER_ALIGNMENT);
 		}
 		
 		setLocationRelativeTo(null);
@@ -118,7 +127,17 @@ public class LandingPage extends JFrame {
 	}
 	
 	private void refreshData() {
-		
+		if (DEBUG_MODE) {
+			String username = Long.toString(ByteBuffer.wrap(UUID.randomUUID().toString().getBytes()).getLong(),  Character.MAX_RADIX); // shorrt UUID
+			try {
+				FlexiBookController.createCustomerAccount(username, "debugPassword");
+				FlexiBookController.login(username,  "debugPassword");
+				debugCurrentMockUser.setText("Current user: '" + username + "' / 'debugPassword'");
+			} catch (InvalidInputException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	// Login or Sign Up; that's it.
 }

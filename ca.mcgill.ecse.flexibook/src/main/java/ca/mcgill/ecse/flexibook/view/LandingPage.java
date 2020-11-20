@@ -128,7 +128,7 @@ public class LandingPage extends JFrame {
 	
 	private void refreshData() {
 		if (DEBUG_MODE) {
-			String username = Long.toString(ByteBuffer.wrap(UUID.randomUUID().toString().getBytes()).getLong(),  Character.MAX_RADIX); // shorrt UUID
+			String username = Long.toString(ByteBuffer.wrap(UUID.randomUUID().toString().getBytes()).getLong(),  Character.MAX_RADIX); // short UUID
 			try {
 				FlexiBookController.createCustomerAccount(username, "debugPassword");
 				FlexiBookController.login(username,  "debugPassword");

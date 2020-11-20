@@ -100,11 +100,11 @@ public class AppointmentsPage extends JFrame {
     cancelAppointmentLabel.setText("Cancel Appointment");
 
     makeStartDateLabel = new JLabel();
-    makeStartDateLabel.setText("Appointment start date");
+    makeStartDateLabel.setText("Appointment start date (yyyy-mm-dd)");
     makeStartDateTextField = new JTextField();
 
     makeStartTimeLabel = new JLabel();
-    makeStartTimeLabel.setText("Appointment start time");
+    makeStartTimeLabel.setText("Appointment start time (hh-mm)");
     makeStartTimeTextField = new JTextField();
 
     makeServiceToBookLabel = new JLabel();
@@ -120,11 +120,11 @@ public class AppointmentsPage extends JFrame {
     updateAppointmentListLabel.setText("List of appointments");
 
     updateStartDateLabel = new JLabel();
-    updateStartDateLabel.setText("New Appointment start date");
+    updateStartDateLabel.setText("New Appointment start date (yyyy-mm-dd)");
     updateStartDateTextField = new JTextField();
 
     updateStartTimeLabel = new JLabel();
-    updateStartTimeLabel.setText("New Appointment start time");
+    updateStartTimeLabel.setText("New Appointment start time (hh-mm)");
     updateStartTimeTextField = new JTextField();
 
     cancelAppointmentButton = new JButton();

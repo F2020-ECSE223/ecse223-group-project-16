@@ -1,22 +1,15 @@
 package ca.mcgill.ecse.flexibook.view;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
 import java.time.LocalTime;
 import java.util.UUID;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
 import java.nio.ByteBuffer;
@@ -36,51 +29,52 @@ public class LandingPage extends JFrame {
 	private JButton debugLauncherButton;
 	private JLabel debugInfo;
 	private JLabel debugCurrentMockUser;
-	
+
 	public LandingPage() {
 		initComponents();
 		refreshData();
 	}
-	
+
 	private void initComponents() {
 		welcomeLabel = new JLabel("Welcome to FlexiBook");
 		welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(32.0f));
 		// set thick width border
 		goToSignUpButton = new JButton("Sign Up");
 		goToLoginButton = new JButton("Login");
-		
+
 		if (DEBUG_MODE) {
 			debugSectionHeader = new JLabel("Debug");
 			debugLauncherButton = new JButton("Launch Page");
-			debugInfo = new JLabel("Opened at: " + LocalTime.now() + " – Loaded from persistence: " + FlexiBookApplication.LOAD_PERSISTENCE);
+			debugInfo = new JLabel("Opened at: " + LocalTime.now() + " – Loaded from persistence: "
+					+ FlexiBookApplication.LOAD_PERSISTENCE);
 			debugCurrentMockUser = new JLabel();
 		}
-		
+
 		// global settings
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setTitle("FlexiBook");
-		
+
 		// listeners
 		final JFrame that = this;
 		goToSignUpButton.addActionListener(new java.awt.event.ActionListener() {
-		      public void actionPerformed(java.awt.event.ActionEvent evt) {
-		        Utils.switchToFrame(that, new SignUpPage());
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				Utils.switchToFrame(that, new SignUpPage());
 
-		      }
-		    });
+			}
+		});
 		goToLoginButton.addActionListener(new java.awt.event.ActionListener() {
-		      public void actionPerformed(java.awt.event.ActionEvent evt) {
-		    	  Utils.switchToFrame(that, new LoginPage());
-		      }
-		    });
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				Utils.switchToFrame(that, new LoginPage());
+			}
+		});
 		if (DEBUG_MODE) {
 			debugLauncherButton.addActionListener(new java.awt.event.ActionListener() {
-			      public void actionPerformed(java.awt.event.ActionEvent evt) {
-			    	  Utils.switchToFrame(that, new FlexiBookPage());
-			      }
-			    });
+				public void actionPerformed(java.awt.event.ActionEvent evt) {
+					Utils.switchToFrame(that, new FlexiBookPage());
+				}
+			});
 		}
-			
+
 		// layout
 		JPanel contents = new JPanel(true);
 		contents.setLayout(new BoxLayout(contents, BoxLayout.Y_AXIS));
@@ -90,16 +84,14 @@ public class LandingPage extends JFrame {
 		contents.add(goToSignUpButton);
 		contents.add(goToLoginButton);
 
-		
 		welcomeLabel.setAlignmentX(CENTER_ALIGNMENT);
 		goToSignUpButton.setAlignmentX(CENTER_ALIGNMENT);
 		goToLoginButton.setAlignmentX(CENTER_ALIGNMENT);
-		
+
 		contents.setAlignmentX(CENTER_ALIGNMENT);
-		
 
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-		
+
 		getContentPane().add(Box.createVerticalGlue());
 		getContentPane().add(contents);
 		getContentPane().add(Box.createVerticalGlue());
@@ -113,31 +105,31 @@ public class LandingPage extends JFrame {
 			debugInfo.setAlignmentX(CENTER_ALIGNMENT);
 			debugCurrentMockUser.setAlignmentX(CENTER_ALIGNMENT);
 		}
-		
+
 		setLocationRelativeTo(null);
 		setMinimumSize(new Dimension(600, 400));
-		
+
 		pack();
-		
+
 		if (DEBUG_MODE) {
 			getRootPane().setDefaultButton(debugLauncherButton);
 		} else {
 			getRootPane().setDefaultButton(goToLoginButton); // Enter key wired to signUpButton
 		}
 	}
-	
+
 	private void refreshData() {
 		if (DEBUG_MODE) {
-			String username = Long.toString(ByteBuffer.wrap(UUID.randomUUID().toString().getBytes()).getLong(),  Character.MAX_RADIX); // short UUID
+			String username = Long.toString(ByteBuffer.wrap(UUID.randomUUID().toString().getBytes()).getLong(),
+					Character.MAX_RADIX); // short UUID
 			try {
 				FlexiBookController.createCustomerAccount(username, "debugPassword");
-				FlexiBookController.login(username,  "debugPassword");
+				FlexiBookController.login(username, "debugPassword");
 				debugCurrentMockUser.setText("Current user: '" + username + "' / 'debugPassword'");
 			} catch (InvalidInputException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				System.err.println("Failed to create and login to debug user");
 			}
 		}
 	}
-	// Login or Sign Up; that's it.
 }

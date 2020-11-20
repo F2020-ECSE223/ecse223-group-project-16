@@ -17,7 +17,7 @@ import ca.mcgill.ecse.flexibook.controller.TOUser;
 public class FlexiBookMenuBar extends JMenuBar {
 	// constants
 	private static final int USERNAME_CUTOFF = 15;
-	
+
 	// UI elements
 	// navigation
 	private JMenu navigationMenu;
@@ -51,7 +51,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 
 	private void initComponents() {
 		navigationMenu = new JMenu("FlexiBook");
-		
+
 		// navigation menu
 		goToHomeMenuItem = new JMenuItem("Home");
 		goToBusinessInfoMenuItem = new JMenuItem("Business Info");
@@ -60,20 +60,20 @@ public class FlexiBookMenuBar extends JMenuBar {
 		goToViewCalendarMenuItem = new JMenuItem("View Calendar");
 //		helpMenuItem = new JMenuItem("Help", UIManager.getIcon("OptionPane.questionIcon"));
 		refreshMenuItem = new JMenuItem("Refresh");
-		
+
 		navigationMenuItemsByPageName.put("Home", goToHomeMenuItem);
 		navigationMenuItemsByPageName.put("Business Info", goToBusinessInfoMenuItem);
 		navigationMenuItemsByPageName.put("View Calendar", goToViewCalendarMenuItem);
 		navigationMenuItemsByPageName.put("Services", new JMenuItem("Services"));
 		navigationMenuItemsByPageName.put("Appointments", new JMenuItem("Appointments"));
-		
+
 		for (Map.Entry<String, JMenuItem> entry : navigationMenuItemsByPageName.entrySet()) {
 			navigationMenu.add(entry.getValue());
 		}
 		navigationMenu.addSeparator();
 		navigationMenu.add(refreshMenuItem);
 //		navigationMenu.add(helpMenuItem);
-		
+
 		// account menu
 		TOUser currentUser = FlexiBookController.getCurrentUser();
 		if (currentUser == null) {
@@ -87,7 +87,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 		}
 		usernamePreview += "  ▼";
 		accountMenu = new JMenu(usernamePreview);
-		
+
 		logoutMenuItem = new JMenuItem("Logout");
 		goToAccountSettingsMenuItem = new JMenuItem("Account Settings");
 		accountMenu.add(logoutMenuItem);
@@ -133,14 +133,16 @@ public class FlexiBookMenuBar extends JMenuBar {
 			public void menuSelected(javax.swing.event.MenuEvent e) {
 				accountMenu.setText(toggleCaret(accountMenu.getText()));
 			}
+
 			@Override
-	        public void menuCanceled(javax.swing.event.MenuEvent e) {
+			public void menuCanceled(javax.swing.event.MenuEvent e) {
 				toggleCaret(accountMenu.getText());
-	        }
+			}
+
 			@Override
 			public void menuDeselected(MenuEvent e) {
 				accountMenu.setText(toggleCaret(accountMenu.getText()));
-				
+
 			}
 		});
 		// account menu items
@@ -156,7 +158,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 				Utils.goToFrame(parentFrame, new AccountSettingsPage(), true);
 			}
 		});
-		
+
 		add(navigationMenu);
 		add(Box.createHorizontalGlue()); // make account menu right-aligned
 		add(accountMenu);
@@ -169,7 +171,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 	}
 
 	private void setActivePage(String targetPageName) {
-		JMenuItem activePageMenuItem = navigationMenuItemsByPageName.get(activePageName);		
+		JMenuItem activePageMenuItem = navigationMenuItemsByPageName.get(activePageName);
 		if (activePageMenuItem != null) {
 //			activePageMenuItem.setBackground(UIManager.getColor("MenuItem.background"));
 //			activePageMenuItem.setOpaque(false);
@@ -196,7 +198,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 			throw new IllegalArgumentException("Target page name cannot be null");
 		}
 		setActivePage(targetPageName); // just in case
-		
+
 		JMenuItem targetPageMenuItem = navigationMenuItemsByPageName.get(targetPageName);
 		if (targetPageMenuItem == null) {
 			if (targetPageName.equals("Account Settings")) {
@@ -209,14 +211,14 @@ public class FlexiBookMenuBar extends JMenuBar {
 		targetPageMenuItem.doClick();
 		targetPageMenuItem.setEnabled(false);
 	}
-	
+
 	private void logout() {
 		// do logout
 	}
-	
-	private String toggleCaret(String text) { 
+
+	private String toggleCaret(String text) {
 		char caretChar = '▲';
-		
+
 		if (text.charAt(text.length() - 1) == '▲') {
 			caretChar = '▼';
 		}

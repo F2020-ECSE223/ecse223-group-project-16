@@ -17,24 +17,22 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
-import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOUser;
 
-
 @SuppressWarnings("serial")
 public class AccountSettingsPage extends JFrame {
 	private static final int TEXT_FIELD_WIDTH = 300;
-	
+
 	private void resizeTextField(JTextField textField) {
 		Dimension textFieldDimension = new Dimension(TEXT_FIELD_WIDTH, textField.getPreferredSize().height);
 		textField.setPreferredSize(textFieldDimension);
 //		textField.setMaximumSize(textFieldDimension);
 	}
-	
+
 	// UI elements
 	// edit
 	private JPanel editPanel;
@@ -52,15 +50,15 @@ public class AccountSettingsPage extends JFrame {
 	private JButton editButton;
 	private JButton confirmEditButton;
 	private JButton cancelEditButton;
-	
+
 	// delete
 	private JPanel deletePanel;
 	private JButton deleteButton;
-	
+
 	// data elements
 	private boolean isCurrentUserOwner;
 	private String editErrorMessage = "";
-	
+
 	public AccountSettingsPage() {
 		TOUser currentUser = FlexiBookController.getCurrentUser();
 		isCurrentUserOwner = currentUser != null && currentUser.getUsername().equals("owner");
@@ -68,24 +66,24 @@ public class AccountSettingsPage extends JFrame {
 		initComponents();
 		refreshData();
 	}
-	
+
 	private void initComponents() {
 		// UI elements
 		// edit
 		// error
-	    editErrorMessageTextArea = new JTextArea();
-	    editErrorMessageTextArea.setForeground(Color.RED);
-	    editErrorMessageTextArea.setWrapStyleWord(true);
-	    // mimic a JLabel
-	    editErrorMessageTextArea.setLineWrap(true);
-	    editErrorMessageTextArea.setOpaque(false);
-	    editErrorMessageTextArea.setEditable(false);
+		editErrorMessageTextArea = new JTextArea();
+		editErrorMessageTextArea.setForeground(Color.RED);
+		editErrorMessageTextArea.setWrapStyleWord(true);
+		// mimic a JLabel
+		editErrorMessageTextArea.setLineWrap(true);
+		editErrorMessageTextArea.setOpaque(false);
+		editErrorMessageTextArea.setEditable(false);
 //	    editErrorMessageTextArea.setFocusable(false);
-	    editErrorMessageTextArea.setBackground(UIManager.getColor("Label.background"));
-	    editErrorMessageTextArea.setFont(UIManager.getFont("Label.font"));
-	    editErrorMessageTextArea.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
-	    // username
-	    TOUser currentUser = FlexiBookController.getCurrentUser();
+		editErrorMessageTextArea.setBackground(UIManager.getColor("Label.background"));
+		editErrorMessageTextArea.setFont(UIManager.getFont("Label.font"));
+		editErrorMessageTextArea.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+		// username
+		TOUser currentUser = FlexiBookController.getCurrentUser();
 		usernameLabel = new JLabel("Username");
 		usernameTextField = new JTextField(currentUser == null ? "" : currentUser.getUsername());
 		resizeTextField(usernameTextField);
@@ -105,45 +103,46 @@ public class AccountSettingsPage extends JFrame {
 		// delete
 		// controls
 		deleteButton = new JButton("Delete");
-		
-		deleteButton.setPreferredSize(new Dimension(deleteButton.getPreferredSize().width * 2, deleteButton.getPreferredSize().height));
-		
+
+		deleteButton.setPreferredSize(
+				new Dimension(deleteButton.getPreferredSize().width * 2, deleteButton.getPreferredSize().height));
+
 		// global settings
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setTitle("Account Settings");
-		
+
 		// listeners
 		passwordVisibilityButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent event) {
 				passwordVisibilityButtonActionPerformed(event);
 			}
 		});
-		
+
 		editButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent event) {
 				editButtonActionPerformed(event);
 			}
 		});
-		
+
 		cancelEditButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent event) {
 				cancelEditButtonActionPerformed(event);
 			}
 		});
-		
+
 		confirmEditButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent event) {
 				confirmEditButtonActionPerformed(event);
 			}
 		});
-		
+
 		deleteButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent event) {
 				deleteButtonActionPerformed(event);
 			}
 		});
-		
-		//@formatter:off
+
+		// @formatter:off
 		// layout
 		// edit panel
 		editPanel = new JPanel(true);
@@ -250,22 +249,23 @@ public class AccountSettingsPage extends JFrame {
 			add(editPanel);
 		}
 		
-		//@formatter:on
+		// @formatter:on
 		setJMenuBar(new FlexiBookMenuBar(this, "Account Settings"));
 		pack();
 		setVisible(true);
 	}
-	
+
 	private void refreshData() {
 		editErrorMessageTextArea.setText(editErrorMessage);
 		if (editErrorMessage == null || editErrorMessage.trim().length() == 0) {
 			// populate
 		}
 
-		// this is needed because the size of the window changes depending on whether an error message is shown or not
+		// this is needed because the size of the window changes depending on whether an
+		// error message is shown or not
 		pack();
 	}
-	
+
 	private void passwordVisibilityButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		if (passwordVisibilityButton.getText().equals("Show")) {
 			passwordVisibilityButton.setText("Hide");
@@ -275,7 +275,7 @@ public class AccountSettingsPage extends JFrame {
 			passwordField.setEchoChar('*');
 		}
 	}
-	
+
 	private void editButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		editControlsPanel.remove(editButton);
 		editControlsPanel.add(cancelEditButton);
@@ -285,7 +285,7 @@ public class AccountSettingsPage extends JFrame {
 		passwordField.setEditable(true);
 		pack();
 	}
-	
+
 	private void finishEditing() {
 		editControlsPanel.remove(cancelEditButton);
 		editControlsPanel.remove(confirmEditButton);
@@ -295,17 +295,18 @@ public class AccountSettingsPage extends JFrame {
 		passwordField.setEditable(false);
 		pack();
 	}
-	
+
 	private void cancelEditButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		finishEditing();
 		// clear error message
 		editErrorMessage = "";
 		refreshData();
 	}
-	
+
 	private void confirmEditButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-			FlexiBookController.updateUserAccount(usernameTextField.getText(), String.valueOf(passwordField.getPassword()));
+			FlexiBookController.updateUserAccount(usernameTextField.getText(),
+					String.valueOf(passwordField.getPassword()));
 			finishEditing();
 			// clear error message
 			editErrorMessage = "";
@@ -315,18 +316,19 @@ public class AccountSettingsPage extends JFrame {
 			refreshData();
 		}
 	}
-	
+
 	private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 			String[] options = { "Yes", "Cancel" };
-			int chosenOption = JOptionPane.showOptionDialog(this, "Delete this account? This action is final and cannot be undone.", "Are you sure?", 
-					JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, 
-					null, options, options[0]);
+			int chosenOption = JOptionPane.showOptionDialog(this,
+					"Delete this account? This action is final and cannot be undone.", "Are you sure?",
+					JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
 			if (chosenOption == 0) {
 				if (FlexiBookController.getCurrentUser() != null) {
 					FlexiBookController.deleteCustomerAccount(FlexiBookController.getCurrentUser().getUsername());
-				} else { 
-					JOptionPane.showMessageDialog(this, "There is no user currently no user logged in", "Error", JOptionPane.ERROR_MESSAGE); 
+				} else {
+					JOptionPane.showMessageDialog(this, "There is no user currently no user logged in", "Error",
+							JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		} catch (InvalidInputException e) {

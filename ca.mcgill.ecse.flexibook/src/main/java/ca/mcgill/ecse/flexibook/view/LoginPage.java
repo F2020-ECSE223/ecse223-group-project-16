@@ -18,53 +18,56 @@ public class LoginPage extends JFrame {
   private static final long serialVersionUID = 1307717424939065361L;
   
   // UI elements
-  private JLabel loginLabel;
-  private JLabel errorMessage;
+  private JLabel errorMessageLabel;
+  // username
   private JTextField userTextField;
   private JLabel userLabel;
+  // password
   private JPasswordField passTextField;
   private JLabel passLabel;
+  // login 
   private JButton loginButton;
   
   // Data elements
-  private String error = null;
+  private String errorMessage = null;
 
   public LoginPage() {
       initComponents();
   }
+  
+  public LoginPage(String username) {
+	  initComponents();
+	  userTextField.setText(username);
+  }
+  
   private void initComponents(){
-    loginLabel = new JLabel();
-    loginLabel.setText("Login Tab here");
-    
     // elements for error message
- 	errorMessage = new JLabel();
- 	errorMessage.setForeground(Color.RED);
+ 	errorMessageLabel = new JLabel();
+ 	errorMessageLabel.setForeground(Color.RED);
     
-    // username text field and label
+    // elements for username field
     userTextField = new JTextField();
     userLabel = new JLabel();
     userLabel.setText("Username");
     
-    // password text field and label
+    // elements for password field
     passTextField = new JPasswordField();
     passLabel = new JLabel();
     passLabel.setText("Password");
     
-    // login button
+    // elements for login button
     loginButton = new JButton();
     loginButton.setText("Login");
     
+    // action listeners
     loginButton.addActionListener(new java.awt.event.ActionListener() {
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
 			loginButtonActionPerformed(evt);
 		}
 	});
     
-    
-    
-
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    setTitle("Login Tab");
+    setTitle("Login Here");
 
     GroupLayout layout = new GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
@@ -72,38 +75,49 @@ public class LoginPage extends JFrame {
     layout.setAutoCreateContainerGaps(true);
     layout.setHorizontalGroup(
       layout.createSequentialGroup()
-      .addGroup(layout.createParallelGroup()
         .addGroup(layout.createSequentialGroup()
           .addGroup(layout.createParallelGroup()
-          .addComponent(loginLabel)
-          .addComponent(errorMessage)
+          .addComponent(userLabel)
+          .addComponent(passLabel))	  
+          .addGroup(layout.createParallelGroup()
+          .addComponent(errorMessageLabel)
           .addComponent(userTextField)
           .addComponent(passTextField)
-          .addComponent(userLabel)
-          .addComponent(passLabel)
-          .addComponent(loginButton)
-          )
+          .addComponent(loginButton))
         )
-      )
     );
     layout.setVerticalGroup(
-      layout.createParallelGroup()
+      layout.createParallelGroup() 
         .addGroup(layout.createSequentialGroup()
-        .addComponent(loginLabel)
-        .addComponent(errorMessage)
-        .addComponent(userTextField)
-        .addComponent(passTextField)
-        .addComponent(userLabel)
-        .addComponent(passLabel)
-        .addComponent(loginButton)
-      )
+          .addComponent(errorMessageLabel)
+          .addGroup(layout.createParallelGroup()
+        		.addComponent(userLabel)
+        		.addComponent(userTextField))
+          .addGroup(layout.createParallelGroup()
+        		.addComponent(passLabel)
+          		.addComponent(passTextField))
+          .addComponent(loginButton)
+       )
     );
     pack();
+    setResizable(true);
+  }
+  
+  private void refreshData() {
+	  errorMessageLabel.setText(errorMessage);
+	  
+	  if (errorMessage != null || errorMessage.length() == 0) {
+		  errorMessageLabel.setText(errorMessage);
+		  userTextField.setText("");
+		  passTextField.setText("");
+			
+		  pack();
+	  }
   }
   
   private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		// clear error message and basic input validation
-		error = null;
+		errorMessage = null;
 		
 		String username = userTextField.getText();
 		String password = String.valueOf(passTextField.getPassword());
@@ -113,14 +127,10 @@ public class LoginPage extends JFrame {
 			FlexiBookController.login(username, password);
 			dispose();
 		} catch (InvalidInputException e) {
-			error = e.getMessage();
-			
-			errorMessage.setText(error);
-			userTextField.setText("");
-			passTextField.setText("");
-			
-			pack();
-		} 
+			errorMessage = e.getMessage();
+		} finally {
+			refreshData();
+		}
   }
 	
 }

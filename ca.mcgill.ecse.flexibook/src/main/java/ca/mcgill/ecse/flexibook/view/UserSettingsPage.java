@@ -109,7 +109,7 @@ public class UserSettingsPage extends JFrame {
 		deleteButton.setPreferredSize(new Dimension(deleteButton.getPreferredSize().width * 2, deleteButton.getPreferredSize().height));
 		
 		// global settings
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setTitle("User Settings");
 		
 		// listeners

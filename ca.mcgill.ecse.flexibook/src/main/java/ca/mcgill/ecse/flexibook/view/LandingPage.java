@@ -3,6 +3,7 @@ package ca.mcgill.ecse.flexibook.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
+import java.time.LocalTime;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -17,13 +18,18 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
+import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
+
 @SuppressWarnings("serial")
 public class LandingPage extends JFrame {
+	private static final boolean DEBUG_MODE = true;
 
 	private JLabel welcomeLabel;
 	private JButton goToSignUpButton;
 	private JButton goToLoginButton;
-	private JButton launcherButton;
+	private JLabel debugSectionHeader;
+	private JLabel debugInfo;
+	private JButton debugLauncherButton;
 	
 	public LandingPage() {
 		initComponents();
@@ -37,7 +43,11 @@ public class LandingPage extends JFrame {
 		goToSignUpButton = new JButton("Sign Up");
 		goToLoginButton = new JButton("Login");
 		
-		launcherButton = new JButton("Launch Page (debug)");
+		if (DEBUG_MODE) {
+			debugSectionHeader = new JLabel("Debug");
+			debugLauncherButton = new JButton("Launch Page");
+			debugInfo = new JLabel("<html>Opened at: " + LocalTime.now() + "<br/>Loaded from persistence: " + FlexiBookApplication.LOAD_PERSISTENCE + "</html>");
+		}
 		
 		// global settings
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -56,7 +66,7 @@ public class LandingPage extends JFrame {
 		    	  Utils.switchToFrame(that, new LoginPage());
 		      }
 		    });
-		launcherButton.addActionListener(new java.awt.event.ActionListener() {
+		debugLauncherButton.addActionListener(new java.awt.event.ActionListener() {
 		      public void actionPerformed(java.awt.event.ActionEvent evt) {
 		    	  Utils.switchToFrame(that, new FlexiBookPage());
 		      }
@@ -84,8 +94,12 @@ public class LandingPage extends JFrame {
 		getContentPane().add(Box.createVerticalGlue());
 		getContentPane().add(contents);
 		getContentPane().add(Box.createVerticalGlue());
-		getContentPane().add(launcherButton);
-		launcherButton.setAlignmentX(CENTER_ALIGNMENT);
+		getContentPane().add(debugSectionHeader);
+		getContentPane().add(debugLauncherButton);
+		getContentPane().add(debugInfo);
+		debugSectionHeader.setAlignmentX(CENTER_ALIGNMENT);
+		debugLauncherButton.setAlignmentX(CENTER_ALIGNMENT);
+		debugInfo.setAlignmentX(CENTER_ALIGNMENT);
 		
 		setLocationRelativeTo(null);
 		setMinimumSize(new Dimension(600, 400));

@@ -11,6 +11,7 @@ import ca.mcgill.ecse.flexibook.view.LandingPage;
 
 
 public class FlexiBookApplication {
+	public static final boolean LOAD_PERSISTENCE = true;
 	private static FlexiBook flexiBook;
     private static User currentUser;
 	
@@ -29,7 +30,11 @@ public class FlexiBookApplication {
     
     public static FlexiBook getFlexiBook() {
     	if (flexiBook == null) {
-    		flexiBook = new FlexiBook(); // FlexiBookPersistence.load();
+    		if (LOAD_PERSISTENCE) {
+    			flexiBook = FlexiBookPersistence.load();
+    		} else {
+    			flexiBook = new FlexiBook();
+    		}
     	}
     	
     	return flexiBook;

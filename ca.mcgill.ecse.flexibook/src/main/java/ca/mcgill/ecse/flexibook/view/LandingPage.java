@@ -66,12 +66,14 @@ public class LandingPage extends JFrame {
 		    	  Utils.switchToFrame(that, new LoginPage());
 		      }
 		    });
-		debugLauncherButton.addActionListener(new java.awt.event.ActionListener() {
-		      public void actionPerformed(java.awt.event.ActionEvent evt) {
-		    	  Utils.switchToFrame(that, new FlexiBookPage());
-		      }
-		    });
-		
+		if (DEBUG_MODE) {
+			debugLauncherButton.addActionListener(new java.awt.event.ActionListener() {
+			      public void actionPerformed(java.awt.event.ActionEvent evt) {
+			    	  Utils.switchToFrame(that, new FlexiBookPage());
+			      }
+			    });
+		}
+			
 		// layout
 		JPanel contents = new JPanel(true);
 		contents.setLayout(new BoxLayout(contents, BoxLayout.Y_AXIS));
@@ -94,19 +96,25 @@ public class LandingPage extends JFrame {
 		getContentPane().add(Box.createVerticalGlue());
 		getContentPane().add(contents);
 		getContentPane().add(Box.createVerticalGlue());
-		getContentPane().add(debugSectionHeader);
-		getContentPane().add(debugLauncherButton);
-		getContentPane().add(debugInfo);
-		debugSectionHeader.setAlignmentX(CENTER_ALIGNMENT);
-		debugLauncherButton.setAlignmentX(CENTER_ALIGNMENT);
-		debugInfo.setAlignmentX(CENTER_ALIGNMENT);
+		if (DEBUG_MODE) {
+			getContentPane().add(debugSectionHeader);
+			getContentPane().add(debugLauncherButton);
+			getContentPane().add(debugInfo);
+			debugSectionHeader.setAlignmentX(CENTER_ALIGNMENT);
+			debugLauncherButton.setAlignmentX(CENTER_ALIGNMENT);
+			debugInfo.setAlignmentX(CENTER_ALIGNMENT);
+		}
 		
 		setLocationRelativeTo(null);
 		setMinimumSize(new Dimension(600, 400));
 		
 		pack();
 		
-		getRootPane().setDefaultButton(goToLoginButton); // Enter key wired to signUpButton
+		if (DEBUG_MODE) {
+			getRootPane().setDefaultButton(debugLauncherButton);
+		} else {
+			getRootPane().setDefaultButton(goToLoginButton); // Enter key wired to signUpButton
+		}
 	}
 	
 	private void refreshData() {

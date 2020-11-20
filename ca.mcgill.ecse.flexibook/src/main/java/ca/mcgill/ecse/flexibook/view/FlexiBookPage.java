@@ -9,6 +9,9 @@ import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 
 public class FlexiBookPage extends JFrame {
   private static final long serialVersionUID = -4739464810558524924L;
+  
+  
+  private JButton goToLandingPage;
   private JButton goToSignUp;
   private JButton goToLogin;
   private JButton goToServices;
@@ -23,6 +26,7 @@ public class FlexiBookPage extends JFrame {
   }
   
   private void initComponents() {
+	  goToLandingPage = new JButton("Back to Landing Page");
     goToSignUp = new JButton();
     goToSignUp.setText("Go to SignUP");
     goToLogin = new JButton();
@@ -40,6 +44,13 @@ public class FlexiBookPage extends JFrame {
     goToUserSettings = new JButton("User Settings");
     
     
+    JFrame that = this;
+    goToLandingPage.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            Utils.switchToFrame(that, new LandingPage());
+
+          }
+        });
     goToSignUp.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         new SignUpPage().setVisible(true);
@@ -94,6 +105,7 @@ public class FlexiBookPage extends JFrame {
       .addGroup(layout.createParallelGroup()
         .addGroup(layout.createSequentialGroup()
           .addGroup(layout.createParallelGroup()
+        	.addComponent(goToLandingPage)
             .addComponent(goToSignUp)
             .addComponent(goToLogin)
             .addComponent(goToServices)
@@ -109,6 +121,7 @@ public class FlexiBookPage extends JFrame {
     layout.setVerticalGroup(
       layout.createParallelGroup()
         .addGroup(layout.createSequentialGroup()
+        .addComponent(goToLandingPage)
         .addComponent(goToSignUp)
         .addComponent(goToLogin)
         .addComponent(goToServices)

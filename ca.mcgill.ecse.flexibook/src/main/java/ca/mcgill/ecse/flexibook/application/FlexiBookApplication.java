@@ -7,6 +7,7 @@ import ca.mcgill.ecse.flexibook.model.FlexiBook;
 import ca.mcgill.ecse.flexibook.model.User;
 import ca.mcgill.ecse.flexibook.persistence.FlexiBookPersistence;
 import ca.mcgill.ecse.flexibook.view.FlexiBookPage;
+import ca.mcgill.ecse.flexibook.view.LandingPage;
 
 
 public class FlexiBookApplication {
@@ -21,14 +22,14 @@ public class FlexiBookApplication {
         // System.out.println(new FlexiBookApplication().getGreeting());
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new FlexiBookPage().setVisible(true);
+                new LandingPage().setVisible(true);
             }
         });
     }
     
     public static FlexiBook getFlexiBook() {
     	if (flexiBook == null) {
-    		flexiBook = FlexiBookPersistence.load();
+    		flexiBook = new FlexiBook(); // FlexiBookPersistence.load();
     	}
     	
     	return flexiBook;

@@ -26,7 +26,7 @@ import ca.mcgill.ecse.flexibook.controller.TOUser;
 
 
 @SuppressWarnings("serial")
-public class UserSettingsPage extends JFrame {
+public class AccountSettingsPage extends JFrame {
 	private static final int TEXT_FIELD_WIDTH = 300;
 	
 	private void resizeTextField(JTextField textField) {
@@ -61,7 +61,7 @@ public class UserSettingsPage extends JFrame {
 	private boolean isCurrentUserOwner;
 	private String editErrorMessage = "";
 	
-	public UserSettingsPage() {
+	public AccountSettingsPage() {
 		TOUser currentUser = FlexiBookController.getCurrentUser();
 		isCurrentUserOwner = currentUser != null && currentUser.getUsername().equals("owner");
 //		isCurrentUserOwner = true; // debug
@@ -110,7 +110,7 @@ public class UserSettingsPage extends JFrame {
 		
 		// global settings
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setTitle("User Settings");
+		setTitle("Account Settings");
 		
 		// listeners
 		passwordVisibilityButton.addActionListener(new java.awt.event.ActionListener() {
@@ -251,6 +251,7 @@ public class UserSettingsPage extends JFrame {
 		}
 		
 		//@formatter:on
+		setJMenuBar(new FlexiBookMenuBar(this, "Account Settings"));
 		pack();
 		setVisible(true);
 	}

@@ -78,7 +78,7 @@ public class FlexiBookPage extends JFrame {
     });
     goToUserSettings.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
-        new UserSettingsPage().setVisible(true);
+        new AccountSettingsPage().setVisible(true);
       }
     });
 

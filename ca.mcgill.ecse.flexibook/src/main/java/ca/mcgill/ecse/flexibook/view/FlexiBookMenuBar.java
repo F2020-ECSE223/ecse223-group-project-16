@@ -173,8 +173,6 @@ public class FlexiBookMenuBar extends JMenuBar {
 	private void setActivePage(String targetPageName) {
 		JMenuItem activePageMenuItem = navigationMenuItemsByPageName.get(activePageName);
 		if (activePageMenuItem != null) {
-//			activePageMenuItem.setBackground(UIManager.getColor("MenuItem.background"));
-//			activePageMenuItem.setOpaque(false);
 			activePageMenuItem.setEnabled(true);
 		}
 
@@ -183,11 +181,10 @@ public class FlexiBookMenuBar extends JMenuBar {
 			if (targetPageName.equals("Account Settings")) {
 				targetPageMenuItem = goToAccountSettingsMenuItem;
 			} else {
-				throw new IllegalArgumentException("Page with name '" + targetPageName + "' was not found.");
+				throw new IllegalArgumentException("Page with name '" + targetPageName + "' is unknown.");
 			}
 		}
-//		targetPageMenuItem.setOpaque(true);
-//		targetPageMenuItem.setBackground(Color.CYAN);
+
 		targetPageMenuItem.setEnabled(false);
 		activePageName = targetPageName;
 	}
@@ -197,14 +194,14 @@ public class FlexiBookMenuBar extends JMenuBar {
 		if (targetPageName == null) {
 			throw new IllegalArgumentException("Target page name cannot be null");
 		}
-		setActivePage(targetPageName); // just in case
+		setActivePage(targetPageName);
 
 		JMenuItem targetPageMenuItem = navigationMenuItemsByPageName.get(targetPageName);
 		if (targetPageMenuItem == null) {
 			if (targetPageName.equals("Account Settings")) {
 				targetPageMenuItem = goToAccountSettingsMenuItem;
 			} else {
-				throw new IllegalStateException("There is no such target page");
+				throw new IllegalStateException("Page with name '" + targetPageName + "' is unknown.");
 			}
 		}
 		targetPageMenuItem.setEnabled(true);
@@ -217,11 +214,11 @@ public class FlexiBookMenuBar extends JMenuBar {
 	}
 
 	private String toggleCaret(String text) {
-		char caretChar = '▲';
+		char caret = '▲';
 
 		if (text.charAt(text.length() - 1) == '▲') {
-			caretChar = '▼';
+			caret = '▼';
 		}
-		return text.substring(0, text.length() - 1) + String.valueOf(caretChar);
+		return text.substring(0, text.length() - 1) + String.valueOf(caret);
 	}
 }

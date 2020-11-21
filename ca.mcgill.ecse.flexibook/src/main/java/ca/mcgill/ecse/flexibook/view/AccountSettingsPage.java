@@ -23,15 +23,11 @@ import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOUser;
 
-@SuppressWarnings("serial")
 public class AccountSettingsPage extends JFrame {
+	private static final long serialVersionUID = -6728136693297554057L;
+	
+	// constants
 	private static final int TEXT_FIELD_WIDTH = 300;
-
-	private void resizeTextField(JTextField textField) {
-		Dimension textFieldDimension = new Dimension(TEXT_FIELD_WIDTH, textField.getPreferredSize().height);
-		textField.setPreferredSize(textFieldDimension);
-//		textField.setMaximumSize(textFieldDimension);
-	}
 
 	// UI elements
 	// edit
@@ -78,7 +74,7 @@ public class AccountSettingsPage extends JFrame {
 		editErrorMessageTextArea.setLineWrap(true);
 		editErrorMessageTextArea.setOpaque(false);
 		editErrorMessageTextArea.setEditable(false);
-//	    editErrorMessageTextArea.setFocusable(false);
+	    editErrorMessageTextArea.setFocusable(false);
 		editErrorMessageTextArea.setBackground(UIManager.getColor("Label.background"));
 		editErrorMessageTextArea.setFont(UIManager.getFont("Label.font"));
 		editErrorMessageTextArea.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
@@ -86,13 +82,13 @@ public class AccountSettingsPage extends JFrame {
 		TOUser currentUser = FlexiBookController.getCurrentUser();
 		usernameLabel = new JLabel("Username");
 		usernameTextField = new JTextField(currentUser == null ? "" : currentUser.getUsername());
-		resizeTextField(usernameTextField);
+		Utils.resizeTextFieldToWidth(usernameTextField, TEXT_FIELD_WIDTH);
 		usernameTextField.setEditable(false);
 		// password
 		passwordLabel = new JLabel("Password");
 		passwordField = new JPasswordField(currentUser == null ? "" : currentUser.getPassword()); // placeholder
 		passwordField.setEditable(false);
-		resizeTextField(passwordField);
+		Utils.resizeTextFieldToWidth(passwordField, TEXT_FIELD_WIDTH);
 		passwordField.setEchoChar('*');
 		passwordVisibilityButton = new JButton("Show");
 		// controls
@@ -151,16 +147,13 @@ public class AccountSettingsPage extends JFrame {
 		editLayout.setAutoCreateContainerGaps(true);
 		editPanel.setLayout(editLayout);
 		editPanel.setBorder(
-//				BorderFactory.createCompoundBorder(
-//						 new EmptyBorder(10, 10, 10, 10),
-						BorderFactory.createCompoundBorder(
-								BorderFactory.createTitledBorder(
-										BorderFactory.createEtchedBorder(), 
-										"Update account"),
-								new EmptyBorder(5, 5, 5, 5) // inner padding
-								)
-//						)
-				);
+				BorderFactory.createCompoundBorder(
+						BorderFactory.createTitledBorder(
+							BorderFactory.createEtchedBorder(), 
+							"Update account"),
+						new EmptyBorder(5, 5, 5, 5) // inner padding
+						)
+					);
 		
 		// controls
 		BoxLayout editControlsLayout = new BoxLayout(editControlsPanel, BoxLayout.X_AXIS);
@@ -216,15 +209,12 @@ public class AccountSettingsPage extends JFrame {
 			deletePanel.setLayout(new GridBagLayout());
 			deletePanel.add(deleteButton);
 			deletePanel.setBorder(
-//					BorderFactory.createCompoundBorder(
-//							new EmptyBorder(10, 10, 10, 10),
-							BorderFactory.createCompoundBorder(
-									BorderFactory.createTitledBorder(
-											BorderFactory.createEtchedBorder(), 
-											"Delete account"),
-									new EmptyBorder(5, 5, 5, 5) // inner padding
-									)
-//							)
+				BorderFactory.createCompoundBorder(
+						BorderFactory.createTitledBorder(
+							BorderFactory.createEtchedBorder(), 
+							"Delete account"),
+						new EmptyBorder(5, 5, 5, 5) // inner padding
+						)
 					);
 			deletePanel.setMinimumSize(new Dimension(editPanel.getPreferredSize().width, 0));
 
@@ -258,11 +248,11 @@ public class AccountSettingsPage extends JFrame {
 	private void refreshData() {
 		editErrorMessageTextArea.setText(editErrorMessage);
 		if (editErrorMessage == null || editErrorMessage.trim().length() == 0) {
-			// populate
+			TOUser currentUser = FlexiBookController.getCurrentUser();
+			usernameTextField.setText(currentUser.getUsername());
+			passwordField.setText(currentUser.getPassword());
 		}
 
-		// this is needed because the size of the window changes depending on whether an
-		// error message is shown or not
 		pack();
 	}
 
@@ -290,7 +280,7 @@ public class AccountSettingsPage extends JFrame {
 		editControlsPanel.remove(cancelEditButton);
 		editControlsPanel.remove(confirmEditButton);
 		editControlsPanel.add(editButton);
-		getRootPane().setDefaultButton(null); // Enter key wired to signUpButton
+		getRootPane().setDefaultButton(null); // Enter key un-wired
 		usernameTextField.setEditable(false);
 		passwordField.setEditable(false);
 		pack();
@@ -298,7 +288,6 @@ public class AccountSettingsPage extends JFrame {
 
 	private void cancelEditButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		finishEditing();
-		// clear error message
 		editErrorMessage = "";
 		refreshData();
 	}
@@ -308,7 +297,6 @@ public class AccountSettingsPage extends JFrame {
 			FlexiBookController.updateUserAccount(usernameTextField.getText(),
 					String.valueOf(passwordField.getPassword()));
 			finishEditing();
-			// clear error message
 			editErrorMessage = "";
 		} catch (InvalidInputException e) {
 			editErrorMessage = e.getMessage();
@@ -324,15 +312,16 @@ public class AccountSettingsPage extends JFrame {
 					"Delete this account? This action is final and cannot be undone.", "Are you sure?",
 					JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
 			if (chosenOption == 0) {
-				if (FlexiBookController.getCurrentUser() != null) {
-					FlexiBookController.deleteCustomerAccount(FlexiBookController.getCurrentUser().getUsername());
-				} else {
-					JOptionPane.showMessageDialog(this, "There is no user currently no user logged in", "Error",
-							JOptionPane.ERROR_MESSAGE);
+				if (FlexiBookController.getCurrentUser() == null) {
+					throw new IllegalStateException("Current user cannot be null");
 				}
+				
+				FlexiBookController.deleteCustomerAccount(FlexiBookController.getCurrentUser().getUsername());
+				
+				Utils.switchToFrame(this, new LandingPage());
 			}
 		} catch (InvalidInputException e) {
-			JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Unable to delete customer account", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }

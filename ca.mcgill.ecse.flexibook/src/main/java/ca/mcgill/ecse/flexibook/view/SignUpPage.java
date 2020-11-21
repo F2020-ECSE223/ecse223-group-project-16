@@ -51,18 +51,18 @@ public class SignUpPage extends JFrame {
 	private void initComponents() {
 		// UI elements
 		// error
-	    errorMessageTextArea = new JTextArea();
-	    errorMessageTextArea.setForeground(Color.RED);
-	    errorMessageTextArea.setWrapStyleWord(true);
-	    // mimic a JLabel
-	    errorMessageTextArea.setLineWrap(true);
-	    errorMessageTextArea.setOpaque(false);
-	    errorMessageTextArea.setEditable(false);
-	    errorMessageTextArea.setFocusable(false);
-	    errorMessageTextArea.setBackground(UIManager.getColor("Label.background"));
-	    errorMessageTextArea.setFont(UIManager.getFont("Label.font"));
-	    errorMessageTextArea.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
-	    
+		errorMessageTextArea = new JTextArea();
+		errorMessageTextArea.setForeground(Color.RED);
+		errorMessageTextArea.setWrapStyleWord(true);
+		// mimic a JLabel
+		errorMessageTextArea.setLineWrap(true);
+		errorMessageTextArea.setOpaque(false);
+		errorMessageTextArea.setEditable(false);
+		errorMessageTextArea.setFocusable(false);
+		errorMessageTextArea.setBackground(UIManager.getColor("Label.background"));
+		errorMessageTextArea.setFont(UIManager.getFont("Label.font"));
+		errorMessageTextArea.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+
 		// username
 		usernameLabel = new JLabel("Username");
 		usernameTextField = new JTextField();
@@ -92,27 +92,27 @@ public class SignUpPage extends JFrame {
 				passwordVisibilityButtonActionPerformed(event);
 			}
 		});
-		
+
 		signUpButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent event) {
 				signUpButtonActionPerformed(event);
 			}
 		});
-		
+
 		switchToLoginButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent event) {
 				switchToLoginButtonActionPerformed(event);
 			}
 		});
-		
+
 		addWindowFocusListener(new WindowAdapter() {
-		    public void windowGainedFocus(WindowEvent event) {
-		    	signUpButton.setForeground(Color.WHITE);
-		    }
-		    
-		    public void windowLostFocus(WindowEvent event) {
-		    	signUpButton.setForeground(Color.BLACK);
-		    }
+			public void windowGainedFocus(WindowEvent event) {
+				signUpButton.setForeground(Color.WHITE);
+			}
+
+			public void windowLostFocus(WindowEvent event) {
+				signUpButton.setForeground(Color.BLACK);
+			}
 		});
 
 		// layout
@@ -172,7 +172,7 @@ public class SignUpPage extends JFrame {
 						)
 				);
 		//@formatter:on
-		
+
 		pack();
 	}
 
@@ -184,19 +184,21 @@ public class SignUpPage extends JFrame {
 
 		pack();
 	}
-	
+
 	private void passwordVisibilityButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		Utils.togglePasswordFieldVisibility(passwordField, passwordVisibilityButton);
 	}
-	
+
 	private void switchToLogin() {
-		Utils.switchToFrame(this, new LoginPage()); // would like to be able to pass in a username here into the login constructor, to use as a default value
+		Utils.switchToFrame(this, new LoginPage()); // would like to be able to pass in a username here into the login
+													// constructor, to use as a default value
 	}
-	
+
 	private void signUpButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		errorMessage = null;
 		try {
-			FlexiBookController.createCustomerAccount(usernameTextField.getText(), String.valueOf(passwordField.getPassword()));
+			FlexiBookController.createCustomerAccount(usernameTextField.getText(),
+					String.valueOf(passwordField.getPassword()));
 			switchToLogin();
 		} catch (InvalidInputException e) {
 			errorMessage = e.getMessage();
@@ -204,7 +206,7 @@ public class SignUpPage extends JFrame {
 			refreshData();
 		}
 	}
-	
+
 	private void switchToLoginButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		switchToLogin();
 	}

@@ -52,13 +52,9 @@ public class AccountSettingsPage extends JFrame {
 	private JButton deleteButton;
 
 	// data elements
-	private boolean isCurrentUserOwner;
 	private String editErrorMessage = "";
 
 	public AccountSettingsPage() {
-		TOUser currentUser = FlexiBookController.getCurrentUser();
-		isCurrentUserOwner = currentUser != null && currentUser.getUsername().equals("owner");
-//		isCurrentUserOwner = true; // debug
 		initComponents();
 		refreshData();
 	}
@@ -79,14 +75,13 @@ public class AccountSettingsPage extends JFrame {
 		editErrorMessageTextArea.setFont(UIManager.getFont("Label.font"));
 		editErrorMessageTextArea.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 		// username
-		TOUser currentUser = FlexiBookController.getCurrentUser();
 		usernameLabel = new JLabel("Username");
-		usernameTextField = new JTextField(currentUser == null ? "" : currentUser.getUsername());
-		Utils.resizeTextFieldToWidth(usernameTextField, TEXT_FIELD_WIDTH);
+		usernameTextField = new JTextField();
 		usernameTextField.setEditable(false);
+		Utils.resizeTextFieldToWidth(usernameTextField, TEXT_FIELD_WIDTH);
 		// password
 		passwordLabel = new JLabel("Password");
-		passwordField = new JPasswordField(currentUser == null ? "" : currentUser.getPassword()); // placeholder
+		passwordField = new JPasswordField();
 		passwordField.setEditable(false);
 		Utils.resizeTextFieldToWidth(passwordField, TEXT_FIELD_WIDTH);
 		passwordField.setEchoChar('*');
@@ -204,7 +199,7 @@ public class AccountSettingsPage extends JFrame {
 				);
 		
 		// delete panel
-		if (!isCurrentUserOwner) {
+		if (!FlexiBookController.isCurrentUserOwner()) {
 			deletePanel = new JPanel(true);
 			deletePanel.setLayout(new GridBagLayout());
 			deletePanel.add(deleteButton);
@@ -249,6 +244,9 @@ public class AccountSettingsPage extends JFrame {
 		editErrorMessageTextArea.setText(editErrorMessage);
 		if (editErrorMessage == null || editErrorMessage.trim().length() == 0) {
 			TOUser currentUser = FlexiBookController.getCurrentUser();
+			if (currentUser == null) {
+				throw new IllegalStateException("Current user cannot be null");
+			}
 			usernameTextField.setText(currentUser.getUsername());
 			passwordField.setText(currentUser.getPassword());
 		}
@@ -270,7 +268,7 @@ public class AccountSettingsPage extends JFrame {
 		editControlsPanel.remove(editButton);
 		editControlsPanel.add(cancelEditButton);
 		editControlsPanel.add(confirmEditButton);
-		getRootPane().setDefaultButton(confirmEditButton); // Enter key wired to signUpButton
+		getRootPane().setDefaultButton(confirmEditButton); // Wire Enter key to sign up button
 		usernameTextField.setEditable(true);
 		passwordField.setEditable(true);
 		pack();
@@ -280,7 +278,7 @@ public class AccountSettingsPage extends JFrame {
 		editControlsPanel.remove(cancelEditButton);
 		editControlsPanel.remove(confirmEditButton);
 		editControlsPanel.add(editButton);
-		getRootPane().setDefaultButton(null); // Enter key un-wired
+		getRootPane().setDefaultButton(null); // Un-wire Enter key
 		usernameTextField.setEditable(false);
 		passwordField.setEditable(false);
 		pack();

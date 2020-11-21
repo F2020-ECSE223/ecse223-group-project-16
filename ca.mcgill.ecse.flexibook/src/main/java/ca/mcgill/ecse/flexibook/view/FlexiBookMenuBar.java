@@ -13,8 +13,9 @@ import javax.swing.event.MenuEvent;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.TOUser;
 
-@SuppressWarnings("serial")
 public class FlexiBookMenuBar extends JMenuBar {
+	private static final long serialVersionUID = 5123406271612468160L;
+
 	// constants
 	private static final int USERNAME_CUTOFF = 15;
 
@@ -75,6 +76,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 //		navigationMenu.add(helpMenuItem);
 
 		// account menu
+		accountMenu = new JMenu();
 		TOUser currentUser = FlexiBookController.getCurrentUser();
 		if (currentUser == null) {
 			throw new IllegalStateException("Current user cannot be null");
@@ -86,7 +88,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 			usernamePreview = username.substring(0, USERNAME_CUTOFF - 3).concat("...");
 		}
 		usernamePreview += "  ▼";
-		accountMenu = new JMenu(usernamePreview);
+		accountMenu.setText(usernamePreview);
 
 		logoutMenuItem = new JMenuItem("Logout");
 		goToAccountSettingsMenuItem = new JMenuItem("Account Settings");

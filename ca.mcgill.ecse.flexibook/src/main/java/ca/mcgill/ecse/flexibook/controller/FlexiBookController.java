@@ -2251,7 +2251,20 @@ public class FlexiBookController {
 		if (currentUser == null) {
 			return null;
 		}
+		
 		return new TOUser(currentUser.getUsername(), currentUser.getPassword());
+	}
+	
+	/**
+	 * Check if the user currently logged into the system is the owner
+	 * 
+	 * @author louca
+	 * 
+	 * @return whether the currently logged in user is the owner
+	 */
+	public static boolean isCurrentUserOwner() {
+		User currentUser = FlexiBookApplication.getCurrentUser();
+		return currentUser != null && currentUser instanceof Owner && currentUser.getUsername().equals("owner");
 	}
 	
 	/**

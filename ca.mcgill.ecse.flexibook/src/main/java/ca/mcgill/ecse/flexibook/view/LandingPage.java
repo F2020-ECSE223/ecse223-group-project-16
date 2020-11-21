@@ -18,13 +18,16 @@ import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 
-@SuppressWarnings("serial")
 public class LandingPage extends JFrame {
+	private static final long serialVersionUID = 8012520089383050363L;
+
 	private static final boolean DEBUG_MODE = true;
 
+	// UI elements
 	private JLabel welcomeLabel;
 	private JButton goToSignUpButton;
 	private JButton goToLoginButton;
+	// debug
 	private JLabel debugSectionHeader;
 	private JButton debugLauncherButton;
 	private JLabel debugInfo;

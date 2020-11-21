@@ -149,7 +149,7 @@ public class FlexiBookController {
 	 * 
 	 * @param username of the Customer account to delete
 	 * 
-	 * @throws InvalidInputException if the Customer account to delete is the current user, or if the username is the that of the Owner account
+	 * @throws InvalidInputException if the Customer account to delete is not the current user, or if the username is the that of the Owner account
 	 */
 	public static void deleteCustomerAccount(String username) throws InvalidInputException {
 		Customer customerToDelete = getCustomerByUsername(username);
@@ -2238,7 +2238,6 @@ public class FlexiBookController {
 		
 		return calendar;
 	}
-	
 
 	/**
 	 * Get the user that is currently logged into the system as a transfer object.
@@ -2252,7 +2251,20 @@ public class FlexiBookController {
 		if (currentUser == null) {
 			return null;
 		}
+		
 		return new TOUser(currentUser.getUsername(), currentUser.getPassword());
+	}
+	
+	/**
+	 * Check if the user currently logged into the system is the owner
+	 * 
+	 * @author louca
+	 * 
+	 * @return whether the currently logged in user is the owner
+	 */
+	public static boolean isCurrentUserOwner() {
+		User currentUser = FlexiBookApplication.getCurrentUser();
+		return currentUser != null && currentUser instanceof Owner && currentUser.getUsername().equals("owner");
 	}
 	
 	/**

@@ -3,7 +3,7 @@
 
 package ca.mcgill.ecse.flexibook.controller;
 
-// line 3 "../../../../../FlexiBookTransferObjects.ump"
+// line 8 "../../../../../FlexiBookTransferObjects.ump"
 public class TOBusiness
 {
 

@@ -25,6 +25,7 @@ public class LoginPage extends JFrame {
   // password
   private JPasswordField passTextField;
   private JLabel passLabel;
+  private JButton showPassButton;
   // login 
   private JButton loginButton;
   
@@ -52,8 +53,11 @@ public class LoginPage extends JFrame {
     
     // elements for password field
     passTextField = new JPasswordField();
+    passTextField.setEchoChar('*');
     passLabel = new JLabel();
     passLabel.setText("Password");
+    showPassButton = new JButton();
+    showPassButton.setText("Show");
     
     // elements for login button
     loginButton = new JButton();
@@ -66,6 +70,14 @@ public class LoginPage extends JFrame {
 		}
 	});
     
+    showPassButton.addActionListener(new java.awt.event.ActionListener() {
+  		public void actionPerformed(java.awt.event.ActionEvent evt) {
+  			showPassButtonActionPerformed(evt);
+  		}
+  	});
+    
+    
+    // formatting
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     setTitle("Login Here");
 
@@ -84,6 +96,7 @@ public class LoginPage extends JFrame {
           .addComponent(userTextField)
           .addComponent(passTextField)
           .addComponent(loginButton))
+          .addComponent(showPassButton)
         )
     );
     layout.setVerticalGroup(
@@ -95,7 +108,8 @@ public class LoginPage extends JFrame {
         		.addComponent(userTextField))
           .addGroup(layout.createParallelGroup()
         		.addComponent(passLabel)
-          		.addComponent(passTextField))
+          		.addComponent(passTextField)
+          		.addComponent(showPassButton))
           .addComponent(loginButton)
        )
     );
@@ -130,6 +144,17 @@ public class LoginPage extends JFrame {
 			errorMessage = e.getMessage();
 		} finally {
 			refreshData();
+		}
+  }
+  
+  private void showPassButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		if (showPassButton.getText().equals("Show")) {
+			passTextField.setEchoChar((char) 0);
+			showPassButton.setText("Hide");
+		}
+		else {
+			passTextField.setEchoChar('*');
+			showPassButton.setText("Show");
 		}
   }
 	

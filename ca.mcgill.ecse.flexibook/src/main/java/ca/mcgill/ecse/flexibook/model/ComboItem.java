@@ -2,10 +2,18 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse.flexibook.model;
+import java.io.Serializable;
 
-// line 79 "../../../../../FlexiBook.ump"
-public class ComboItem
-{
+// line 87 "../../../../../FlexiBookPersistence.ump"
+// line 95 "../../../../../FlexiBook.ump"
+public class ComboItem implements Serializable
+{ 
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+ 
+private static final long serialVersionUID = 9L;
+
 
   //------------------------
   // MEMBER VARIABLES

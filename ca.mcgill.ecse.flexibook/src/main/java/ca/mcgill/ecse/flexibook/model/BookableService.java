@@ -2,11 +2,19 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse.flexibook.model;
+import java.io.Serializable;
 import java.util.*;
 
-// line 58 "../../../../../FlexiBook.ump"
-public abstract class BookableService
-{
+// line 63 "../../../../../FlexiBookPersistence.ump"
+// line 74 "../../../../../FlexiBook.ump"
+public abstract class BookableService implements Serializable
+{ 
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+ 
+private static final long serialVersionUID = 12L;
+
 
   //------------------------
   // STATIC VARIABLES
@@ -221,6 +229,14 @@ public abstract class BookableService
       Appointment aAppointment = appointments.get(i - 1);
       aAppointment.delete();
     }
+  }
+
+  // line 68 "../../../../../FlexiBookPersistence.ump"
+   public static  void reinitializeBookableServicesName(List<BookableService> bookableServices){
+    bookableservicesByName = new HashMap<String, BookableService>();
+      for(BookableService bs : bookableServices){
+        bookableservicesByName.put(bs.getName(), bs);
+      }
   }
 
 

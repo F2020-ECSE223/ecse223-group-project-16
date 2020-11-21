@@ -2,11 +2,19 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse.flexibook.model;
+import java.io.Serializable;
 import java.util.*;
 
-// line 63 "../../../../../FlexiBook.ump"
-public class Service extends BookableService
-{
+// line 75 "../../../../../FlexiBookPersistence.ump"
+// line 79 "../../../../../FlexiBook.ump"
+public class Service extends BookableService implements Serializable
+{ 
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+ 
+private static final long serialVersionUID = 7L;
+
 
   //------------------------
   // MEMBER VARIABLES

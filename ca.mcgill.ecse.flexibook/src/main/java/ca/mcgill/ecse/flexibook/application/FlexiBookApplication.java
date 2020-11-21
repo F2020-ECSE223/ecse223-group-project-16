@@ -5,8 +5,13 @@ package ca.mcgill.ecse.flexibook.application;
 
 import ca.mcgill.ecse.flexibook.model.FlexiBook;
 import ca.mcgill.ecse.flexibook.model.User;
+import ca.mcgill.ecse.flexibook.persistence.FlexiBookPersistence;
+import ca.mcgill.ecse.flexibook.view.FlexiBookPage;
+import ca.mcgill.ecse.flexibook.view.LandingPage;
+
 
 public class FlexiBookApplication {
+	public static final boolean LOAD_PERSISTENCE = true;
 	private static FlexiBook flexiBook;
     private static User currentUser;
 	
@@ -15,12 +20,21 @@ public class FlexiBookApplication {
     }
 
     public static void main(String[] args) {
-        System.out.println(new FlexiBookApplication().getGreeting());
+        // System.out.println(new FlexiBookApplication().getGreeting());
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new LandingPage().setVisible(true);
+            }
+        });
     }
     
     public static FlexiBook getFlexiBook() {
     	if (flexiBook == null) {
-    		flexiBook = new FlexiBook();
+    		if (LOAD_PERSISTENCE) {
+    			flexiBook = FlexiBookPersistence.load();
+    		} else {
+    			flexiBook = new FlexiBook();
+    		}
     	}
     	
     	return flexiBook;

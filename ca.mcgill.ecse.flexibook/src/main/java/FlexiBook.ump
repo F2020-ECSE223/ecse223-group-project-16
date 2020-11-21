@@ -1,5 +1,8 @@
 namespace ca.mcgill.ecse.flexibook.model;
 
+use FlexiBookPersistence.ump;
+use FlexiBookStates.ump;
+
 class FlexiBook {
   1 <@>- 0..1 Business business;
   1 <@>- 0..1 Owner owner;
@@ -22,6 +25,19 @@ class Owner {
 
 class Customer {
   isA User;
+  internal int noShowCount = 0;
+  
+  public int getNoShowCount() {
+  	return noShowCount;
+  }
+  
+  public void incrementNoShowCount() {
+  	noShowCount++;
+  }
+  
+  public void resetNoShowCount() {
+  	noShowCount = 0;
+  }
 }
 
 class Business {

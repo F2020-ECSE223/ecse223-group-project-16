@@ -2,15 +2,26 @@
 /*This code was generated using the UMPLE 1.30.1.5099.60569f335 modeling language!*/
 
 package ca.mcgill.ecse.flexibook.model;
+import java.io.Serializable;
 import java.util.*;
 
-// line 23 "../../../../../FlexiBook.ump"
-public class Customer extends User
-{
+// line 39 "../../../../../FlexiBookPersistence.ump"
+// line 26 "../../../../../FlexiBook.ump"
+public class Customer extends User implements Serializable
+{ 
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+ 
+private static final long serialVersionUID = 3L;
+
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
+
+  //Customer Attributes
+  private int noShowCount;
 
   //Customer Associations
   private FlexiBook flexiBook;
@@ -23,6 +34,7 @@ public class Customer extends User
   public Customer(String aUsername, String aPassword, FlexiBook aFlexiBook)
   {
     super(aUsername, aPassword);
+    noShowCount = 0;
     boolean didAddFlexiBook = setFlexiBook(aFlexiBook);
     if (!didAddFlexiBook)
     {
@@ -177,4 +189,25 @@ public class Customer extends User
     super.delete();
   }
 
+  // line 31 "../../../../../FlexiBook.ump"
+   public int getNoShowCount(){
+    return noShowCount;
+  }
+
+  // line 35 "../../../../../FlexiBook.ump"
+   public void incrementNoShowCount(){
+    noShowCount++;
+  }
+
+  // line 39 "../../../../../FlexiBook.ump"
+   public void resetNoShowCount(){
+    noShowCount = 0;
+  }
+
+
+  public String toString()
+  {
+    return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
+            "  " + "flexiBook = "+(getFlexiBook()!=null?Integer.toHexString(System.identityHashCode(getFlexiBook())):"null");
+  }
 }

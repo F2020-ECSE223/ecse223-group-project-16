@@ -10,19 +10,20 @@ public class Utils {
 		targetFrame.setVisible(true);
 		targetFrame.setLocationRelativeTo(sourceFrame);
 	}
-	
+
 	static void switchToFrame(JFrame sourceFrame, JFrame targetFrame) {
 		openFrame(sourceFrame, targetFrame);
 		sourceFrame.dispose();
 	}
-	
+
 	static void goToFrame(JFrame sourceFrame, JFrame targetFrame, boolean disableSource) {
 		openFrame(sourceFrame, targetFrame);
 		sourceFrame.setEnabled(!disableSource);
 	}
-	
+
 	/**
-	 * Resize given text field to given width, and fix the maximum height to the preferred height
+	 * Resize given text field to given width, and fix the maximum height to the
+	 * preferred height
 	 * 
 	 * @author louca
 	 * 

@@ -40,8 +40,7 @@ public class LandingPage extends JFrame {
 
 	private void initComponents() {
 		welcomeLabel = new JLabel("Welcome to FlexiBook");
-		welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(32.0f));
-		// set thick width border
+		welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(32.0f)); // increase font size
 		goToSignUpButton = new JButton("Sign Up");
 		goToLoginButton = new JButton("Login");
 

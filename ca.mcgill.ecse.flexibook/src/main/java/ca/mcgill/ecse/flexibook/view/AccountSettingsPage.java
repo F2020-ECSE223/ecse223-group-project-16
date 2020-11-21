@@ -25,7 +25,7 @@ import ca.mcgill.ecse.flexibook.controller.TOUser;
 
 public class AccountSettingsPage extends JFrame {
 	private static final long serialVersionUID = -6728136693297554057L;
-	
+
 	// constants
 	private static final int TEXT_FIELD_WIDTH = 300;
 
@@ -70,7 +70,7 @@ public class AccountSettingsPage extends JFrame {
 		editErrorMessageTextArea.setLineWrap(true);
 		editErrorMessageTextArea.setOpaque(false);
 		editErrorMessageTextArea.setEditable(false);
-	    editErrorMessageTextArea.setFocusable(false);
+		editErrorMessageTextArea.setFocusable(false);
 		editErrorMessageTextArea.setBackground(UIManager.getColor("Label.background"));
 		editErrorMessageTextArea.setFont(UIManager.getFont("Label.font"));
 		editErrorMessageTextArea.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
@@ -313,13 +313,14 @@ public class AccountSettingsPage extends JFrame {
 				if (FlexiBookController.getCurrentUser() == null) {
 					throw new IllegalStateException("Current user cannot be null");
 				}
-				
+
 				FlexiBookController.deleteCustomerAccount(FlexiBookController.getCurrentUser().getUsername());
-				
+
 				Utils.switchToFrame(this, new LandingPage());
 			}
 		} catch (InvalidInputException e) {
-			JOptionPane.showMessageDialog(this, e.getMessage(), "Unable to delete customer account", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Unable to delete customer account",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }

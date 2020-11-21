@@ -19,6 +19,9 @@ class TOBookableService {
 
 class TOService {
 	isA TOBookableService;
+	int duration;
+	int downtimeDuration;
+	int downtimeStart;
 }
 
 class TOServiceCombo {

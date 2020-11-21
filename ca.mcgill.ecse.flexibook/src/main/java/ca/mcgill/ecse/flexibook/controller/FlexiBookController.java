@@ -2093,6 +2093,7 @@ public class FlexiBookController {
 			throw new InvalidInputException(e.getMessage());
 		}
 	}
+
 	/**
 	 * Get all appointments of the User with the provided username, as a list of transfer objects.
 	 * 

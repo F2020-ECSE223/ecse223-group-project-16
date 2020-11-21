@@ -1,5 +1,6 @@
 package ca.mcgill.ecse.flexibook.view;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.GroupLayout;
@@ -12,12 +13,17 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
+import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
+import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
+import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOBookableService;
-import ca.mcgill.ecse.flexibook.controller.TOCalendar;
+
 
 public class ServicesPage extends JFrame {
   private static final long serialVersionUID = 4990227802404187714L;
  
+  private JLabel errorMessage;
+
   private JLabel serviceLabel;
   
   private JLabel deleteServiceLabel;
@@ -47,18 +53,23 @@ public class ServicesPage extends JFrame {
   private JLabel addServiceDTDurationLabel;
   private JButton addServiceButton;
  
+  
  
   
   //data elements
-  private List<TOBookableService> bookableServices;
-  private TOCalendar calendar;
+  private String error = null;
+  private List<String> bookableServices;
    
 
   public ServicesPage() {
       initComponents();
+      refreshData();
   }
   private void initComponents(){
-   
+	
+	errorMessage = new JLabel();
+	
+	
 	// DELETE SERVICE ELEMENTS
 	deleteServiceLabel = new JLabel();
     deleteServiceLabel.setText("Delete Existing Service");
@@ -68,6 +79,7 @@ public class ServicesPage extends JFrame {
     
     
     // UPDATE SERVICE ELEMENTS
+    updateServiceLabel = new JLabel();
     updateServiceLabel.setText("Update Existing Service");
     updateServiceList = new JComboBox<String>(new String[0]);
     
@@ -90,11 +102,12 @@ public class ServicesPage extends JFrame {
     updateServiceDTDurationLabel.setText("Down Time Duration:");
     
     updateServiceButton = new JButton();
-    updateServiceButton.setText("Update Existing Service");
+    updateServiceButton.setText("Update Service");
     
     
     
     //ADD SERVICE ELEMENTS
+    addServiceLabel = new JLabel();
     addServiceLabel.setText("Create New Service");
     
     addServiceNameTextField = new JTextField();
@@ -122,19 +135,19 @@ public class ServicesPage extends JFrame {
     //Listeners
     deleteServiceButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-           // deleteServiceButtonActionPerformed(evt);
+           deleteServiceButtonActionPerformed(evt);
         }
     });
     
     updateServiceButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-           // updateServiceButtonActionPerformed(evt);
+           updateServiceButtonActionPerformed(evt);
         }
     });
     
     addServiceButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-           // addServiceButtonActionPerformed(evt);
+           addServiceButtonActionPerformed(evt);
         }
     });
     
@@ -150,11 +163,8 @@ public class ServicesPage extends JFrame {
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
     layout.setHorizontalGroup(
-    	  layout.createParallelGroup()
-    	  .addComponent(serviceLabel)
-    	  .addComponent(horizontalLineTop)
-    	  .addComponent(horizontalLineBottom)
-    	  .addGroup(layout.createSequentialGroup()
+    	  layout.createSequentialGroup()
+    	  		  .addComponent(errorMessage)
     			  .addGroup(layout.createParallelGroup()
     					  .addComponent(addServiceLabel)
     					  .addComponent(updateServiceLabel)
@@ -162,7 +172,6 @@ public class ServicesPage extends JFrame {
     					  .addComponent(deleteServiceLabel)
     					  .addComponent(deleteServiceList)
     					  )
-    			  )
     	  		.addGroup(layout.createParallelGroup()
     	  				.addComponent(addServiceNameLabel)
     	  				.addComponent(updateServiceNameLabel)
@@ -200,15 +209,15 @@ public class ServicesPage extends JFrame {
     	  				.addComponent(updateServiceButton)
     	  				.addComponent(deleteServiceButton)
     	  				)
-    );
+    		);
     
-    
-    layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {deleteServiceButton, deleteServiceList});
-    layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {updateServiceButton, updateServiceList});
-    layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {addServiceButton, addServiceNameTextField});
+    layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {deleteServiceButton, deleteServiceLabel});
+    layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {updateServiceButton, updateServiceLabel});
+    layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {addServiceButton, addServiceLabel});
     
     layout.setVerticalGroup(
 	      layout.createSequentialGroup()
+	      .addComponent(errorMessage)
 	      .addGroup(layout.createParallelGroup()
 				.addComponent(addServiceLabel)
 				.addComponent(addServiceNameLabel)
@@ -221,9 +230,6 @@ public class ServicesPage extends JFrame {
 				.addComponent(addServiceDTDurationTextField)
 				)
 	      .addComponent(addServiceButton)
-	      .addGroup(layout.createParallelGroup()
-	    		.addComponent(horizontalLineTop) 
-	    		)
 	      .addGroup(layout.createParallelGroup()
 	    		.addComponent(updateServiceLabel)
 	  			.addComponent(updateServiceNameLabel)
@@ -240,9 +246,6 @@ public class ServicesPage extends JFrame {
 	    		 .addComponent(updateServiceButton)
 	    		 )
 	     .addGroup(layout.createParallelGroup()
-	    		.addComponent(horizontalLineBottom)
-	    		)
-	     .addGroup(layout.createParallelGroup()
 	    		.addComponent(deleteServiceLabel)
 	    		)
 		.addGroup(layout.createParallelGroup()
@@ -252,4 +255,66 @@ public class ServicesPage extends JFrame {
     );
     pack();
   }
+  
+  private void refreshData() {
+	  
+	  updateServiceList.removeAllItems();
+	  bookableServices = new ArrayList<String>();
+	  
+	  Integer index = 0;
+      for (TOBookableService service : FlexiBookController.getBookableServices()) {
+          bookableServices.add(service.getName());
+    	  updateServiceList.addItem(service.getName());
+          index++;
+      };
+      updateServiceList.setSelectedIndex(-1);
+	  
+      index = 0;
+      deleteServiceList.removeAllItems();
+      for (TOBookableService service : FlexiBookController.getBookableServices()) {
+    	  bookableServices.add(service.getName());
+    	  deleteServiceList.addItem(service.getName());
+          index++;
+      };
+      deleteServiceList.setSelectedIndex(-1);
+
+      updateServiceNameTextField.setText("");
+      updateServiceDurationTextField.setText("");
+      updateServiceDownTimeTextField.setText("");
+      updateServiceDTDurationTextField.setText("");
+      
+      addServiceNameTextField.setText("");
+      addServiceDurationTextField.setText("");
+      addServiceDownTimeTextField.setText("");
+      addServiceDTDurationTextField.setText("");
+      
+  }
+  
+  private void addServiceButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	  try {
+		  FlexiBookController.addService(addServiceNameTextField.getText(), addServiceDurationTextField.getText(), addServiceDownTimeTextField.getText(), addServiceDTDurationTextField.getText());
+	  }catch (InvalidInputException e){
+		  error = e.getMessage();
+	  }
+	  refreshData();
+  }
+  
+  private void updateServiceButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	  try {
+		  FlexiBookController.updateService(String.valueOf(updateServiceList.getSelectedItem()),updateServiceNameTextField.getText(), updateServiceDurationTextField.getText(), updateServiceDownTimeTextField.getText(), updateServiceDTDurationTextField.getText());
+	  }catch (InvalidInputException e){
+		  error = e.getMessage();
+	  }
+	  refreshData();
+  }
+  
+  private void deleteServiceButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	  try {
+		  FlexiBookController.deleteService(String.valueOf(deleteServiceList.getSelectedItem()));
+	  }catch (InvalidInputException e){
+		  error = e.getMessage();
+	  }
+	  refreshData();
+  }
+  
 }

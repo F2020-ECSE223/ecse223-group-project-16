@@ -25,34 +25,6 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
 public class SignUpPage extends JFrame {
-	private void resizeTextField(JTextField textField) {
-		Dimension textFieldDimension = new Dimension(TEXT_FIELD_WIDTH, textField.getPreferredSize().height);
-		textField.setPreferredSize(textFieldDimension);
-//		textField.setMaximumSize(textFieldDimension);
-	}
-
-	private void makePlaceholder(JTextField textField, String placeholderText) {
-		textField.setText(placeholderText);
-		textField.setForeground(Color.GRAY);
-		textField.addFocusListener(new FocusListener() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				if (textField.getText().equals(placeholderText)) {
-					textField.setText("");
-					textField.setForeground(Color.BLACK);
-				}
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				if (textField.getText().isEmpty()) {
-					textField.setForeground(Color.GRAY);
-					textField.setText(placeholderText);
-				}
-			}
-		});
-	}
-
 	private static final long serialVersionUID = -6027711256830801450L;
 
 	// constants
@@ -70,7 +42,7 @@ public class SignUpPage extends JFrame {
 	private JButton passwordVisibilityButton;
 	// onboarding flow
 	private JButton signUpButton;
-	private JButton goToLoginButton;
+	private JButton switchToLoginButton;
 
 	// data elements
 	private String errorMessage = "";
@@ -82,7 +54,7 @@ public class SignUpPage extends JFrame {
 
 	private void initComponents() {
 		// UI elements
-		// elements for error message
+		// error
 	    errorMessageTextArea = new JTextArea();
 	    errorMessageTextArea.setForeground(Color.RED);
 	    errorMessageTextArea.setWrapStyleWord(true);
@@ -90,31 +62,33 @@ public class SignUpPage extends JFrame {
 	    errorMessageTextArea.setLineWrap(true);
 	    errorMessageTextArea.setOpaque(false);
 	    errorMessageTextArea.setEditable(false);
-//	    errorMessageTextArea.setFocusable(false);
+	    errorMessageTextArea.setFocusable(false);
 	    errorMessageTextArea.setBackground(UIManager.getColor("Label.background"));
 	    errorMessageTextArea.setFont(UIManager.getFont("Label.font"));
 	    errorMessageTextArea.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
 	    
-		// elements for username field
+		// username
 		usernameLabel = new JLabel("Username");
-		usernameTextField = new JTextField(); // placeholder
-		resizeTextField(usernameTextField);
-		// elements for password field
+		usernameTextField = new JTextField();
+		Utils.resizeTextFieldToWidth(usernameTextField, TEXT_FIELD_WIDTH);
+		// password
 		passwordLabel = new JLabel("Password");
-		passwordField = new JPasswordField(); // placeholder
-		resizeTextField(passwordField);
+		passwordField = new JPasswordField();
+		Utils.resizeTextFieldToWidth(passwordField, TEXT_FIELD_WIDTH);
 		passwordField.setEchoChar('*');
 		passwordVisibilityButton = new JButton("Show");
-		// elements for Sign Up button
+		// sign up
 		signUpButton = new JButton("Sign Up");
 		signUpButton.setForeground(Color.WHITE);
-		// elements for go to Login button
-		goToLoginButton = new JButton("Login instead");
-		goToLoginButton.setForeground(Color.DARK_GRAY);
+		// switch to login
+		switchToLoginButton = new JButton("Login instead");
+		switchToLoginButton.setForeground(Color.DARK_GRAY);
 
 		// global settings
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // JFrame.DISPOSE_ON_CLOSE ??
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Create your FlexiBook Account");
+		getRootPane().setDefaultButton(signUpButton); // Wire enter key to sign up button
+		setResizable(false);
 
 		// listeners
 		passwordVisibilityButton.addActionListener(new java.awt.event.ActionListener() {
@@ -129,9 +103,9 @@ public class SignUpPage extends JFrame {
 			}
 		});
 		
-		goToLoginButton.addActionListener(new java.awt.event.ActionListener() {
+		switchToLoginButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent event) {
-				goToLoginButtonActionPerformed(event);
+				switchToLoginButtonActionPerformed(event);
 			}
 		});
 		
@@ -152,54 +126,6 @@ public class SignUpPage extends JFrame {
 		layout.setAutoCreateContainerGaps(true);
 
 		//@formatter:off
-//		layout.setHorizontalGroup(
-//				layout.createParallelGroup()
-//				.addGroup(
-//						layout.createSequentialGroup()
-//						.addGroup(
-//								layout.createParallelGroup()
-//								.addComponent(usernameLabel, Alignment.TRAILING)
-//								.addComponent(passwordLabel, Alignment.TRAILING)
-//								)
-//						.addGroup(
-//								layout.createParallelGroup()
-//								.addComponent(usernameTextField)
-//								.addGroup(
-//										layout.createSequentialGroup()
-//										.addComponent(passwordField)
-//										.addComponent(passwordVisibilityButton)
-//										)
-//								.addGroup(
-//										Alignment.TRAILING,
-//										layout.createSequentialGroup()
-//										.addComponent(goToLoginButton)
-//										.addComponent(signUpButton)
-//										)
-//								)
-//						)
-//				.addComponent(errorMessageTextArea, Alignment.CENTER)
-//				);
-//
-//		layout.setVerticalGroup(layout.createSequentialGroup()
-//				.addGroup(
-//						layout.createParallelGroup(Alignment.CENTER)
-//						.addComponent(usernameLabel)
-//						.addComponent(usernameTextField)
-//						)
-//				.addGroup(
-//						layout.createParallelGroup(Alignment.CENTER)
-//						.addComponent(passwordLabel)
-//						.addComponent(passwordField)
-//						.addComponent(passwordVisibilityButton)
-//						)
-//				.addComponent(errorMessageTextArea)
-//				.addGroup(
-//						layout.createParallelGroup()
-//						.addComponent(goToLoginButton, Alignment.LEADING)
-//						.addComponent(signUpButton, Alignment.TRAILING)
-//						)
-//				);
-		
 		layout.setHorizontalGroup(
 				layout.createParallelGroup()
 				.addGroup(
@@ -217,7 +143,7 @@ public class SignUpPage extends JFrame {
 										.addGroup(
 												layout.createParallelGroup()
 												.addComponent(passwordField)
-												.addComponent(goToLoginButton, Alignment.LEADING)
+												.addComponent(switchToLoginButton, Alignment.LEADING)
 												)
 										.addGroup(
 												layout.createParallelGroup(Alignment.TRAILING)
@@ -245,51 +171,37 @@ public class SignUpPage extends JFrame {
 				.addComponent(errorMessageTextArea)
 				.addGroup(
 						layout.createParallelGroup()
-						.addComponent(goToLoginButton, Alignment.LEADING)
+						.addComponent(switchToLoginButton, Alignment.LEADING)
 						.addComponent(signUpButton, Alignment.LEADING)
 						)
 				);
 		//@formatter:on
 		
 		pack();
-		setResizable(true);
-		
-		getRootPane().setDefaultButton(signUpButton); // Enter key wired to signUpButton
 	}
 
 	private void refreshData() {
 		errorMessageTextArea.setText(errorMessage);
 		if (errorMessage == null || errorMessage.trim().length() == 0) {
-			// populate
+			// no-op
 		}
 
-		// this is needed because the size of the window changes depending on whether an error message is shown or not
 		pack();
 	}
 	
 	private void passwordVisibilityButtonActionPerformed(java.awt.event.ActionEvent evt) {
-		if (passwordVisibilityButton.getText().equals("Show")) {
-			passwordVisibilityButton.setText("Hide");
-			passwordField.setEchoChar((char) 0);
-		} else {
-			passwordVisibilityButton.setText("Show");
-			passwordField.setEchoChar('*');
-		}
+		Utils.togglePasswordFieldVisibility(passwordField, passwordVisibilityButton);
 	}
 	
-	private void goToLogin() {
-		LoginPage loginPage = new LoginPage(); // would like to be able to pass in a username here into the login constructor, to use as a default value
-		loginPage.setVisible(true);
-		loginPage.setLocationRelativeTo(this); // center spawned login page on own center
-		dispose(); // self-destruct
+	private void switchToLogin() {
+		Utils.switchToFrame(this, new LoginPage()); // would like to be able to pass in a username here into the login constructor, to use as a default value
 	}
 	
 	private void signUpButtonActionPerformed(java.awt.event.ActionEvent evt) {
-		// clear error message
 		errorMessage = null;
 		try {
 			FlexiBookController.createCustomerAccount(usernameTextField.getText(), String.valueOf(passwordField.getPassword()));
-			goToLogin();
+			switchToLogin();
 		} catch (InvalidInputException e) {
 			errorMessage = e.getMessage();
 		} finally {
@@ -297,7 +209,7 @@ public class SignUpPage extends JFrame {
 		}
 	}
 	
-	private void goToLoginButtonActionPerformed(java.awt.event.ActionEvent evt) {
-		goToLogin();
+	private void switchToLoginButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		switchToLogin();
 	}
 }

@@ -11,7 +11,7 @@ import ca.mcgill.ecse.flexibook.view.LandingPage;
 
 
 public class FlexiBookApplication {
-	public static final boolean LOAD_PERSISTENCE = true;
+	public static final boolean LOAD_PERSISTENCE = false;
 	private static FlexiBook flexiBook;
     private static User currentUser;
 	

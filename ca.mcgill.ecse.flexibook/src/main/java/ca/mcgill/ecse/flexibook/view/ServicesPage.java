@@ -13,12 +13,11 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
-import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOBookableService;
-import ca.mcgill.ecse.flexibook.model.BookableService;
-import ca.mcgill.ecse.flexibook.model.Service;
+import ca.mcgill.ecse.flexibook.controller.TOService;
+
 
 
 public class ServicesPage extends JFrame {
@@ -265,6 +264,7 @@ public class ServicesPage extends JFrame {
     	  updateServiceList.addItem(service.getName());
           index++;
       };
+      
       updateServiceList.setSelectedIndex(-1);
       updateServiceNameTextField.setText("");
       updateServiceDurationTextField.setText("");
@@ -306,16 +306,12 @@ public class ServicesPage extends JFrame {
   }
   
   private void updateServiceListActionPerformed(java.awt.event.ActionEvent evt) {
-	  for (BookableService bS : FlexiBookApplication.getFlexiBook().getBookableServices()){
-		  if (bS.getName() == String.valueOf(updateServiceList.getSelectedItem())) {
-			  Service serviceSelected = (Service) bS;
-			  updateServiceNameTextField.setText(serviceSelected.getName());
-		      updateServiceDurationTextField.setText(String.valueOf(serviceSelected.getDuration()));
-		      updateServiceDownTimeTextField.setText(String.valueOf(serviceSelected.getDowntimeStart()));
-		      updateServiceDTDurationTextField.setText(String.valueOf(serviceSelected.getDowntimeDuration()));
-		  }
-	  }
-	 
+	  TOService serviceSelected = FlexiBookController.getService(String.valueOf(updateServiceList.getSelectedItem())); 
+	  System.out.println(serviceSelected);
+	  updateServiceNameTextField.setText(serviceSelected.getName());
+      updateServiceDurationTextField.setText(String.valueOf(serviceSelected.getDuration()));
+      updateServiceDownTimeTextField.setText(String.valueOf(serviceSelected.getDowntimeStart()));
+      updateServiceDTDurationTextField.setText(String.valueOf(serviceSelected.getDowntimeDuration()));
   };
   
 }

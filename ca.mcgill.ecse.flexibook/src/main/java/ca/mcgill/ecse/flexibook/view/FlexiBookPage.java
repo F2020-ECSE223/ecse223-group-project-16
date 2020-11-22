@@ -5,8 +5,13 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
+import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
+
 public class FlexiBookPage extends JFrame {
   private static final long serialVersionUID = -4739464810558524924L;
+  
+  
+  private JButton goToLandingPage;
   private JButton goToSignUp;
   private JButton goToLogin;
   private JButton goToServices;
@@ -14,12 +19,14 @@ public class FlexiBookPage extends JFrame {
   private JButton goToAppointmentMake;
   private JButton goToAppointmentUpdate;
   private JButton goToViewCalendar;
+  private JButton goToUserSettings;
 
   public FlexiBookPage() {
     initComponents();
   }
   
-  private void initComponents(){
+  private void initComponents() {
+	  goToLandingPage = new JButton("Back to Landing Page");
     goToSignUp = new JButton();
     goToSignUp.setText("Go to SignUP");
     goToLogin = new JButton();
@@ -34,7 +41,16 @@ public class FlexiBookPage extends JFrame {
     goToAppointmentUpdate.setText("Go to Appointment Update");
     goToViewCalendar = new JButton();
     goToViewCalendar.setText("Go to View Calendar");
+    goToUserSettings = new JButton("User Settings");
     
+    
+    JFrame that = this;
+    goToLandingPage.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            Utils.switchToFrame(that, new LandingPage());
+
+          }
+        });
     goToSignUp.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         new SignUpPage().setVisible(true);
@@ -77,6 +93,11 @@ public class FlexiBookPage extends JFrame {
         dispose();
       }
     });
+    goToUserSettings.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        new AccountSettingsPage().setVisible(true);
+      }
+    });
 
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     setTitle("FlexiBook Appointment Booking System");
@@ -90,6 +111,7 @@ public class FlexiBookPage extends JFrame {
       .addGroup(layout.createParallelGroup()
         .addGroup(layout.createSequentialGroup()
           .addGroup(layout.createParallelGroup()
+        	.addComponent(goToLandingPage)
             .addComponent(goToSignUp)
             .addComponent(goToLogin)
             .addComponent(goToServices)
@@ -97,6 +119,7 @@ public class FlexiBookPage extends JFrame {
             .addComponent(goToAppointmentMake)
             .addComponent(goToAppointmentUpdate)
             .addComponent(goToViewCalendar)
+            .addComponent(goToUserSettings)
           )
         )
       )
@@ -104,6 +127,7 @@ public class FlexiBookPage extends JFrame {
     layout.setVerticalGroup(
       layout.createParallelGroup()
         .addGroup(layout.createSequentialGroup()
+        .addComponent(goToLandingPage)
         .addComponent(goToSignUp)
         .addComponent(goToLogin)
         .addComponent(goToServices)
@@ -111,6 +135,7 @@ public class FlexiBookPage extends JFrame {
         .addComponent(goToAppointmentMake)
         .addComponent(goToAppointmentUpdate)
         .addComponent(goToViewCalendar)
+        .addComponent(goToUserSettings)
       )
     );
     pack();

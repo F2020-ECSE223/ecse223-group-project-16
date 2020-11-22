@@ -1,10 +1,23 @@
 namespace ca.mcgill.ecse.flexibook.controller;
 
+class TOUser {
+	String username;
+	String password;
+}
+
 class TOBusiness {
 	String name;
 	String address;
 	String phoneNumber;
 	String email;
+	1 <@>- * TOBusinessHour businessHours;
+}
+
+class TOBusinessHour {
+	enum DayOfWeek { Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday }
+ 	DayOfWeek dayOfWeek;
+ 	Time startTime;
+ 	Time endTime;
 }
 
 class TOBookableService {
@@ -14,6 +27,9 @@ class TOBookableService {
 
 class TOService {
 	isA TOBookableService;
+	int duration;
+	int downtimeDuration;
+	int downtimeStart;
 }
 
 class TOServiceCombo {

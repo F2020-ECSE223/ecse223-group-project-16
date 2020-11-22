@@ -29,45 +29,40 @@ public class BusinessInfoPage extends JFrame {
   private static final long serialVersionUID = -941637358529064014L;
   
   // ELEMENTS
-  	// Titles
-  private JTextField businessNameTitle;
-  private JLabel businessHoursTitle;
-  private JLabel businessAddressTitle;
-  private JLabel businessContactInfoTitle;
-  	// Edit buttons
-  private JButton editHoursButton;
-  private JButton editAddressButton;
+    // Titles
+  private JTextField businessNameTextField;
+  private JLabel businessHoursLabel;
+  private JLabel contactInfoLabel;
+  private JLabel addressLabel;
+  private JLabel phoneNumberLabel;
+  private JLabel emailLabel;
+    // Edit buttons
+  private JButton editBusinessHoursButton;
   private JButton editContactInfoButton;
-  	// Business Hour Elements
+    // Business Hour Elements
   private JTable businessHoursContainer;
-  	// Business address & contact
-  private JTextField businessAddress;
-  private JTextField businessPhone;
-  private JTextField businessEmail;
+    // Business address & contact
+  private JTextField addressTextField;
+  private JTextField phoneNumberTextField;
+  private JTextField emailTextField;
   
   
   public BusinessInfoPage() {
     initComponents();
   }
-
+ 
   private void initComponents(){
 // INTIALIZE
     // Titles
-    businessNameTitle = new JTextField();
-    	businessNameTitle.setText("CLICK HERE TO SET BUSINESS NAME");
-    businessHoursTitle = new JLabel();
-    	businessHoursTitle.setText("Business Hours");
-    businessAddressTitle = new JLabel();
-    	businessAddressTitle.setText("Address");
-    businessContactInfoTitle = new JLabel();
-    	businessContactInfoTitle.setText("Contact Information");
+    businessNameTextField = new JTextField("CLICK HERE TO SET BUSINESS NAME");
+    businessHoursLabel = new JLabel("Business Hours");
+    contactInfoLabel = new JLabel("Contact Information");
+    addressLabel = new JLabel("Address");
+    phoneNumberLabel = new JLabel("Phone Number");
+    emailLabel = new JLabel("Email");
     // Edit buttons
-    editHoursButton = new JButton();
-    	editHoursButton.setText("Click to edit hours");
-    editAddressButton = new JButton();
-    	editAddressButton.setText("Click to change address");
-    editContactInfoButton = new JButton();
-    	editContactInfoButton.setText("Click to change contact information");
+    editBusinessHoursButton = new JButton("Edit");
+    editContactInfoButton = new JButton("Edit");
     
     // Business Hour elements
     String[] columnNames = {"Day", "Hours"};
@@ -77,150 +72,129 @@ public class BusinessInfoPage extends JFrame {
     hours[2][0] = "Wednesday"; hours[2][1] = "ADD HOURS";
     hours[3][0] = "Thursday"; hours[3][1] = "ADD HOURS";
     hours[4][0] = "Friday"; hours[4][1] = "ADD HOURS";
-    hours[5][0] = "Saturday"; hours[5][1] = "ADD HOURS";
-    hours[6][0] = "Sunday"; hours[6][1] = "ADD HOURS";
+    hours[5][0] = "Satruday"; hours[5][1] = "ADD HOURS";
+    hours[6][0] = "Sundayy"; hours[6][1] = "ADD HOURS";
     businessHoursContainer = new JTable(hours, columnNames);
     
     // Business address and contact
-    businessAddress = new JTextField();
-    	businessAddress.setText("ADD ADDRESS");
-    businessPhone = new JTextField();;
-    	businessPhone.setText("ADD PHONE NUMBER");
-    businessEmail = new JTextField();
-    	businessEmail.setText("ADD EMAIL");
+    addressTextField = new JTextField();
+    addressTextField.setText("ADD ADDRESS");
+    phoneNumberTextField = new JTextField();;
+    phoneNumberTextField.setText("ADD PHONE NUMBER");
+    emailTextField = new JTextField();
+    emailTextField.setText("ADD EMAIL");
 /*
     if (!FlexiBookController.viewBusinessInfo().equals(null)) {
-    	businessNameTitle.setText(FlexiBookController.viewBusinessInfo().getName().toString());
-    	businessAddress.setText(FlexiBookController.viewBusinessInfo().getAddress().toString());
-    	businessPhone.setText(FlexiBookController.viewBusinessInfo().getPhoneNumber().toString());
-    	businessEmail.setText(FlexiBookController.viewBusinessInfo().getEmail().toString());
-    	*/
-    	  /*
+        businessNameTitle.setText(FlexiBookController.viewBusinessInfo().getName().toString());
+        businessAddress.setText(FlexiBookController.viewBusinessInfo().getAddress().toString());
+        businessPhone.setText(FlexiBookController.viewBusinessInfo().getPhoneNumber().toString());
+        businessEmail.setText(FlexiBookController.viewBusinessInfo().getEmail().toString());
+        */
+          /*
         String[][] hours = new String[7][2];
         for (BusinessHour bh : FlexiBookController.viewBusinessHours()) {
-        	if (bh.getDayOfWeek().toString().equals("Monday")) {
-        		hours[0][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
-        	}
-        	else if (bh.getDayOfWeek().toString().equals("Tuesday")) {
-        		hours[1][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
-        	}
-        	else if (bh.getDayOfWeek().toString().equals("Wednesday")) {
-        		hours[2][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
-        	}
-        	else if (bh.getDayOfWeek().toString().equals("Thursday")) {
-        		hours[3][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
-        	}
-        	else if (bh.getDayOfWeek().toString().equals("Friday")) {
-        		hours[4][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
-        	}
-        	else if (bh.getDayOfWeek().toString().equals("Saturday")) {
-        		hours [5][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
-        	}
-        	else if (bh.getDayOfWeek().toString().equals("Sunday")) {
-        		hours[6][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
-        	}
+            if (bh.getDayOfWeek().toString().equals("Monday")) {
+                hours[0][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
+            }
+            else if (bh.getDayOfWeek().toString().equals("Tuesday")) {
+                hours[1][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
+            }
+            else if (bh.getDayOfWeek().toString().equals("Wednesday")) {
+                hours[2][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
+            }
+            else if (bh.getDayOfWeek().toString().equals("Thursday")) {
+                hours[3][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
+            }
+            else if (bh.getDayOfWeek().toString().equals("Friday")) {
+                hours[4][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
+            }
+            else if (bh.getDayOfWeek().toString().equals("Saturday")) {
+                hours [5][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
+            }
+            else if (bh.getDayOfWeek().toString().equals("Sunday")) {
+                hours[6][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
+            }
         }
         */
     //}
-
+ 
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     setTitle("Business Info Tab");
     
     // LISTENERS
     /*
     editHoursButton.addActionListener(new java.awt.event.ActionListener() {
-    	public void actionPerformed(java.awt.event.ActionEvent evt) {
-    		editHoursActionPerformed(evt);
-    	}
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            editHoursActionPerformed(evt);
+        }
     });
     editAddressButton.addActionListener(new java.awt.event.ActionListener() {
-    	public void actionPerformed(java.awt.event.ActionEvent evt) {
-    		editAddressActionPerformed(evt);
-    	}
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            editAddressActionPerformed(evt);
+        }
     });
     editContactInfoButton.addActionListener(new java.awt.event.ActionListener() {
-    	public void actionPerformed(java.awt.event.ActionEvent evt) {
-    		editContactInfoActionPerformed(evt);
-    	}
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            editContactInfoActionPerformed(evt);
+        }
     });
     */
-
+ 
     // LAYOUT
     GroupLayout layout = new GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
-    layout.setHorizontalGroup(layout
-    		.createParallelGroup()
-    		.addComponent(businessNameTitle)
-    		.addComponent(businessHoursTitle)
-    		.addComponent(businessHoursContainer)
-    		.addComponent(editHoursButton)
-    		.addComponent(businessAddressTitle)
-    		.addComponent(businessAddress)
-    		.addComponent(businessContactInfoTitle)
-    		.addComponent(businessPhone)
-    		.addComponent(businessEmail)
-    );
-    layout.setVerticalGroup(layout
-    		.createSequentialGroup()
-    		.addComponent(businessNameTitle)
-    		.addComponent(businessHoursTitle)
-    		.addComponent(businessHoursContainer)
-    		.addComponent(editHoursButton)
-    		.addComponent(businessAddressTitle)
-    		.addComponent(businessAddress)
-    		.addComponent(businessContactInfoTitle)
-    		.addComponent(businessPhone)
-    		.addComponent(businessEmail)
-    );
-    /* fancier layout :( (not working currently)
-    layout.setHorizontalGroup(layout
-    		.createSequentialGroup()
-    		.addGroup(layout
-    	    		.createParallelGroup()
-    	    		.addComponent(businessNameTitle)
-    	    	    .addComponent(businessHoursTitle)
-    	    	    .addComponent(businessHoursContainer)
-    	    	    .addComponent(editHoursButton)
-    				)
-    		.addGroup(layout
-    						.createParallelGroup()
-    	    				.addComponent(businessAddressTitle)
-    	    				.addComponent(businessAddress)
-    	    				.addComponent(editAddressButton)
-    	    				.addComponent(businessContactInfoTitle)
-    	    				.addComponent(editContactInfoButton)
-    						)
-    );
-    layout.setVerticalGroup(layout
-    		.createSequentialGroup()
-    		.addComponent(businessNameTitle)
-    		.addGroup(layout
-    				.createParallelGroup()
-    				.addComponent(businessHoursTitle)
-    				.addComponent(businessAddressTitle)
-    				)
-    		.addGroup(layout
-    				.createParallelGroup()
-    				.addComponent(businessHoursContainer)
-    				.addGroup(layout
-    						.createSequentialGroup()
-    						.addComponent(businessAddress)
-    						.addComponent(editAddressButton)
-    						.addComponent(businessContactInfoTitle)
-    						.addComponent(businessPhone)
-    						.addComponent(businessEmail)
-    						)
-    				)
-    		.addGroup(layout
-    				.createParallelGroup()
-    				.addComponent(editHoursButton)
-    				.addComponent(editContactInfoButton)
-    				)
-    		);
-    */
-    pack();
     
-    }
+    layout.setHorizontalGroup(
+            layout.createParallelGroup()
+            .addComponent(businessNameTextField)
+            .addGroup(
+                    layout.createSequentialGroup()
+                    .addGroup(
+                            layout.createParallelGroup()
+                            .addComponent(businessHoursLabel, Alignment.CENTER)
+                            .addComponent(businessHoursContainer)
+                            .addComponent(editBusinessHoursButton)
+                            )
+                    .addGroup(
+                            layout.createParallelGroup()
+                            .addComponent(contactInfoLabel, Alignment.CENTER)
+                            .addComponent(addressLabel)
+                            .addComponent(addressTextField)
+                            .addComponent(phoneNumberLabel)
+                            .addComponent(phoneNumberTextField)
+                            .addComponent(emailLabel)
+                            .addComponent(emailTextField)
+                            .addComponent(editContactInfoButton)
+                            )
+                    )
+            );
+    
+    layout.setVerticalGroup(
+            layout.createSequentialGroup()
+            .addComponent(businessNameTextField)
+            .addGroup(
+                    layout.createParallelGroup()
+                    .addGroup(
+                            layout.createSequentialGroup()
+                            .addComponent(businessHoursLabel)
+                            .addComponent(businessHoursContainer)
+                            .addComponent(editBusinessHoursButton)
+                            )
+                    .addGroup(
+                            layout.createSequentialGroup()
+                            .addComponent(contactInfoLabel)
+                            .addComponent(addressLabel)
+                            .addComponent(addressTextField)
+                            .addComponent(phoneNumberLabel)
+                            .addComponent(phoneNumberTextField)
+                            .addComponent(emailLabel)
+                            .addComponent(emailTextField)
+                            .addComponent(editContactInfoButton)
+                            )
+                    )
+            );
+    pack();
   }
+}

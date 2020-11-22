@@ -144,7 +144,7 @@ public class LoginPage extends JFrame {
   }
   
   private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {
-		// clear error message and basic input validation
+		// clear error message 
 		errorMessage = null;
 		
 		String username = userTextField.getText();
@@ -154,7 +154,6 @@ public class LoginPage extends JFrame {
 		try {
 			FlexiBookController.login(username, password);
 			Utils.switchToFrame(this, new LandingPage());
-			dispose();
 		} catch (InvalidInputException e) {
 			errorMessage = e.getMessage();
 		} finally {

@@ -3,8 +3,8 @@ package ca.mcgill.ecse.flexibook.view;
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
-import ca.mcgill.ecse.flexibook.controller.TOBusiness;
 import ca.mcgill.ecse.flexibook.model.Business; //?
+import ca.mcgill.ecse.flexibook.model.BusinessHour;
 
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;

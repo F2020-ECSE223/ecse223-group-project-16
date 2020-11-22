@@ -92,50 +92,37 @@ public class AppointmentsPage extends JFrame {
     errorMessage = new JLabel();
 		errorMessage.setForeground(Color.RED);
 
-    makeAppointmentLabel = new JLabel();
-    makeAppointmentLabel.setText("Make Appointment");
-    updateAppointmentLabel = new JLabel();
-    updateAppointmentLabel.setText("Update Appointment");
-    cancelAppointmentLabel = new JLabel();
-    cancelAppointmentLabel.setText("Cancel Appointment");
+    makeAppointmentLabel = new JLabel("Make Appointment");
+    updateAppointmentLabel = new JLabel("Update Appointment");
+    cancelAppointmentLabel = new JLabel("Cancel Appointment");
 
-    makeStartDateLabel = new JLabel();
-    makeStartDateLabel.setText("Appointment start date (yyyy-mm-dd)");
+    makeStartDateLabel = new JLabel("Appointment start date (yyyy-mm-dd)");
     makeStartDateTextField = new JTextField();
 
-    makeStartTimeLabel = new JLabel();
-    makeStartTimeLabel.setText("Appointment start time (hh-mm)");
+    makeStartTimeLabel = new JLabel("Appointment start time (hh-mm)");
     makeStartTimeTextField = new JTextField();
 
-    makeServiceToBookLabel = new JLabel();
-    makeServiceToBookLabel.setText("Appointment service");
+    makeServiceToBookLabel = new JLabel("Appointment service");
 
-    makeAppointmentButton = new JButton();
-    makeAppointmentButton.setText("Make Appointment");
+    makeAppointmentButton = new JButton("Make Appointment");
 
-    updateAppointmentButton = new JButton();
-    updateAppointmentButton.setText("Update Appointment");
+    updateAppointmentButton = new JButton("Update Appointment");
 
-    updateAppointmentListLabel = new JLabel();
-    updateAppointmentListLabel.setText("List of appointments");
+    updateAppointmentListLabel = new JLabel("List of appointments");
 
-    updateStartDateLabel = new JLabel();
-    updateStartDateLabel.setText("New Appointment start date (yyyy-mm-dd)");
+    updateStartDateLabel = new JLabel("New Appointment start date (yyyy-mm-dd)");
     updateStartDateTextField = new JTextField();
 
-    updateStartTimeLabel = new JLabel();
-    updateStartTimeLabel.setText("New Appointment start time (hh-mm)");
+    updateStartTimeLabel = new JLabel("New Appointment start time (hh-mm)");
     updateStartTimeTextField = new JTextField();
 
-    cancelAppointmentButton = new JButton();
-    cancelAppointmentButton.setText("Cancel Appointment");
+    cancelAppointmentButton = new JButton("Cancel Appointment");
 
     makeServicesList = new JComboBox<String>(new String[0]);
 
     updateAppointmentList = new JComboBox<String>(new String[0]);
 
-    cancelAppointmentListLabel = new JLabel();
-    cancelAppointmentListLabel.setText("List of appointments");
+    cancelAppointmentListLabel = new JLabel("List of appointments");
     cancelAppointmentList = new JComboBox<String>(new String[0]);
 
     makeAppointmentButton.addActionListener(new java.awt.event.ActionListener() {
@@ -303,7 +290,7 @@ public class AppointmentsPage extends JFrame {
     else{
       try{
         FlexiBookController.makeAppointment(
-          FlexiBookApplication.getCurrentUser().getUsername(), 
+          FlexiBookController.getCurrentUser().getUsername(), 
           makeStartDateTextField.getText(), 
           makeServicesList.getSelectedItem().toString(), 
           makeStartTimeTextField.getText()
@@ -326,7 +313,7 @@ public class AppointmentsPage extends JFrame {
       try{
         String[] appData = updateAppointmentList.getSelectedItem().toString().split(" ");
         FlexiBookController.updateAppointment(
-          FlexiBookApplication.getCurrentUser().getUsername(), 
+          FlexiBookController.getCurrentUser().getUsername(), 
           appData[0], 
           appData[1], 
           appData[2],
@@ -335,7 +322,7 @@ public class AppointmentsPage extends JFrame {
         );
       }
       catch(InvalidInputException e){
-        error = FlexiBookApplication.getCurrentUser().getUsername();
+        error = e.getMessage();
       }
     }
     refreshData();
@@ -351,14 +338,14 @@ public class AppointmentsPage extends JFrame {
       try{
         String[] appData = cancelAppointmentList.getSelectedItem().toString().split(" ");
         FlexiBookController.cancelAppointment(
-          FlexiBookApplication.getCurrentUser().getUsername(), 
+          FlexiBookController.getCurrentUser().getUsername(), 
           appData[0], 
           appData[1], 
           appData[2]
         );
       }
       catch(InvalidInputException e){
-        error = FlexiBookApplication.getCurrentUser().getUsername();
+        error = e.getMessage();
       }
     }
     refreshData();

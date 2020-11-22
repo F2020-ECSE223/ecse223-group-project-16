@@ -8,8 +8,10 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
+import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOUser;
 
 public class FlexiBookMenuBar extends JMenuBar {
@@ -193,6 +195,10 @@ public class FlexiBookMenuBar extends JMenuBar {
 	}
 
 	private void logout() {
-		// do logout
+		try {
+			FlexiBookController.logout();
+		} catch (InvalidInputException e) {
+			JOptionPane.showMessageDialog(parentFrame, e.getMessage());
+		}
 	}
 }

@@ -1574,15 +1574,23 @@ public class FlexiBookController {
 	/**
 	 * View the basic business information
 	 * 
-	 * @author: Julie
+	 * @author Julie, louca
 	 * @category feature set 3
 	 * @category Query method
 	 * 
-	 * @return basic business information (name, address, email, phone number) as a transfer object
+	 * @return business' basic information (name, address, email, phone number) with its business hours as a list of transfer objects, as a transfer object, or null if the business has not yet been created
 	 */
 	public static TOBusiness viewBusinessInfo() {
-		Business business = FlexiBookApplication.getFlexiBook().getBusiness();
-		return new TOBusiness(business.getName(), business.getAddress(), business.getPhoneNumber(), business.getEmail());
+		Business b = FlexiBookApplication.getFlexiBook().getBusiness();
+		if (b == null) {
+			return null;
+		}
+		
+		TOBusiness business = new TOBusiness(b.getName(), b.getAddress(), b.getPhoneNumber(), b.getEmail());
+		for (BusinessHour bH : b.getBusinessHours()) {
+			business.addBusinessHour(TOBusinessHour.DayOfWeek.valueOf(bH.getDayOfWeek().toString()), bH.getStartTime(), bH.getEndTime());
+		}
+		return business;
 	}
 	/**
 	 * @author Julie

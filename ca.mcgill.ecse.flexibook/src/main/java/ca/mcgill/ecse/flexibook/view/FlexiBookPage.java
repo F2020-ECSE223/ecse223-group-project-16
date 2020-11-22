@@ -54,22 +54,25 @@ public class FlexiBookPage extends JFrame {
     goToSignUp.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         new SignUpPage().setVisible(true);
-
+        dispose();
       }
     });
     goToLogin.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         new LoginPage().setVisible(true);
+        dispose();
       }
     });
     goToServices.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         new ServicesPage().setVisible(true);
+        dispose();
       }
     });
     goToBusinessInfo.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         new BusinessInfoPage().setVisible(true);
+        dispose();
       }
     });
     goToAppointmentMake.addActionListener(new java.awt.event.ActionListener() {
@@ -79,12 +82,13 @@ public class FlexiBookPage extends JFrame {
     });
     goToAppointmentUpdate.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
-        new AppointmentsPage().setVisible(true); 
+        new AppointmentsPage().setVisible(true);  
       }
     });
     goToViewCalendar.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         new ViewCalendarPage().setVisible(true);
+        dispose();
       }
     });
     goToUserSettings.addActionListener(new java.awt.event.ActionListener() {

@@ -18,8 +18,8 @@ public class FlexiBookMenuBar extends JMenuBar {
 
 	// constants
 	private static final int USERNAME_CUTOFF = 15;
-	private static final char CARET_DOWN = '⋁';
-	private static final char CARET_UP = '⋀';
+	private static final char CARET_DOWN = 'v';
+	private static final char CARET_UP = '^';
 
 	// UI elements
 	// navigation

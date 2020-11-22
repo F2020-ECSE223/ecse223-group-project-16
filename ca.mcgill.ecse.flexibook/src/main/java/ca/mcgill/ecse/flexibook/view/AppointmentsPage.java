@@ -150,7 +150,7 @@ public class AppointmentsPage extends JFrame {
       }
     });
 
-    setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     setTitle("Appointment Tab");
 
     GroupLayout layout = new GroupLayout(getContentPane());

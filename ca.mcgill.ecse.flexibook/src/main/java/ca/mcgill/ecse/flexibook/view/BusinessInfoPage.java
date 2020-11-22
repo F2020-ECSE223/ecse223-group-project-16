@@ -7,10 +7,12 @@ import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.WindowConstants;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -29,6 +31,9 @@ public class BusinessInfoPage extends JFrame {
   private static final long serialVersionUID = -941637358529064014L;
   
   // ELEMENTS
+  	// Panels
+  private JPanel businessHoursPanel;
+  private JPanel businessInfoPanel;
     // Titles
   private JTextField businessNameTextField;
   private JLabel businessHoursLabel;
@@ -55,6 +60,7 @@ public class BusinessInfoPage extends JFrame {
 // INTIALIZE
     // Titles
     businessNameTextField = new JTextField("CLICK HERE TO SET BUSINESS NAME");
+    businessNameTextField.setHorizontalAlignment(JTextField.CENTER);
     businessHoursLabel = new JLabel("Business Hours");
     contactInfoLabel = new JLabel("Contact Information");
     addressLabel = new JLabel("Address");
@@ -72,9 +78,10 @@ public class BusinessInfoPage extends JFrame {
     hours[2][0] = "Wednesday"; hours[2][1] = "ADD HOURS";
     hours[3][0] = "Thursday"; hours[3][1] = "ADD HOURS";
     hours[4][0] = "Friday"; hours[4][1] = "ADD HOURS";
-    hours[5][0] = "Satruday"; hours[5][1] = "ADD HOURS";
-    hours[6][0] = "Sundayy"; hours[6][1] = "ADD HOURS";
+    hours[5][0] = "Saturday"; hours[5][1] = "ADD HOURS";
+    hours[6][0] = "Sunday"; hours[6][1] = "ADD HOURS";
     businessHoursContainer = new JTable(hours, columnNames);
+    businessHoursContainer.setRowHeight(19);
     
     // Business address and contact
     addressTextField = new JTextField();
@@ -120,6 +127,7 @@ public class BusinessInfoPage extends JFrame {
  
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     setTitle("Business Info Tab");
+	setMinimumSize(new Dimension(600, 200));
     
     // LISTENERS
     /*
@@ -140,61 +148,99 @@ public class BusinessInfoPage extends JFrame {
     });
     */
  
-    // LAYOUT
+    // PANEL LAYOUT
+    Utils.resizeTextFieldToWidth(addressTextField, 20);
+    Utils.resizeTextFieldToWidth(businessNameTextField, 20);
+    Utils.resizeTextFieldToWidth(emailTextField, 20);
+    Utils.resizeTextFieldToWidth(phoneNumberTextField, 20);
+	businessHoursPanel = new JPanel(true);
+	GroupLayout bhLayout = new GroupLayout(businessHoursPanel);
+	bhLayout.setAutoCreateGaps(true);
+	bhLayout.setAutoCreateContainerGaps(true);
+	businessHoursPanel.setLayout(bhLayout);
+	businessHoursPanel.setBorder(
+			BorderFactory.createCompoundBorder(
+					BorderFactory.createTitledBorder(
+						BorderFactory.createEtchedBorder(), 
+						"Business Hours"),
+					new EmptyBorder(5, 5, 5, 5)
+					)
+				);
+	bhLayout.setHorizontalGroup(
+			bhLayout.createParallelGroup()
+			.addComponent(businessHoursLabel, Alignment.CENTER)
+			.addComponent(businessHoursContainer)
+			.addComponent(editBusinessHoursButton, Alignment.CENTER)
+	);
+	bhLayout.setVerticalGroup(
+			bhLayout.createSequentialGroup()
+			.addComponent(businessHoursLabel)
+			.addComponent(businessHoursContainer)
+			.addComponent(editBusinessHoursButton)
+	);
+	
+	businessInfoPanel = new JPanel(true);
+	GroupLayout biLayout = new GroupLayout(businessInfoPanel);
+	biLayout.setAutoCreateGaps(true);
+	biLayout.setAutoCreateContainerGaps(true);
+	businessInfoPanel.setLayout(biLayout);
+	businessInfoPanel.setBorder(
+			BorderFactory.createCompoundBorder(
+					BorderFactory.createTitledBorder(
+						BorderFactory.createEtchedBorder(), 
+						"Contact Information"),
+					new EmptyBorder(5, 5, 5, 5)
+					)
+				);
+	biLayout.setHorizontalGroup(
+			biLayout.createParallelGroup()
+			.addComponent(addressLabel, Alignment.CENTER)
+			.addComponent(addressTextField)
+			.addComponent(phoneNumberLabel, Alignment.CENTER)
+			.addComponent(phoneNumberTextField)
+			.addComponent(emailLabel, Alignment.CENTER)
+			.addComponent(emailTextField)
+			.addComponent(editContactInfoButton, Alignment.CENTER)
+	);
+	biLayout.setVerticalGroup(
+			biLayout.createSequentialGroup()
+			.addComponent(addressLabel)
+			.addComponent(addressTextField)
+			.addComponent(phoneNumberLabel)
+			.addComponent(phoneNumberTextField)
+			.addComponent(emailLabel)
+			.addComponent(emailTextField)
+			.addComponent(editContactInfoButton)
+	);
+	
+	// GROUP LAYOUT
     GroupLayout layout = new GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
-    
+    Utils.resizeTextFieldToWidth(addressTextField, 50);
+    Utils.resizeTextFieldToWidth(businessNameTextField, 50);
+    Utils.resizeTextFieldToWidth(emailTextField, 50);
+    Utils.resizeTextFieldToWidth(phoneNumberTextField, 50);
+
     layout.setHorizontalGroup(
-            layout.createParallelGroup()
-            .addComponent(businessNameTextField)
-            .addGroup(
-                    layout.createSequentialGroup()
-                    .addGroup(
-                            layout.createParallelGroup()
-                            .addComponent(businessHoursLabel, Alignment.CENTER)
-                            .addComponent(businessHoursContainer)
-                            .addComponent(editBusinessHoursButton)
-                            )
-                    .addGroup(
-                            layout.createParallelGroup()
-                            .addComponent(contactInfoLabel, Alignment.CENTER)
-                            .addComponent(addressLabel)
-                            .addComponent(addressTextField)
-                            .addComponent(phoneNumberLabel)
-                            .addComponent(phoneNumberTextField)
-                            .addComponent(emailLabel)
-                            .addComponent(emailTextField)
-                            .addComponent(editContactInfoButton)
-                            )
-                    )
-            );
-    
+    		layout.createParallelGroup()
+    		.addComponent(businessNameTextField)
+    		.addGroup(
+    				layout.createSequentialGroup()
+    				.addComponent(businessHoursPanel)
+    				.addComponent(businessInfoPanel)
+    		)		
+    );
     layout.setVerticalGroup(
-            layout.createSequentialGroup()
-            .addComponent(businessNameTextField)
-            .addGroup(
-                    layout.createParallelGroup()
-                    .addGroup(
-                            layout.createSequentialGroup()
-                            .addComponent(businessHoursLabel)
-                            .addComponent(businessHoursContainer)
-                            .addComponent(editBusinessHoursButton)
-                            )
-                    .addGroup(
-                            layout.createSequentialGroup()
-                            .addComponent(contactInfoLabel)
-                            .addComponent(addressLabel)
-                            .addComponent(addressTextField)
-                            .addComponent(phoneNumberLabel)
-                            .addComponent(phoneNumberTextField)
-                            .addComponent(emailLabel)
-                            .addComponent(emailTextField)
-                            .addComponent(editContactInfoButton)
-                            )
-                    )
-            );
+    		layout.createSequentialGroup()
+    		.addComponent(businessNameTextField)
+    		.addGroup(
+    				layout.createParallelGroup()
+    				.addComponent(businessHoursPanel)
+    				.addComponent(businessInfoPanel)
+    		)
+    );
     pack();
   }
 }

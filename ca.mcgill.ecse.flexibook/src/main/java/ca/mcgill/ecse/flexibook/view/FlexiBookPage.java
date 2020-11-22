@@ -19,30 +19,33 @@ public class FlexiBookPage extends JFrame {
   private JButton goToAppointmentMake;
   private JButton goToAppointmentUpdate;
   private JButton goToViewCalendar;
+  private JButton goToAppointmentManagement;
   private JButton goToUserSettings;
-
+  
+  
   public FlexiBookPage() {
     initComponents();
   }
   
   private void initComponents() {
 	  goToLandingPage = new JButton("Back to Landing Page");
-    goToSignUp = new JButton();
-    goToSignUp.setText("Go to SignUP");
-    goToLogin = new JButton();
-    goToLogin.setText("Go to Login");
-    goToServices = new JButton();
-    goToServices.setText("Go to Services");
-    goToBusinessInfo = new JButton();
-    goToBusinessInfo.setText("Go to Business Info");
-    goToAppointmentMake = new JButton();
-    goToAppointmentMake.setText("Go to Appointment Make");
-    goToAppointmentUpdate = new JButton();
-    goToAppointmentUpdate.setText("Go to Appointment Update");
-    goToViewCalendar = new JButton();
-    goToViewCalendar.setText("Go to View Calendar");
-    goToUserSettings = new JButton("User Settings");
-    
+	  goToSignUp = new JButton();
+	  goToSignUp.setText("Go to SignUP");
+	  goToLogin = new JButton();
+	  goToLogin.setText("Go to Login");
+	  goToServices = new JButton();
+	  goToServices.setText("Go to Services");
+	  goToBusinessInfo = new JButton();
+	  goToBusinessInfo.setText("Go to Business Info");
+	  goToAppointmentMake = new JButton();
+	  goToAppointmentMake.setText("Go to Appointment Make");
+	  goToAppointmentUpdate = new JButton();
+	  goToAppointmentUpdate.setText("Go to Appointment Update");
+	  goToViewCalendar = new JButton();
+	  goToViewCalendar.setText("Go to View Calendar");
+	  goToUserSettings = new JButton("User Settings");
+	  goToAppointmentManagement = new JButton("Go to Appointment Management");
+
     
     JFrame that = this;
     goToLandingPage.addActionListener(new java.awt.event.ActionListener() {
@@ -93,6 +96,12 @@ public class FlexiBookPage extends JFrame {
       }
     });
 
+    goToAppointmentManagement.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+          new AppointmentManagementPage().setVisible(true);
+        }
+      });
+    
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     setTitle("FlexiBook Appointment Booking System");
 
@@ -112,6 +121,7 @@ public class FlexiBookPage extends JFrame {
             .addComponent(goToBusinessInfo)
             .addComponent(goToAppointmentMake)
             .addComponent(goToAppointmentUpdate)
+            .addComponent(goToAppointmentManagement)
             .addComponent(goToViewCalendar)
             .addComponent(goToUserSettings)
           )
@@ -128,6 +138,7 @@ public class FlexiBookPage extends JFrame {
         .addComponent(goToBusinessInfo)
         .addComponent(goToAppointmentMake)
         .addComponent(goToAppointmentUpdate)
+        .addComponent(goToAppointmentManagement)
         .addComponent(goToViewCalendar)
         .addComponent(goToUserSettings)
       )

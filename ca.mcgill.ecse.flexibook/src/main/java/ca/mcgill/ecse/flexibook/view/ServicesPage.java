@@ -17,6 +17,8 @@ import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOBookableService;
+import ca.mcgill.ecse.flexibook.model.BookableService;
+import ca.mcgill.ecse.flexibook.model.Service;
 
 
 public class ServicesPage extends JFrame {
@@ -26,8 +28,7 @@ public class ServicesPage extends JFrame {
 
   private JLabel serviceLabel;
   
-  private JLabel deleteServiceLabel;
-  private JComboBox<String> deleteServiceList;
+
   private JButton deleteServiceButton;
  
   private JLabel updateServiceLabel;
@@ -71,16 +72,13 @@ public class ServicesPage extends JFrame {
 	
 	
 	// DELETE SERVICE ELEMENTS
-	deleteServiceLabel = new JLabel();
-    deleteServiceLabel.setText("Delete Existing Service");
-    deleteServiceList = new JComboBox<String>(new String[0]);
     deleteServiceButton = new JButton();
     deleteServiceButton.setText("Delete Service");
     
     
     // UPDATE SERVICE ELEMENTS
     updateServiceLabel = new JLabel();
-    updateServiceLabel.setText("Update Existing Service");
+    updateServiceLabel.setText("Update/Delete Existing Service");
     updateServiceList = new JComboBox<String>(new String[0]);
     
     updateServiceNameTextField = new JTextField();
@@ -151,6 +149,13 @@ public class ServicesPage extends JFrame {
         }
     });
     
+    updateServiceList.addActionListener (new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            updateServiceListActionPerformed(evt);
+        }
+    });
+    
+    
     JSeparator horizontalLineTop = new JSeparator();
     JSeparator horizontalLineBottom = new JSeparator();
     
@@ -169,8 +174,6 @@ public class ServicesPage extends JFrame {
     					  .addComponent(addServiceLabel)
     					  .addComponent(updateServiceLabel)
     					  .addComponent(updateServiceList)
-    					  .addComponent(deleteServiceLabel)
-    					  .addComponent(deleteServiceList)
     					  )
     	  		.addGroup(layout.createParallelGroup()
     	  				.addComponent(addServiceNameLabel)
@@ -211,7 +214,7 @@ public class ServicesPage extends JFrame {
     	  				)
     		);
     
-    layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {deleteServiceButton, deleteServiceLabel});
+    layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {deleteServiceButton, updateServiceLabel});
     layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {updateServiceButton, updateServiceLabel});
     layout.linkSize(SwingConstants.HORIZONTAL, new java.awt.Component[] {addServiceButton, addServiceLabel});
     
@@ -240,19 +243,14 @@ public class ServicesPage extends JFrame {
 	  			.addComponent(updateServiceDownTimeTextField)
 	  			.addComponent(updateServiceDTDurationLabel)  
 	  			.addComponent(updateServiceDTDurationTextField)
+	  			.addComponent(updateServiceButton)
+	  			
 	    		)
 	     .addGroup(layout.createParallelGroup()
 	    		 .addComponent(updateServiceList)
-	    		 .addComponent(updateServiceButton)
+	    		 .addComponent(deleteServiceButton)
 	    		 )
-	     .addGroup(layout.createParallelGroup()
-	    		.addComponent(deleteServiceLabel)
-	    		)
-		.addGroup(layout.createParallelGroup()
-				.addComponent(deleteServiceList)
-				.addComponent(deleteServiceButton)	
-	  	    )
-    );
+    		);
     pack();
   }
   
@@ -268,16 +266,6 @@ public class ServicesPage extends JFrame {
           index++;
       };
       updateServiceList.setSelectedIndex(-1);
-	  
-      index = 0;
-      deleteServiceList.removeAllItems();
-      for (TOBookableService service : FlexiBookController.getBookableServices()) {
-    	  bookableServices.add(service.getName());
-    	  deleteServiceList.addItem(service.getName());
-          index++;
-      };
-      deleteServiceList.setSelectedIndex(-1);
-
       updateServiceNameTextField.setText("");
       updateServiceDurationTextField.setText("");
       updateServiceDownTimeTextField.setText("");
@@ -310,11 +298,24 @@ public class ServicesPage extends JFrame {
   
   private void deleteServiceButtonActionPerformed(java.awt.event.ActionEvent evt) {
 	  try {
-		  FlexiBookController.deleteService(String.valueOf(deleteServiceList.getSelectedItem()));
+		  FlexiBookController.deleteService(String.valueOf(updateServiceList.getSelectedItem()));
 	  }catch (InvalidInputException e){
 		  error = e.getMessage();
 	  }
 	  refreshData();
   }
+  
+  private void updateServiceListActionPerformed(java.awt.event.ActionEvent evt) {
+	  for (BookableService bS : FlexiBookApplication.getFlexiBook().getBookableServices()){
+		  if (bS.getName() == String.valueOf(updateServiceList.getSelectedItem())) {
+			  Service serviceSelected = (Service) bS;
+			  updateServiceNameTextField.setText(serviceSelected.getName());
+		      updateServiceDurationTextField.setText(String.valueOf(serviceSelected.getDuration()));
+		      updateServiceDownTimeTextField.setText(String.valueOf(serviceSelected.getDowntimeStart()));
+		      updateServiceDTDurationTextField.setText(String.valueOf(serviceSelected.getDowntimeDuration()));
+		  }
+	  }
+	 
+  };
   
 }

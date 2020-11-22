@@ -550,24 +550,24 @@ public class FlexiBookController {
 		c.setTime(startDate);
 		int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
 		if(!(FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours().stream().anyMatch(x -> 
-		x.getDayOfWeek().equals(getDayOfWeek(dayOfWeek))
-		&& x.getStartTime().before(startTime)
-		&& !x.getEndTime().before(endTimeWithDowntime)))) {
-			throw new InvalidInputException(noTimeSlotMessage);
+      x.getDayOfWeek().equals(getDayOfWeek(dayOfWeek))
+      && x.getStartTime().before(startTime)
+      && !x.getEndTime().before(endTimeWithDowntime)))) {
+		  	throw new InvalidInputException(noTimeSlotMessage);
 		}		
 		// checks if appointment is during vacation times
 		if(FlexiBookApplication.getFlexiBook().getBusiness().getVacation().stream().anyMatch(x -> 
-		x.getStartDate().after(startDate) && x.getEndDate().before(startDate)
-		|| (x.getStartDate().equals(startDate) && x.getStartTime().before(endTimeWithDowntime))
-		|| (x.getEndDate().equals(startDate) && x.getEndTime().after(startTime)))) {
-			throw new InvalidInputException(noTimeSlotMessage);
+      x.getStartDate().after(startDate) && x.getEndDate().before(startDate)
+      || (x.getStartDate().equals(startDate) && x.getStartTime().before(endTimeWithDowntime))
+      || (x.getEndDate().equals(startDate) && x.getEndTime().after(startTime)))) {
+        throw new InvalidInputException(noTimeSlotMessage);
 		}
 		// checks if appointment is during holiday times
 		if(FlexiBookApplication.getFlexiBook().getBusiness().getHolidays().stream().anyMatch(x -> 
-		x.getStartDate().after(startDate) && x.getEndDate().before(startDate)
-		|| (x.getStartDate().equals(startDate) && x.getStartTime().before(endTimeWithDowntime))
-		|| (x.getEndDate().equals(startDate) && x.getEndTime().after(startTime)))) {
-			throw new InvalidInputException(noTimeSlotMessage);
+      x.getStartDate().after(startDate) && x.getEndDate().before(startDate)
+      || (x.getStartDate().equals(startDate) && x.getStartTime().before(endTimeWithDowntime))
+      || (x.getEndDate().equals(startDate) && x.getEndTime().after(startTime)))) {
+        throw new InvalidInputException(noTimeSlotMessage);
 		}
 		// checks for collision with other appointments
 		if (bookableService instanceof Service) {

@@ -70,6 +70,9 @@ public class FlexiBookController {
 		if (username.trim().isEmpty()) {
 			throw new InvalidInputException("The user name cannot be empty"); // space here
 		}
+		if (username.equals("owner")) {
+			throw new InvalidInputException("The username cannot be owner");
+		}
 	}
 	
 	/**

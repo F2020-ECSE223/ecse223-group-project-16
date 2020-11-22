@@ -8,7 +8,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.event.MenuEvent;
 
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.TOUser;
@@ -87,7 +86,6 @@ public class FlexiBookMenuBar extends JMenuBar {
 		if (username.length() > USERNAME_CUTOFF) {
 			usernamePreview = username.substring(0, USERNAME_CUTOFF - 3).concat("...");
 		}
-		usernamePreview += "  ▼";
 		accountMenu.setText(usernamePreview);
 
 		logoutMenuItem = new JMenuItem("Logout");
@@ -130,23 +128,6 @@ public class FlexiBookMenuBar extends JMenuBar {
 			}
 		});
 		// account menu
-		accountMenu.addMenuListener(new javax.swing.event.MenuListener() {
-			@Override
-			public void menuSelected(javax.swing.event.MenuEvent e) {
-				accountMenu.setText(toggleCaret(accountMenu.getText()));
-			}
-
-			@Override
-			public void menuCanceled(javax.swing.event.MenuEvent e) {
-				toggleCaret(accountMenu.getText());
-			}
-
-			@Override
-			public void menuDeselected(MenuEvent e) {
-				accountMenu.setText(toggleCaret(accountMenu.getText()));
-
-			}
-		});
 		// account menu items
 		logoutMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -213,14 +194,5 @@ public class FlexiBookMenuBar extends JMenuBar {
 
 	private void logout() {
 		// do logout
-	}
-
-	private String toggleCaret(String text) {
-		char caret = '▲';
-
-		if (text.charAt(text.length() - 1) == '▲') {
-			caret = '▼';
-		}
-		return text.substring(0, text.length() - 1) + String.valueOf(caret);
 	}
 }

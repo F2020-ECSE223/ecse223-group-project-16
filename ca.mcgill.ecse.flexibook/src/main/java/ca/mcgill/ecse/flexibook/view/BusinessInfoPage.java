@@ -77,8 +77,8 @@ public class BusinessInfoPage extends JFrame {
     hours[2][0] = "Wednesday"; hours[2][1] = "ADD HOURS";
     hours[3][0] = "Thursday"; hours[3][1] = "ADD HOURS";
     hours[4][0] = "Friday"; hours[4][1] = "ADD HOURS";
-    hours[5][0] = "Satruday"; hours[5][1] = "ADD HOURS";
-    hours[6][0] = "Sundayy"; hours[6][1] = "ADD HOURS";
+    hours[5][0] = "Saturday"; hours[5][1] = "ADD HOURS";
+    hours[6][0] = "Sunday"; hours[6][1] = "ADD HOURS";
     businessHoursContainer = new JTable(hours, columnNames);
     
     // Business address and contact
@@ -151,49 +151,75 @@ public class BusinessInfoPage extends JFrame {
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
     layout.setHorizontalGroup(layout
-    .createParallelGroup()
-  	  .addComponent(businessNameTitle)
-      .addGroup(layout
-        .createSequentialGroup()
-        	.addGroup(layout
-        		.createParallelGroup()
-        	    .addComponent(businessHoursTitle)
-        	    .addComponent(businessHoursContainer)
-        	    .addComponent(editHoursButton)
-        			
-             )
-        	.addGroup(layout
-        		.createParallelGroup()
-        		.addComponent(businessAddressTitle)
-    	      	.addComponent(businessAddress)
-    	      	.addComponent(businessContactInfoTitle)
-    	      	.addComponent(businessPhone)
-    	      	.addComponent(businessEmail)
-    	      	.addComponent(editContactInfoButton)
-        	)
-      )
+    		.createParallelGroup()
+    		.addComponent(businessNameTitle)
+    		.addComponent(businessHoursTitle)
+    		.addComponent(businessHoursContainer)
+    		.addComponent(editHoursButton)
+    		.addComponent(businessAddressTitle)
+    		.addComponent(businessAddress)
+    		.addComponent(businessContactInfoTitle)
+    		.addComponent(businessPhone)
+    		.addComponent(businessEmail)
     );
     layout.setVerticalGroup(layout
-    .createSequentialGroup()
-    	.addComponent(businessNameTitle)
-    	.addGroup(layout
-    		.createParallelGroup()
-    			.addGroup(layout
-    				.createSequentialGroup()
-			    	.addComponent(businessHoursTitle)
-			    	.addComponent(businessHoursContainer)
-			    	.addComponent(editHoursButton)
-			    )
-    			.addGroup(layout
-    				.createSequentialGroup()
-    				.addComponent(businessAddressTitle)
-    				.addComponent(businessAddress)
-    				.addComponent(businessContactInfoTitle)
-    				.addComponent(businessPhone)
-    				.addComponent(businessEmail)
-    			)
-    	)
+    		.createSequentialGroup()
+    		.addComponent(businessNameTitle)
+    		.addComponent(businessHoursTitle)
+    		.addComponent(businessHoursContainer)
+    		.addComponent(editHoursButton)
+    		.addComponent(businessAddressTitle)
+    		.addComponent(businessAddress)
+    		.addComponent(businessContactInfoTitle)
+    		.addComponent(businessPhone)
+    		.addComponent(businessEmail)
     );
+    /* fancier layout :( (not working currently)
+    layout.setHorizontalGroup(layout
+    		.createSequentialGroup()
+    		.addGroup(layout
+    	    		.createParallelGroup()
+    	    		.addComponent(businessNameTitle)
+    	    	    .addComponent(businessHoursTitle)
+    	    	    .addComponent(businessHoursContainer)
+    	    	    .addComponent(editHoursButton)
+    				)
+    		.addGroup(layout
+    						.createParallelGroup()
+    	    				.addComponent(businessAddressTitle)
+    	    				.addComponent(businessAddress)
+    	    				.addComponent(editAddressButton)
+    	    				.addComponent(businessContactInfoTitle)
+    	    				.addComponent(editContactInfoButton)
+    						)
+    );
+    layout.setVerticalGroup(layout
+    		.createSequentialGroup()
+    		.addComponent(businessNameTitle)
+    		.addGroup(layout
+    				.createParallelGroup()
+    				.addComponent(businessHoursTitle)
+    				.addComponent(businessAddressTitle)
+    				)
+    		.addGroup(layout
+    				.createParallelGroup()
+    				.addComponent(businessHoursContainer)
+    				.addGroup(layout
+    						.createSequentialGroup()
+    						.addComponent(businessAddress)
+    						.addComponent(editAddressButton)
+    						.addComponent(businessContactInfoTitle)
+    						.addComponent(businessPhone)
+    						.addComponent(businessEmail)
+    						)
+    				)
+    		.addGroup(layout
+    				.createParallelGroup()
+    				.addComponent(editHoursButton)
+    				.addComponent(editContactInfoButton)
+    				)
+    		);
+    */
     pack();
     
     }

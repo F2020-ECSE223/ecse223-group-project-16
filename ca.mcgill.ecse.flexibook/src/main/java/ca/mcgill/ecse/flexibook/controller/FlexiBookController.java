@@ -70,6 +70,9 @@ public class FlexiBookController {
 		if (username.trim().isEmpty()) {
 			throw new InvalidInputException("The user name cannot be empty"); // space here
 		}
+		if (username.equals("owner")) {
+			throw new InvalidInputException("The username cannot be owner");
+		}
 	}
 	
 	/**
@@ -149,7 +152,7 @@ public class FlexiBookController {
 	 * 
 	 * @param username of the Customer account to delete
 	 * 
-	 * @throws InvalidInputException if the Customer account to delete is the current user, or if the username is the that of the Owner account
+	 * @throws InvalidInputException if the Customer account to delete is not the current user, or if the username is the that of the Owner account
 	 */
 	public static void deleteCustomerAccount(String username) throws InvalidInputException {
 		Customer customerToDelete = getCustomerByUsername(username);
@@ -234,7 +237,7 @@ public class FlexiBookController {
 		Service[] comboServices = new Service[services.length]; // could use array lists but not very necessary & just adds bloat
 		int mainServiceIndex = -1;
 		for (int i = 0; i < services.length; i++) {
-			Service s = getService(services[i]);
+			Service s = _getService(services[i]);
 			if (s == null) {
 				throw new InvalidInputException(String.format("Service %s does not exist", services[i]));
 			} else { 
@@ -295,7 +298,7 @@ public class FlexiBookController {
 		Service[] comboServices = new Service[services.length];
 		int mainServiceIndex = -1;
 		for (int i = 0; i < services.length; i++) {
-			Service s = getService(services[i]);
+			Service s = _getService(services[i]);
 			if (s == null) {
 				throw new InvalidInputException(String.format("Service %s does not exist", services[i]));
 			} else {
@@ -380,7 +383,7 @@ public class FlexiBookController {
 	/**
 	 * @author theodore
 	 */
-	private static Service getService(String name) {
+	private static Service _getService(String name) {
 		for (BookableService b : FlexiBookApplication.getFlexiBook().getBookableServices()) {
 			if (b instanceof Service && b.getName().equals(name)) {
 				return (Service) b;
@@ -2094,7 +2097,7 @@ public class FlexiBookController {
 		}
 	}
 	/**
-	 * Get all appointments of the User with the provided username, as a list of transfer objects.
+	 * Get all appointments of the User with the provided username as a list of transfer objects.
 	 * 
 	 * @author louca
 	 * @category Query methods
@@ -2140,7 +2143,7 @@ public class FlexiBookController {
 	}
 	
 	/**
-	 * Get all bookable services offered, as a list of transfer objects.
+	 * Get all bookable services offered as a list of transfer objects.
 	 * 
 	 * These transfer objects represent either a service or a service combo with an association to its combo items
 	 * 
@@ -2154,7 +2157,8 @@ public class FlexiBookController {
 		
 		for (BookableService bS : FlexiBookApplication.getFlexiBook().getBookableServices()) {
 			if (bS instanceof Service) {
-				bookableServices.add(new TOService(((Service) bS).getName()));
+				Service service = (Service) bS;
+                bookableServices.add(new TOService(service.getName(), service.getDuration(), service.getDowntimeDuration(), service.getDowntimeStart()));
 			} else {
 				ServiceCombo sC = (ServiceCombo) bS;
 				TOServiceCombo serviceCombo = new TOServiceCombo(sC.getName());
@@ -2178,7 +2182,7 @@ public class FlexiBookController {
 	}
 	
 	/**
-	 * View the appointment calendar between the provided range of dates, or a single day if only the startDate is provided.
+	 * View the appointment calendar between the provided range of dates, or a single day if only the startDate is provided, as a transfer object holding the timeslots themselves as transfer objects.
 	 * 
 	 * Returns a calendar transfer object associated with distinct associations to time slot transfer objects for the available and unavailable time slots over the range of dates or single date.
 	 * 
@@ -2189,7 +2193,7 @@ public class FlexiBookController {
 	 * @param startDate of the range of dates over which to view the appointment, or the single date if no endDate is provided
 	 * @param endDate of the range of dates over which to view the appointment, or null if the startDate is to be the single date
 	 * 
-	 * @return a calendar distinctly containing the available and unavailable time slots sorted chronologically as transfer objects
+	 * @return a calendar as a transfer object distinctly containing the available and unavailable time slots sorted chronologically as transfer objects
 	 * 
 	 * @throws InvalidInputException 
 	 */
@@ -2237,4 +2241,75 @@ public class FlexiBookController {
 		
 		return calendar;
 	}
+
+	/**
+	 * Get the user that is currently logged into the system as a transfer object.
+	 * 
+	 * @author louca
+	 * 
+	 * @return the currently logged in user as a transfer object, or null if there is no current user in the system
+	 */
+	public static TOUser getCurrentUser() {
+		User currentUser = FlexiBookApplication.getCurrentUser();
+		if (currentUser == null) {
+			return null;
+		}
+		
+		return new TOUser(currentUser.getUsername(), currentUser.getPassword());
+	}
+	
+	/**
+	 * Check if the user currently logged into the system is the owner
+	 * 
+	 * @author louca
+	 * 
+	 * @return whether the currently logged in user is the owner
+	 */
+	public static boolean isCurrentUserOwner() {
+		User currentUser = FlexiBookApplication.getCurrentUser();
+		return currentUser != null && currentUser instanceof Owner && currentUser.getUsername().equals("owner");
+	}
+	
+	/**
+	 * Get all the services offered as a list of transfer objects.
+	 * 
+	 * @author louca
+	 * 
+	 * @return alphabetically sorted list of services as transfer objects
+	 */
+    public static List<TOService> getServices() {
+        List<TOService> services = new ArrayList<TOService>();
+        for (BookableService bS : FlexiBookApplication.getFlexiBook().getBookableServices()) {
+            if (bS instanceof Service) {
+            	Service service = (Service) bS;
+                services.add(new TOService(service.getName(), service.getDuration(), service.getDowntimeDuration(), service.getDowntimeStart()));
+            }
+        }
+        
+        Collections.sort(services, new Comparator<TOService>() {
+            @Override
+            public int compare(TOService s1,TOService s2) {
+                return s1.getName().compareTo(s2.getName());
+            }
+        });
+        
+        return services;
+    }
+    
+    /**
+     * Get the service by the given name as a transfer object.
+     * 
+     * @author louca
+     * 
+     * @param bookableServiceName
+     * 
+     * @return the service with the given name as a transfer object, or null if there is no such service
+     */
+    public static TOService getService(String serviceName) {
+    	Service service = _getService(serviceName);
+    	if (service == null) {
+    		return null;
+    	}
+    	return new TOService(service.getName(), service.getDuration(), service.getDowntimeDuration(), service.getDowntimeStart());
+    }
 }

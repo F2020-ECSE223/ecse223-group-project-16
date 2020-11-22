@@ -255,13 +255,7 @@ public class AccountSettingsPage extends JFrame {
 	}
 
 	private void passwordVisibilityButtonActionPerformed(java.awt.event.ActionEvent evt) {
-		if (passwordVisibilityButton.getText().equals("Show")) {
-			passwordVisibilityButton.setText("Hide");
-			passwordField.setEchoChar((char) 0);
-		} else {
-			passwordVisibilityButton.setText("Show");
-			passwordField.setEchoChar('*');
-		}
+		Utils.togglePasswordFieldVisibility(passwordField, passwordVisibilityButton);
 	}
 
 	private void editButtonActionPerformed(java.awt.event.ActionEvent evt) {

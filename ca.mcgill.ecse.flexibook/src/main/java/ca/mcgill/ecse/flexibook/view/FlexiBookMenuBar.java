@@ -198,7 +198,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 		try {
 			FlexiBookController.logout();
 		} catch (InvalidInputException e) {
-			JOptionPane.showMessageDialog(parentFrame, e.getMessage());
+			JOptionPane.showMessageDialog(parentFrame, e.getMessage(), "Unable to logout", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }

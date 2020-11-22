@@ -18,6 +18,8 @@ public class FlexiBookMenuBar extends JMenuBar {
 
 	// constants
 	private static final int USERNAME_CUTOFF = 15;
+	private static final char CARET_DOWN = '⋁';
+	private static final char CARET_UP = '⋀';
 
 	// UI elements
 	// navigation
@@ -87,7 +89,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 		if (username.length() > USERNAME_CUTOFF) {
 			usernamePreview = username.substring(0, USERNAME_CUTOFF - 3).concat("...");
 		}
-		usernamePreview += "  ▼";
+		usernamePreview += " " + String.valueOf(CARET_DOWN);
 		accountMenu.setText(usernamePreview);
 
 		logoutMenuItem = new JMenuItem("Logout");
@@ -216,10 +218,10 @@ public class FlexiBookMenuBar extends JMenuBar {
 	}
 
 	private String toggleCaret(String text) {
-		char caret = '▲';
+		char caret = CARET_UP;
 
-		if (text.charAt(text.length() - 1) == '▲') {
-			caret = '▼';
+		if (text.charAt(text.length() - 1) == CARET_UP) {
+			caret = CARET_DOWN;
 		}
 		return text.substring(0, text.length() - 1) + String.valueOf(caret);
 	}

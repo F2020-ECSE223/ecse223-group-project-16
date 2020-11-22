@@ -22,6 +22,7 @@ public class LandingPage extends JFrame {
 	private static final long serialVersionUID = 8012520089383050363L;
 
 	private static final boolean DEBUG_MODE = true;
+	private static final boolean DEBUG_USER_IS_OWNER = true;
 
 	// UI elements
 	private JLabel welcomeLabel;
@@ -124,13 +125,19 @@ public class LandingPage extends JFrame {
 		if (DEBUG_MODE) {
 			String username = Long.toString(ByteBuffer.wrap(UUID.randomUUID().toString().getBytes()).getLong(),
 					Character.MAX_RADIX); // short UUID
+			String password = "debugPassword";
 			try {
-				FlexiBookController.createCustomerAccount(username, "debugPassword");
-				FlexiBookController.login(username, "debugPassword");
-				debugCurrentMockUser.setText("Current user: '" + username + "' / 'debugPassword'");
+				if (DEBUG_USER_IS_OWNER) {
+					username = "owner";
+					password = "owner";
+				} else {
+					FlexiBookController.createCustomerAccount(username, password);
+				}
+				FlexiBookController.login(username, password);
+				debugCurrentMockUser.setText("Current user: '" + username + "' / '" + password + "'");
 			} catch (InvalidInputException e) {
 				e.printStackTrace();
-				System.err.println("Failed to create and login to debug user");
+				System.err.println("Failed to create and login debug user");
 			}
 		}
 	}

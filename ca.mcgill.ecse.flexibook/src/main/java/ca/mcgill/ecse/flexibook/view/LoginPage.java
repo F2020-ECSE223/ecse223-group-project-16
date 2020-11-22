@@ -16,7 +16,10 @@ import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 
 public class LoginPage extends JFrame {
   private static final long serialVersionUID = 1307717424939065361L;
-  
+  	
+  // Constants
+  private static final int TEXT_FIELD_WIDTH = 300;
+	
   // UI elements
   private JLabel errorMessageLabel;
   // username
@@ -28,6 +31,8 @@ public class LoginPage extends JFrame {
   private JButton showPassButton;
   // login 
   private JButton loginButton;
+  // page navigation
+  private JButton landingPageButton;
   
   // Data elements
   private String errorMessage = null;
@@ -48,20 +53,21 @@ public class LoginPage extends JFrame {
     
     // elements for username field
     userTextField = new JTextField();
-    userLabel = new JLabel();
-    userLabel.setText("Username");
+    Utils.resizeTextFieldToWidth(userTextField, TEXT_FIELD_WIDTH);
+    userLabel = new JLabel("Username");
     
     // elements for password field
     passTextField = new JPasswordField();
     passTextField.setEchoChar('*');
-    passLabel = new JLabel();
-    passLabel.setText("Password");
-    showPassButton = new JButton();
-    showPassButton.setText("Show");
+    Utils.resizeTextFieldToWidth(passTextField, TEXT_FIELD_WIDTH);
+    passLabel = new JLabel("Password");
+    showPassButton = new JButton("Show");
     
     // elements for login button
-    loginButton = new JButton();
-    loginButton.setText("Login");
+    loginButton = new JButton("Login");
+    
+    // elements for page navigation
+    landingPageButton = new JButton("Back to Landing Page");
     
     // action listeners
     loginButton.addActionListener(new java.awt.event.ActionListener() {
@@ -73,6 +79,12 @@ public class LoginPage extends JFrame {
     showPassButton.addActionListener(new java.awt.event.ActionListener() {
   		public void actionPerformed(java.awt.event.ActionEvent evt) {
   			showPassButtonActionPerformed(evt);
+  		}
+  	});
+    
+    landingPageButton.addActionListener(new java.awt.event.ActionListener() {
+  		public void actionPerformed(java.awt.event.ActionEvent evt) {
+  			landingPageButtonActionPerformed(evt);
   		}
   	});
     
@@ -95,7 +107,8 @@ public class LoginPage extends JFrame {
           .addComponent(errorMessageLabel)
           .addComponent(userTextField)
           .addComponent(passTextField)
-          .addComponent(loginButton))
+          .addComponent(loginButton)
+          .addComponent(landingPageButton))
           .addComponent(showPassButton)
         )
     );
@@ -111,6 +124,7 @@ public class LoginPage extends JFrame {
           		.addComponent(passTextField)
           		.addComponent(showPassButton))
           .addComponent(loginButton)
+          .addComponent(landingPageButton)
        )
     );
     pack();
@@ -139,6 +153,7 @@ public class LoginPage extends JFrame {
 		// call the controller
 		try {
 			FlexiBookController.login(username, password);
+			Utils.switchToFrame(this, new LandingPage());
 			dispose();
 		} catch (InvalidInputException e) {
 			errorMessage = e.getMessage();
@@ -156,6 +171,10 @@ public class LoginPage extends JFrame {
 			passTextField.setEchoChar('*');
 			showPassButton.setText("Show");
 		}
+  }
+  
+  private void landingPageButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	    Utils.switchToFrame(this, new LandingPage());
   }
 	
 }

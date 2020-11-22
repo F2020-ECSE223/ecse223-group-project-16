@@ -5,7 +5,7 @@ package ca.mcgill.ecse.flexibook.controller;
 import java.sql.Date;
 import java.sql.Time;
 
-// line 37 "../../../../../FlexiBookTransferObjects.ump"
+// line 45 "../../../../../FlexiBookTransferObjects.ump"
 public class TOAppointment
 {
 

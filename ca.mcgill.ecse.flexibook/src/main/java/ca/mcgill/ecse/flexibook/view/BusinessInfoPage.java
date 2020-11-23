@@ -26,6 +26,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class BusinessInfoPage extends JFrame {
@@ -70,7 +72,7 @@ public class BusinessInfoPage extends JFrame {
   
   public BusinessInfoPage() {
     initComponents();
-    //refreshData();
+    refreshData();
   }
  
   private void initComponents(){
@@ -139,6 +141,7 @@ public class BusinessInfoPage extends JFrame {
         }
 
     } else {
+    	businessNameTextField.setText("CLICK TO ADD BUSINESS NAME");
     	monHoursTextField.setText("ADD HOURS");
     	tuesHoursTextField.setText("ADD HOURS");
     	wedHoursTextField.setText("ADD HOURS");
@@ -165,7 +168,6 @@ public class BusinessInfoPage extends JFrame {
     setTitle("Business Info Tab");
 	setMinimumSize(new Dimension(600, 200));
     
-	/*
     // LISTENERS
     editBusinessHoursButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -177,6 +179,7 @@ public class BusinessInfoPage extends JFrame {
         	}
         }
     });
+
     editContactInfoButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
         	if (editContactInfoButton.getText().equals("Save")) {
@@ -187,8 +190,7 @@ public class BusinessInfoPage extends JFrame {
         	}
         }
     });
-    */
- 
+    
     // PANEL LAYOUT
     Utils.resizeTextFieldToWidth(addressTextField, 20);
     Utils.resizeTextFieldToWidth(businessNameTextField, 20);
@@ -336,51 +338,139 @@ public class BusinessInfoPage extends JFrame {
     );
     pack();
   }
-  /*
+
   private void refreshData() {
 	  errorMessageLabel.setText(errorMessage);
 	  
-	  if (errorMessage != null || errorMessage.length() == 0) {
+	  if (errorMessage != null) {
 		  errorMessageLabel.setText(errorMessage);
-		  businessNameTextField.setText("");
-		  addressTextField.setText("");;
-		  phoneNumberTextField.setText("");
-		  emailTextField.setText("");
-		  
-		  String[] columnNames = {"Day", "Hours"};
-		  String[][] hours = new String[7][2];
-		  businessHoursContainer = new JTable(hours, columnNames);
+		  businessNameTextField.setText(FlexiBookController.viewBusinessInfo().getName());
+		  addressTextField.setText(FlexiBookController.viewBusinessInfo().getAddress());;
+		  phoneNumberTextField.setText(FlexiBookController.viewBusinessInfo().getAddress());
+		  emailTextField.setText(FlexiBookController.viewBusinessInfo().getEmail());
+	      for (TOBusinessHour bh : FlexiBookController.viewBusinessInfo().getBusinessHours()) {
+	            if (bh.getDayOfWeek().toString().equals("Monday")) {
+	                monHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+	            }
+	            else if (bh.getDayOfWeek().toString().equals("Tuesday")) {
+	                tuesHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+	            }
+	            else if (bh.getDayOfWeek().toString().equals("Wednesday")) {
+	                wedHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+	            }
+	            else if (bh.getDayOfWeek().toString().equals("Thursday")) {
+	                thursHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+	            }
+	            else if (bh.getDayOfWeek().toString().equals("Friday")) {
+	                friHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+	            }
+	            else if (bh.getDayOfWeek().toString().equals("Saturday")) {
+	                satHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+	            }
+	            else if (bh.getDayOfWeek().toString().equals("Sunday")) {
+	                sunHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+	            }
+	        }
 		  pack();
 	  }
   }
+  String[][] prevHours = new String[7][2];
   private void editBusinessHoursActionPerformed(java.awt.event.ActionEvent evt) {
 	  errorMessage = null;
-	  // set textfield editable to true
+	  prevHours[0][0] = "Monday";
+	  prevHours[1][0] = "Tuesday";
+	  prevHours[2][0] = "Wednesday";
+	  prevHours[3][0] = "Thursday";
+	  prevHours[4][0] = "Friday";
+	  prevHours[5][0] = "Saturday";
+	  prevHours[6][0] = "Sunday";
+	  prevHours[0][1] = monHoursTextField.getText();
+	  prevHours[1][1] = tuesHoursTextField.getText();
+	  prevHours[2][1] = wedHoursTextField.getText();
+	  prevHours[3][1] = thursHoursTextField.getText();
+	  prevHours[4][1] = friHoursTextField.getText();
+	  prevHours[5][1] = satHoursTextField.getText();
+	  prevHours[6][1] = sunHoursTextField.getText();
+	  monHoursTextField.setEditable(true);
+	  tuesHoursTextField.setEditable(true);
+	  wedHoursTextField.setEditable(true);
+	  thursHoursTextField.setEditable(true);
+	  friHoursTextField.setEditable(true);
+	  satHoursTextField.setEditable(true);
+	  sunHoursTextField.setEditable(true);
   }
+  String[][] currentHours= new String[7][2];
   private void saveBusinessHoursActionPerformed(java.awt.event.ActionEvent evt) {
 	  errorMessage = null;
-	  try {
-		  FlexiBookController.updateBusinessHour(prevDay, prevStartTime, newDay, newStartTime, newEndTime);
-	  } catch (InvalidInputException e) {
-		  errorMessage = e.getMessage();
-	  } finally {
-		  refreshData();
+	  currentHours[0][0] = "Monday";
+	  currentHours[1][0] = "Tuesday";
+	  currentHours[2][0] = "Wednesday";
+	  currentHours[3][0] = "Thursday";
+	  currentHours[4][0] = "Friday";
+	  currentHours[5][0] = "Saturday";
+	  currentHours[6][0] = "Sunday";
+	  currentHours[0][1] = monHoursTextField.getText();
+	  currentHours[1][1] = tuesHoursTextField.getText();
+	  currentHours[2][1] = wedHoursTextField.getText();
+	  currentHours[3][1] = thursHoursTextField.getText();
+	  currentHours[4][1] = friHoursTextField.getText();
+	  currentHours[5][1] = satHoursTextField.getText();
+	  currentHours[6][1] = sunHoursTextField.getText();
+	  for (int i = 0; i <= 6; i = i + 1) {
+		  if (prevHours[i][1] != currentHours[i][1]) {
+			  if (prevHours[i][1] == "ADD HOURS") {
+				  try {
+					  String day = currentHours[i][0];
+					  String startTime = currentHours[i][1].substring(0,5);
+					  String endTime = currentHours[i][1].substring(6);
+					  FlexiBookController.addNewBusinessHour(day, startTime, endTime);
+				  } catch (InvalidInputException e) {
+					  errorMessage = e.getMessage();
+				  }
+			  } else {
+				  try {
+					  String prevDay = prevHours[i][0];
+					  String prevStartTime = prevHours[i][1].substring(0,5);
+					  String newDay = prevDay;
+					  String newStartTime = currentHours[i][1].substring(0,5);
+					  String newEndTime = currentHours[i][1].substring(6);
+					  FlexiBookController.updateBusinessHour(prevDay, prevStartTime, newDay, newStartTime, newEndTime);
+				  } catch (InvalidInputException e) {
+					  errorMessage = e.getMessage();
+				  }
+			  } 
+		  }
 	  }
+	  errorMessageLabel.setText("Edit");
+	  refreshData();
   }
-  
+
   private void editContactInfoActionPerformed(java.awt.event.ActionEvent evt) {
 	  errorMessage = null;
-	  // set textfield editable to true
+	  addressTextField.setEditable(true);
+	  phoneNumberTextField.setEditable(true);
+	  emailTextField.setEditable(true);
   }
   private void saveContactInfoActionPerformed(java.awt.event.ActionEvent evt) {
 	  errorMessage = null;
-	  try {
-		  FlexiBookController.updateBusinessInfo(name, address, phoneNumber, email);
-	  } catch (InvalidInputException e) {
-		  errorMessage = e.getMessage();
-	  } finally {
-		  refreshData();
+	  String name = businessNameTextField.getText();
+	  String address = addressTextField.getText();
+	  String phoneNumber = phoneNumberTextField.getText();
+	  String email = emailTextField.getText();
+	  if (FlexiBookController.viewBusinessInfo() == null) {
+		  try {
+			  FlexiBookController.setUpBusinessInfo(name, address, phoneNumber, email);
+		  } catch (InvalidInputException e) {
+			  errorMessage = e.getMessage();
+		  }
+	  } else {
+		  try {
+			  FlexiBookController.updateBusinessInfo(name, address, phoneNumber, email);
+		  } catch (InvalidInputException e) {
+			  errorMessage = e.getMessage();
+		  }
 	  }
+	  refreshData();
   }
-  */
+
 }

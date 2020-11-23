@@ -148,8 +148,8 @@ public class ServicesPage extends JFrame {
         }
     });
     
-    updateServiceList.addActionListener (new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
+    updateServiceList.addItemListener(new java.awt.event.ItemListener() {
+        public void itemStateChanged(java.awt.event.ItemEvent evt) {
             updateServiceListActionPerformed(evt);
         }
     });
@@ -264,8 +264,8 @@ public class ServicesPage extends JFrame {
     	  updateServiceList.addItem(service.getName());
           index++;
       };
-      
       updateServiceList.setSelectedIndex(-1);
+      
       updateServiceNameTextField.setText("");
       updateServiceDurationTextField.setText("");
       updateServiceDownTimeTextField.setText("");
@@ -305,7 +305,7 @@ public class ServicesPage extends JFrame {
 	  refreshData();
   }
   
-  private void updateServiceListActionPerformed(java.awt.event.ActionEvent evt) {
+  private void updateServiceListActionPerformed(java.awt.event.ItemEvent evt) {
 	  TOService serviceSelected = FlexiBookController.getService(String.valueOf(updateServiceList.getSelectedItem())); 
 	  System.out.println(serviceSelected);
 	  updateServiceNameTextField.setText(serviceSelected.getName());

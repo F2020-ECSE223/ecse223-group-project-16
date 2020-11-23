@@ -14,7 +14,6 @@ import java.util.Map;
 
 import javax.swing.UIManager;
 
-// should not interface directly with the FlexiBookController
 import ca.mcgill.ecse.flexibook.controller.TOAppointment;
 import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;
 
@@ -42,6 +41,19 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 	
 	private int getColumnWidth() {
 		return getWidth();
+	}
+	
+	public TOAppointment getSelectedAppointment() {
+		return selectedAppointment;
+	}
+	
+	public void unsetSelectedAppointment() {
+		selectedAppointment = null;
+		selectedRectangle = null;
+	}
+	
+	public Date getDate() {
+		return date;
 	}
 	
 	private void init() {
@@ -130,7 +142,6 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 	
 	// with the label
 	private Rectangle2D drawAppointment(Graphics g, TOAppointment appointment, boolean concealed) {
-		
 		System.out.println(appointment);
 		Time startTime = appointment.getStartTime();
 		Time endTime = appointment.getEndTime();

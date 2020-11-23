@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import ca.mcgill.ecse.flexibook.controller.TOAppointment;
 import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;
 
+//should not interface directly with the FlexiBookController
 public abstract class AppointmentCalendarVisualizer extends JPanel {
 	private static final long serialVersionUID = 4774093206640158797L;
 	

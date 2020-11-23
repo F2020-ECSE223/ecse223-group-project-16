@@ -1954,9 +1954,15 @@ public class FlexiBookController {
 	 */
 	public static void addService(String name, String totalDuration, String downtimeStart, String downtimeDuration) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
-		if (FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
-			throw new InvalidInputException("You are not authorized to perform this operation");
+		if (FlexiBookApplication.getCurrentUser() != null && FlexiBookApplication.getFlexiBook().getOwner() != null) {
+			if (FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
+				throw new InvalidInputException("You are not authorized to perform this operation");
+			}
+		}else {
+			throw new InvalidInputException("Owner or current user is null");
 		}
+		
+		
 		validateDurationTimes(Integer.parseInt(totalDuration),Integer.parseInt(downtimeStart), Integer.parseInt(downtimeDuration));
 		
 		try {
@@ -2016,14 +2022,20 @@ public class FlexiBookController {
 	public static void updateService(String ogName, String newName, String totalDuration, String downtimeStart, String downtimeDuration) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 	
-		if (FlexiBookApplication.getCurrentUser() != flexiBook.getOwner()) {
-			throw new InvalidInputException("You are not authorized to perform this operation");
+		if (FlexiBookApplication.getCurrentUser() != null && FlexiBookApplication.getFlexiBook().getOwner() != null) {
+			if (FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
+				throw new InvalidInputException("You are not authorized to perform this operation");
+			}
+		}else {
+			throw new InvalidInputException("Owner or current user is null");
 		}
 		validateDurationTimes(Integer.parseInt(totalDuration),Integer.parseInt(downtimeStart), Integer.parseInt(downtimeDuration));
 		
 		for (BookableService bS1: flexiBook.getBookableServices()) {
-			if (bS1.getName().contentEquals(newName)) {
-				throw new InvalidInputException("Service " + newName + " already exists");
+			if (ogName != newName) {
+				if (bS1.getName().contentEquals(newName)) {
+					throw new InvalidInputException("Service " + newName + " already exists");
+				}
 			}
 		}
 		
@@ -2056,8 +2068,12 @@ public class FlexiBookController {
 	public static void deleteService(String name) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 		
-		if (FlexiBookApplication.getCurrentUser() != flexiBook.getOwner()) {
-			throw new InvalidInputException("You are not authorized to perform this operation");
+		if (FlexiBookApplication.getCurrentUser() != null && FlexiBookApplication.getFlexiBook().getOwner() != null) {
+			if (FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
+				throw new InvalidInputException("You are not authorized to perform this operation");
+			}
+		}else {
+			throw new InvalidInputException("Owner or current user is null");
 		}
 		
 		Service serviceToDelete = null;

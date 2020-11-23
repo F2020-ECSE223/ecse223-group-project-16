@@ -1,5 +1,7 @@
 package ca.mcgill.ecse.flexibook.view;
 
+import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
 import javax.swing.JPanel;
 
 /**
@@ -12,12 +14,12 @@ public class AppointmentCalendarVisualizerWrapper extends JPanel {
 	private enum Periodical {Daily, Weekly};
 	
 	// data elements
-	private Periodical period;
+	private Periodical periodical;
 	private AppointmentCalendarVisualizer appointmentCalendarVisualizer;
 	
-	private AppointmentCalendarVisualizerWrapper(AppointmentCalendarVisualizer appointmentCalendarVisualizer, Periodical period) {
+	private AppointmentCalendarVisualizerWrapper(AppointmentCalendarVisualizer appointmentCalendarVisualizer, Periodical periodical) {
 		super();
-		this.period = period;
+		this.periodical = periodical;
 		this.appointmentCalendarVisualizer = appointmentCalendarVisualizer;
 		initComponents();
 		refreshData();
@@ -32,7 +34,11 @@ public class AppointmentCalendarVisualizerWrapper extends JPanel {
 	}
 	
 	private void initComponents() {
-		
+		GroupLayout layout = new GroupLayout(this);
+		setLayout(layout);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		layout.setHorizontalGroup(
 	}
 	
 	private void refreshData() {

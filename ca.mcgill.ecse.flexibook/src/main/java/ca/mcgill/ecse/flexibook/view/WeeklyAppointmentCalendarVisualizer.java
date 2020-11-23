@@ -7,6 +7,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
+
 import ca.mcgill.ecse.flexibook.controller.TOAppointment;
 import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;
 
@@ -20,12 +23,18 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 	public WeeklyAppointmentCalendarVisualizer(Date startDate, List<TOBusinessHour> businessHours,
 			List<TOAppointment> revealedAppointments, List<TOAppointment> concealedAppointments) {
 		super(startDate, businessHours, revealedAppointments, concealedAppointments);
+		System.out.println(revealedAppointments);
+		System.out.println(startDate);
+		initComponents();
 	}
 	
 	private void initComponents() {
+		
+		dailyAppointmentCalendarVisualizers = new ArrayList<DailyAppointmentCalendarVisualizer>();
 		LocalDate tomorrow = date.toLocalDate(); // i.e. start date
 		for (int i = 0; i < 7; i++) {
 			Date today = Date.valueOf(tomorrow);
+			System.out.println(filterAppointmentsByDate(revealedAppointments, today));
 			DailyAppointmentCalendarVisualizer dailyAppointmentCalendarVisualizer = new DailyAppointmentCalendarVisualizer(today, filterBusinessHoursByDate(businessHours, today),
 							filterAppointmentsByDate(revealedAppointments, today),
 							filterAppointmentsByDate(concealedAppointments, today));
@@ -37,6 +46,13 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 			
 			tomorrow = tomorrow.plusDays(1);
 		}
+		
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		
+		for (DailyAppointmentCalendarVisualizer v : dailyAppointmentCalendarVisualizers) {
+			System.out.println(v);
+			add(v);
+		}
 	}
 	
 	@Override
@@ -44,7 +60,7 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 		TOAppointment appointment = (TOAppointment) evt.getNewValue();
 		
 		for (DailyAppointmentCalendarVisualizer v : dailyAppointmentCalendarVisualizers) {
-			if (! v.getDate().equals(appointment.getStartDate())) {
+			if (appointment == null || !v.getDate().equals(appointment.getStartDate())) {
 				v.unsetSelectedAppointment();
 			}
 		}
@@ -66,7 +82,7 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 	private List<TOAppointment> filterAppointmentsByDate(List<TOAppointment> appointments, Date date) {
 		List<TOAppointment> result = new ArrayList<TOAppointment>();
 		for (TOAppointment a : appointments) {
-			if (a.getStartDate() == date) {
+			if (a.getStartDate().equals(date)) {
 				result.add(a);
 			}
 		}

@@ -1,5 +1,7 @@
 package ca.mcgill.ecse.flexibook.view;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,8 @@ public class ViewCalendarPage extends JFrame {
 	private JLabel viewCalendarLabel;
 
 	// appointment calendar visualization
-	private DailyAppointmentCalendarVisualizer viz;
+	private AppointmentCalendarVisualizer viz;
+	private AppointmentCalendarVisualizerWrapper wrapper;
 
 	public ViewCalendarPage() {
 		populate();
@@ -27,21 +30,24 @@ public class ViewCalendarPage extends JFrame {
 
 	private void initComponents() {
 		
-		viz = new DailyAppointmentCalendarVisualizer(SystemTime.getDate(), filterBusinessHoursByDay(FlexiBookController.viewBusinessInfo().getBusinessHours(), TOBusinessHour.DayOfWeek.Tuesday), FlexiBookController.getAppointments(), new ArrayList<>());
+//		viz = new DailyAppointmentCalendarVisualizer(SystemTime.getDate(), filterBusinessHoursByDay(FlexiBookController.viewBusinessInfo().getBusinessHours(), TOBusinessHour.DayOfWeek.Tuesday), FlexiBookController.getAppointments(), new ArrayList<>());
+		viz = new WeeklyAppointmentCalendarVisualizer(Date.valueOf(LocalDate.now()), FlexiBookController.viewBusinessInfo().getBusinessHours(), FlexiBookController.getAppointments(), new ArrayList<>());
 		viewCalendarLabel = new JLabel();
 		viewCalendarLabel.setText("View Calendar Tab here");
-
+		wrapper = new AppointmentCalendarVisualizerWrapper((WeeklyAppointmentCalendarVisualizer)  viz);
+		
+		// global settings
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		setTitle("ViewCalendar Tab");
+		setTitle("View Appointment Calendar");
 
 		GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 
-		layout.setHorizontalGroup(layout.createParallelGroup().addComponent(viz));
+		layout.setHorizontalGroup(layout.createParallelGroup().addComponent(wrapper));
 
-		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(viz));
+		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(wrapper));
 		pack();
 	}
 	

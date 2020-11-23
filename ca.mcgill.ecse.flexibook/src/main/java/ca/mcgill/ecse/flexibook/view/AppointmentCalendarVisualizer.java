@@ -21,7 +21,7 @@ public abstract class AppointmentCalendarVisualizer extends JPanel {
 	protected List<TOBusinessHour> businessHours;
 	
 	// observer support
-	private PropertyChangeSupport support;
+	protected PropertyChangeSupport support;
 	
 	public AppointmentCalendarVisualizer(List<TOBusinessHour> businessHours, List<TOAppointment> revealedAppointments, List<TOAppointment> concealedAppointments) {
 		this.businessHours = businessHours;
@@ -30,7 +30,6 @@ public abstract class AppointmentCalendarVisualizer extends JPanel {
 		
 		support = new PropertyChangeSupport(this);
 	}
-	
 	
     public void addPropertyChangeListener(PropertyChangeListener pcl) {
         support.addPropertyChangeListener(pcl);

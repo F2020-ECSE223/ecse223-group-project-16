@@ -1,6 +1,7 @@
 package ca.mcgill.ecse.flexibook.view;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
@@ -24,8 +25,11 @@ public class ViewCalendarPage extends JFrame {
 		initComponents();
 	}
 
+	
+	
 	private void initComponents() {
-		viz = new DailyAppointmentCalendarVisualizer(TOBusinessHour.DayOfWeek.Tuesday, FlexiBookController.getAppointments(), new ArrayList<>(), FlexiBookController.viewBusinessInfo().getBusinessHours());
+		
+		viz = new DailyAppointmentCalendarVisualizer(TOBusinessHour.DayOfWeek.Tuesday, filterBusinessHoursByDay(FlexiBookController.viewBusinessInfo().getBusinessHours(), TOBusinessHour.DayOfWeek.Tuesday), FlexiBookController.getAppointments(), new ArrayList<>());
 		viewCalendarLabel = new JLabel();
 		viewCalendarLabel.setText("View Calendar Tab here");
 
@@ -68,6 +72,16 @@ public class ViewCalendarPage extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private List<TOBusinessHour> filterBusinessHoursByDay(List<TOBusinessHour> businessHours, TOBusinessHour.DayOfWeek dayOfWeek) {
+		List<TOBusinessHour> result = new ArrayList<TOBusinessHour>();
+		for (TOBusinessHour bH : businessHours) {
+			if (bH.getDayOfWeek() == dayOfWeek) {
+				result.add(bH);
+			}
+		}
+		return result;
 	}
 
 }

@@ -35,13 +35,9 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 	private static final int MINIMUM_ROW_HEIGHT = 20;
 	private static final int LABEL_HEIGHT = 16;
 	private static final int APPOINTMENT_INFO_LABEL_PADDING = 10;
-	// data elements
-	private TOBusinessHour.DayOfWeek dayOfWeek;
 	
 	public DailyAppointmentCalendarVisualizer(TOBusinessHour.DayOfWeek dayOfWeek, List<TOBusinessHour> businessHours, List<TOAppointment> revealedAppointments, List<TOAppointment> concealedAppointments) {
 		super(businessHours, revealedAppointments, concealedAppointments);
-		
-		this.dayOfWeek = dayOfWeek;
 		
 		setMinimumSize(new Dimension(MINIMUM_COLUMN_WIDTH, MINIMUM_ROW_HEIGHT * 24));
 		init();
@@ -96,18 +92,17 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 		g.setColor(Color.WHITE);
 		
 		for (TOBusinessHour bH : businessHours) {
-			if (bH.getDayOfWeek() == dayOfWeek) {
-				Time startTime = bH.getStartTime();
-				Time endTime = bH.getEndTime();
-				System.out.println(startTime);
-				System.out.println(endTime);
-				int y = scaleTime(startTime);
-				int height = scaleTime(endTime) - y;
-				System.out.println(y);
-				System.out.println(height);
-				
-				g.fillRect(0, y, getColumnWidth(), height);
-			}
+			Time startTime = bH.getStartTime();
+			Time endTime = bH.getEndTime();
+			System.out.println(startTime);
+			System.out.println(endTime);
+			int y = scaleTime(startTime);
+			int height = scaleTime(endTime) - y;
+			System.out.println(y);
+			System.out.println(height);
+			
+			g.fillRect(0, y, getColumnWidth(), height);
+
 		}
 		
 		// Third pass

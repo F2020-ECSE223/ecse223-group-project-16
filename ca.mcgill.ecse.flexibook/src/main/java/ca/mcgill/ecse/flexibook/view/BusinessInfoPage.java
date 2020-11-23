@@ -371,8 +371,8 @@ public class BusinessInfoPage extends JFrame {
 	                sunHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
 	            }
 	        }
-		  pack();
 	  }
+	  
   }
   String[][] prevHours = new String[7][2];
   private void editBusinessHoursActionPerformed(java.awt.event.ActionEvent evt) {
@@ -443,6 +443,7 @@ public class BusinessInfoPage extends JFrame {
 	  }
 	  errorMessageLabel.setText("Edit");
 	  refreshData();
+	  pack();
   }
 
   private void editContactInfoActionPerformed(java.awt.event.ActionEvent evt) {
@@ -457,20 +458,28 @@ public class BusinessInfoPage extends JFrame {
 	  String address = addressTextField.getText();
 	  String phoneNumber = phoneNumberTextField.getText();
 	  String email = emailTextField.getText();
+	  System.out.println("1"+FlexiBookController.viewBusinessInfo());
 	  if (FlexiBookController.viewBusinessInfo() == null) {
 		  try {
+			  System.out.println("try1");
 			  FlexiBookController.setUpBusinessInfo(name, address, phoneNumber, email);
 		  } catch (InvalidInputException e) {
 			  errorMessage = e.getMessage();
+			  System.out.println(FlexiBookApplication.getCurrentUser());
+			  System.out.println(errorMessage);
 		  }
 	  } else {
 		  try {
+			  System.out.println("try2");
 			  FlexiBookController.updateBusinessInfo(name, address, phoneNumber, email);
 		  } catch (InvalidInputException e) {
+			  System.out.println("catch2");
 			  errorMessage = e.getMessage();
 		  }
 	  }
+		System.out.println("save1");
 	  refreshData();
+	  pack();
   }
 
 }

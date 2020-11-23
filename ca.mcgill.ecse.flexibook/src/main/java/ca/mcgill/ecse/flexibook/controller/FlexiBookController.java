@@ -1525,12 +1525,14 @@ public class FlexiBookController {
 		validateBusinessInfo(name, address, phoneNumber, email);
 	    Business aNewBusiness = new Business(name, address, phoneNumber, email, FlexiBookApplication.getFlexiBook());
 		FlexiBookApplication.getFlexiBook().setBusiness(aNewBusiness);
+		System.out.println("pass1");
 		try{
 			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());
 		}
 		catch(RuntimeException e){
 			throw new InvalidInputException(e.getMessage());
 		}
+		System.out.println("pass2");
 	}
 	/**
 	 * Add a business hour to a business
@@ -1564,12 +1566,14 @@ public class FlexiBookController {
 				Time.valueOf(LocalTime.of(Integer.valueOf(endTime.substring(0,2)), Integer.valueOf(endTime.substring(3,5)))), 
 				FlexiBookApplication.getFlexiBook());
 		FlexiBookApplication.getFlexiBook().getBusiness().addBusinessHour(aNewBusinessHour);
+		System.out.println("update1");
 		try{
 			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());
 		}
 		catch(RuntimeException e){
 			throw new InvalidInputException(e.getMessage());
 		}
+		System.out.println("update2");
 	}
 	/**
 	 * View the basic business information
@@ -1582,6 +1586,7 @@ public class FlexiBookController {
 	 */
 	public static TOBusiness viewBusinessInfo() {
 		Business b = FlexiBookApplication.getFlexiBook().getBusiness();
+		System.out.println(b);
 		if (b == null) {
 			return null;
 		}

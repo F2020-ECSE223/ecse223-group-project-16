@@ -62,7 +62,7 @@ public class ServicesPage extends JFrame {
    
 
   public ServicesPage() {
-      initComponents();
+	  initComponents();
       refreshData();
   }
   private void initComponents(){
@@ -148,11 +148,11 @@ public class ServicesPage extends JFrame {
         }
     });
     
-    updateServiceList.addItemListener(new java.awt.event.ItemListener() {
-        public void itemStateChanged(java.awt.event.ItemEvent evt) {
-            updateServiceListActionPerformed(evt);
-        }
-    });
+//    updateServiceList.addItemListener(new java.awt.event.ItemListener() {
+//        public void itemStateChanged(java.awt.event.ItemEvent evt) {
+//            updateServiceListActionPerformed(evt);
+//        }
+//    });
     
     
     JSeparator horizontalLineTop = new JSeparator();
@@ -281,8 +281,10 @@ public class ServicesPage extends JFrame {
   private void addServiceButtonActionPerformed(java.awt.event.ActionEvent evt) {
 	  try {
 		  FlexiBookController.addService(addServiceNameTextField.getText(), addServiceDurationTextField.getText(), addServiceDownTimeTextField.getText(), addServiceDTDurationTextField.getText());
+		  System.out.println(FlexiBookController.getBookableServices());
 	  }catch (InvalidInputException e){
 		  error = e.getMessage();
+		  System.out.println(error);
 	  }
 	  refreshData();
   }
@@ -290,28 +292,31 @@ public class ServicesPage extends JFrame {
   private void updateServiceButtonActionPerformed(java.awt.event.ActionEvent evt) {
 	  try {
 		  FlexiBookController.updateService(String.valueOf(updateServiceList.getSelectedItem()),updateServiceNameTextField.getText(), updateServiceDurationTextField.getText(), updateServiceDownTimeTextField.getText(), updateServiceDTDurationTextField.getText());
+		  System.out.println(FlexiBookController.getBookableServices());
 	  }catch (InvalidInputException e){
 		  error = e.getMessage();
+		  System.out.println(error);
 	  }
 	  refreshData();
   }
   
   private void deleteServiceButtonActionPerformed(java.awt.event.ActionEvent evt) {
 	  try {
-		  FlexiBookController.deleteService(String.valueOf(updateServiceList.getSelectedItem()));
+		  FlexiBookController.deleteService(String.valueOf(updateServiceList.getSelectedItem())); 
 	  }catch (InvalidInputException e){
 		  error = e.getMessage();
+		  System.out.println(error);
 	  }
 	  refreshData();
   }
   
-  private void updateServiceListActionPerformed(java.awt.event.ItemEvent evt) {
-	  TOService serviceSelected = FlexiBookController.getService(String.valueOf(updateServiceList.getSelectedItem())); 
-	  System.out.println(serviceSelected);
-	  updateServiceNameTextField.setText(serviceSelected.getName());
-      updateServiceDurationTextField.setText(String.valueOf(serviceSelected.getDuration()));
-      updateServiceDownTimeTextField.setText(String.valueOf(serviceSelected.getDowntimeStart()));
-      updateServiceDTDurationTextField.setText(String.valueOf(serviceSelected.getDowntimeDuration()));
-  };
+//  private void updateServiceListActionPerformed(java.awt.event.ItemEvent evt) {
+//	  TOService serviceSelected = FlexiBookController.getService(String.valueOf(updateServiceList.getSelectedItem())); 
+//	  System.out.println(serviceSelected);
+//	  updateServiceNameTextField.setText(serviceSelected.getName());
+//      updateServiceDurationTextField.setText(String.valueOf(serviceSelected.getDuration()));
+//      updateServiceDownTimeTextField.setText(String.valueOf(serviceSelected.getDowntimeStart()));
+//      updateServiceDTDurationTextField.setText(String.valueOf(serviceSelected.getDowntimeDuration()));
+//  };
   
 }

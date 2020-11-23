@@ -29,6 +29,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 	private JMenuItem goToAppointmentsMenuItem;
 	private JMenuItem goToViewCalendarMenuItem;
 	private JMenuItem refreshMenuItem;
+	private JMenuItem goToAppointmentManagementMenuItem;
 	// account
 	private JMenu accountMenu;
 	private JMenuItem logoutMenuItem;
@@ -60,6 +61,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 		goToServicesMenuItem = new JMenuItem("Services");
 		goToAppointmentsMenuItem = new JMenuItem("Appointments");
 		goToViewCalendarMenuItem = new JMenuItem("View Calendar");
+		goToAppointmentManagementMenuItem = new JMenuItem("Manage Appointments");
 //		helpMenuItem = new JMenuItem("Help", UIManager.getIcon("OptionPane.questionIcon"));
 		refreshMenuItem = new JMenuItem("Refresh");
 
@@ -68,7 +70,9 @@ public class FlexiBookMenuBar extends JMenuBar {
 		navigationMenuItemsByPageName.put("View Calendar", goToViewCalendarMenuItem);
 		navigationMenuItemsByPageName.put("Services", new JMenuItem("Services"));
 		navigationMenuItemsByPageName.put("Appointments", new JMenuItem("Appointments"));
-
+		if (FlexiBookController.isCurrentUserOwner()) {
+			navigationMenuItemsByPageName.put("Manage Appointments", goToAppointmentManagementMenuItem);
+		}
 		for (Map.Entry<String, JMenuItem> entry : navigationMenuItemsByPageName.entrySet()) {
 			navigationMenu.add(entry.getValue());
 		}
@@ -143,7 +147,12 @@ public class FlexiBookMenuBar extends JMenuBar {
 				Utils.goToFrame(parentFrame, new AccountSettingsPage(), true);
 			}
 		});
-
+		goToAppointmentManagementMenuItem.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				parentFrame.setEnabled(false);
+				Utils.goToFrame(parentFrame, new AppointmentManagementPage(), true);
+			}
+		});
 		add(navigationMenu);
 		add(Box.createHorizontalGlue()); // make account menu right-aligned
 		add(accountMenu);

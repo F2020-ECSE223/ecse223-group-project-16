@@ -341,7 +341,16 @@ public class BusinessInfoPage extends JFrame {
 
   private void refreshData() {
 	  errorMessageLabel.setText(errorMessage);
-	  
+	  addressTextField.setEditable(false);
+	  phoneNumberTextField.setEditable(false);
+	  emailTextField.setEditable(false);
+	  monHoursTextField.setEditable(false);
+	  tuesHoursTextField.setEditable(false);
+	  wedHoursTextField.setEditable(false);
+	  thursHoursTextField.setEditable(false);
+	  friHoursTextField.setEditable(false);
+	  satHoursTextField.setEditable(false);
+      sunHoursTextField.setEditable(false);
 	  if (errorMessage != null) {
 		  errorMessageLabel.setText(errorMessage);
 		  businessNameTextField.setText(FlexiBookController.viewBusinessInfo().getName());
@@ -458,26 +467,19 @@ public class BusinessInfoPage extends JFrame {
 	  String address = addressTextField.getText();
 	  String phoneNumber = phoneNumberTextField.getText();
 	  String email = emailTextField.getText();
-	  System.out.println("1"+FlexiBookController.viewBusinessInfo());
 	  if (FlexiBookController.viewBusinessInfo() == null) {
 		  try {
-			  System.out.println("try1");
 			  FlexiBookController.setUpBusinessInfo(name, address, phoneNumber, email);
 		  } catch (InvalidInputException e) {
 			  errorMessage = e.getMessage();
-			  System.out.println(FlexiBookApplication.getCurrentUser());
-			  System.out.println(errorMessage);
 		  }
 	  } else {
 		  try {
-			  System.out.println("try2");
 			  FlexiBookController.updateBusinessInfo(name, address, phoneNumber, email);
 		  } catch (InvalidInputException e) {
-			  System.out.println("catch2");
 			  errorMessage = e.getMessage();
 		  }
 	  }
-		System.out.println("save1");
 	  refreshData();
 	  pack();
   }

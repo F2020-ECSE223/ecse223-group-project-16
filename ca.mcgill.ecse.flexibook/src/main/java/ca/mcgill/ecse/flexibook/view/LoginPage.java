@@ -35,7 +35,7 @@ public class LoginPage extends JFrame {
   private JButton landingPageButton;
   
   // Data elements
-  private String errorMessage = null;
+  private String errorMessage = "";
 
   public LoginPage() {
       initComponents();
@@ -137,9 +137,8 @@ public class LoginPage extends JFrame {
   
   private void refreshData() {
 	  errorMessageLabel.setText(errorMessage);
-	  
-	  if (errorMessage != null || errorMessage.length() == 0) {
-		  errorMessageLabel.setText(errorMessage);
+
+	  if ( errorMessage.length() != 0) {
 		  userTextField.setText("");
 		  passTextField.setText("");
 			
@@ -149,8 +148,9 @@ public class LoginPage extends JFrame {
   
   private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		// clear error message 
-		errorMessage = null;
+		errorMessage = "";
 		
+		// get username and password
 		String username = userTextField.getText();
 		String password = String.valueOf(passTextField.getPassword());
 		

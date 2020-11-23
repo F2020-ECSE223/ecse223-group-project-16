@@ -1,6 +1,7 @@
 package ca.mcgill.ecse.flexibook.view;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -79,5 +80,11 @@ public class Utils {
 				}
 			}
 		});
+	}
+	
+	static void fixSize(Component component, Dimension dimension) {
+		component.setPreferredSize(dimension);
+		component.setMinimumSize(dimension);
+		component.setMaximumSize(dimension);
 	}
 }

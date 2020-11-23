@@ -116,31 +116,30 @@ public class BusinessInfoPage extends JFrame {
         phoneNumberTextField.setText(FlexiBookController.viewBusinessInfo().getPhoneNumber().toString());
         emailTextField.setText(FlexiBookController.viewBusinessInfo().getEmail().toString());
         // Business hour elements
-        for (TOBusinessHour bh : FlexiBookController.viewBusinessInfo().getBusinessHours()) {
+      for (TOBusinessHour bh : FlexiBookController.viewBusinessInfo().getBusinessHours()) {
             if (bh.getDayOfWeek().toString().equals("Monday")) {
-                monHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+                monHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
             }
             else if (bh.getDayOfWeek().toString().equals("Tuesday")) {
-                tuesHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+                tuesHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
             }
             else if (bh.getDayOfWeek().toString().equals("Wednesday")) {
-                wedHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+                wedHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
             }
             else if (bh.getDayOfWeek().toString().equals("Thursday")) {
-                thursHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+                thursHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
             }
             else if (bh.getDayOfWeek().toString().equals("Friday")) {
-                friHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+                friHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
             }
             else if (bh.getDayOfWeek().toString().equals("Saturday")) {
-                satHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+                satHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
             }
             else if (bh.getDayOfWeek().toString().equals("Sunday")) {
-                sunHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+                sunHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
             }
         }
-
-    } else {
+     } else {
     	businessNameTextField.setText("CLICK TO ADD BUSINESS NAME");
     	monHoursTextField.setText("ADD HOURS");
     	tuesHoursTextField.setText("ADD HOURS");
@@ -152,6 +151,7 @@ public class BusinessInfoPage extends JFrame {
         addressTextField.setText("ADD ADDRESS");
         phoneNumberTextField.setText("ADD PHONE NUMBER");
         emailTextField.setText("ADD EMAIL");
+        errorMessageLabel.setText(errorMessage);
     }
     addressTextField.setEditable(false);
     phoneNumberTextField.setEditable(false);
@@ -166,7 +166,7 @@ public class BusinessInfoPage extends JFrame {
 
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     setTitle("Business Info Tab");
-	setMinimumSize(new Dimension(600, 200));
+	setMinimumSize(new Dimension(600, 500));
     
     // LISTENERS
     editBusinessHoursButton.addActionListener(new java.awt.event.ActionListener() {
@@ -174,7 +174,6 @@ public class BusinessInfoPage extends JFrame {
         	if (editBusinessHoursButton.getText().equals("Save")) {
         		saveBusinessHoursActionPerformed(evt);
         	} else {
-            	editBusinessHoursButton.setText("Save");
                 editBusinessHoursActionPerformed(evt);
         	}
         }
@@ -185,7 +184,6 @@ public class BusinessInfoPage extends JFrame {
         	if (editContactInfoButton.getText().equals("Save")) {
         		saveContactInfoActionPerformed(evt);
         	} else {
-            	editContactInfoButton.setText("Save");
                 editContactInfoActionPerformed(evt);
         	}
         }
@@ -340,7 +338,6 @@ public class BusinessInfoPage extends JFrame {
   }
 
   private void refreshData() {
-	  errorMessageLabel.setText(errorMessage);
 	  addressTextField.setEditable(false);
 	  phoneNumberTextField.setEditable(false);
 	  emailTextField.setEditable(false);
@@ -351,62 +348,80 @@ public class BusinessInfoPage extends JFrame {
 	  friHoursTextField.setEditable(false);
 	  satHoursTextField.setEditable(false);
       sunHoursTextField.setEditable(false);
-	  if (errorMessage != null) {
+	  if (FlexiBookController.viewBusinessInfo() != null) {
 		  errorMessageLabel.setText(errorMessage);
 		  businessNameTextField.setText(FlexiBookController.viewBusinessInfo().getName());
 		  addressTextField.setText(FlexiBookController.viewBusinessInfo().getAddress());;
-		  phoneNumberTextField.setText(FlexiBookController.viewBusinessInfo().getAddress());
+		  phoneNumberTextField.setText(FlexiBookController.viewBusinessInfo().getPhoneNumber());
 		  emailTextField.setText(FlexiBookController.viewBusinessInfo().getEmail());
 	      for (TOBusinessHour bh : FlexiBookController.viewBusinessInfo().getBusinessHours()) {
 	            if (bh.getDayOfWeek().toString().equals("Monday")) {
-	                monHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+	                monHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
 	            }
 	            else if (bh.getDayOfWeek().toString().equals("Tuesday")) {
-	                tuesHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+	                tuesHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
 	            }
 	            else if (bh.getDayOfWeek().toString().equals("Wednesday")) {
-	                wedHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+	                wedHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
 	            }
 	            else if (bh.getDayOfWeek().toString().equals("Thursday")) {
-	                thursHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+	                thursHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
 	            }
 	            else if (bh.getDayOfWeek().toString().equals("Friday")) {
-	                friHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+	                friHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
 	            }
 	            else if (bh.getDayOfWeek().toString().equals("Saturday")) {
-	                satHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+	                satHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
 	            }
 	            else if (bh.getDayOfWeek().toString().equals("Sunday")) {
-	                sunHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
+	                sunHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
 	            }
 	        }
+	  } else {
+	    	businessNameTextField.setText("CLICK TO ADD BUSINESS NAME");
+	    	monHoursTextField.setText("ADD HOURS");
+	    	tuesHoursTextField.setText("ADD HOURS");
+	    	wedHoursTextField.setText("ADD HOURS");
+	    	thursHoursTextField.setText("ADD HOURS");
+	    	friHoursTextField.setText("ADD HOURS");
+	    	satHoursTextField.setText("ADD HOURS");
+	    	sunHoursTextField.setText("ADD HOURS");
+	        addressTextField.setText("ADD ADDRESS");
+	        phoneNumberTextField.setText("ADD PHONE NUMBER");
+	        emailTextField.setText("ADD EMAIL");
+	        errorMessageLabel.setText(errorMessage);
 	  }
 	  
   }
   String[][] prevHours = new String[7][2];
   private void editBusinessHoursActionPerformed(java.awt.event.ActionEvent evt) {
-	  errorMessage = null;
-	  prevHours[0][0] = "Monday";
-	  prevHours[1][0] = "Tuesday";
-	  prevHours[2][0] = "Wednesday";
-	  prevHours[3][0] = "Thursday";
-	  prevHours[4][0] = "Friday";
-	  prevHours[5][0] = "Saturday";
-	  prevHours[6][0] = "Sunday";
-	  prevHours[0][1] = monHoursTextField.getText();
-	  prevHours[1][1] = tuesHoursTextField.getText();
-	  prevHours[2][1] = wedHoursTextField.getText();
-	  prevHours[3][1] = thursHoursTextField.getText();
-	  prevHours[4][1] = friHoursTextField.getText();
-	  prevHours[5][1] = satHoursTextField.getText();
-	  prevHours[6][1] = sunHoursTextField.getText();
-	  monHoursTextField.setEditable(true);
-	  tuesHoursTextField.setEditable(true);
-	  wedHoursTextField.setEditable(true);
-	  thursHoursTextField.setEditable(true);
-	  friHoursTextField.setEditable(true);
-	  satHoursTextField.setEditable(true);
-	  sunHoursTextField.setEditable(true);
+	  if (FlexiBookController.viewBusinessInfo() == null) {
+		  errorMessage = "Please assign your business a name, address, phone number, and email";
+		  errorMessageLabel.setText(errorMessage);
+	  } else {
+		  prevHours[0][0] = "Monday";
+		  prevHours[1][0] = "Tuesday";
+		  prevHours[2][0] = "Wednesday";
+		  prevHours[3][0] = "Thursday";
+		  prevHours[4][0] = "Friday";
+		  prevHours[5][0] = "Saturday";
+		  prevHours[6][0] = "Sunday";
+		  prevHours[0][1] = monHoursTextField.getText();
+		  prevHours[1][1] = tuesHoursTextField.getText();
+		  prevHours[2][1] = wedHoursTextField.getText();
+		  prevHours[3][1] = thursHoursTextField.getText();
+		  prevHours[4][1] = friHoursTextField.getText();
+		  prevHours[5][1] = satHoursTextField.getText();
+		  prevHours[6][1] = sunHoursTextField.getText();
+		  monHoursTextField.setEditable(true);
+		  tuesHoursTextField.setEditable(true);
+		  wedHoursTextField.setEditable(true);
+		  thursHoursTextField.setEditable(true);
+		  friHoursTextField.setEditable(true);
+		  satHoursTextField.setEditable(true);
+		  sunHoursTextField.setEditable(true);
+		  editBusinessHoursButton.setText("Save");
+	  }
   }
   String[][] currentHours= new String[7][2];
   private void saveBusinessHoursActionPerformed(java.awt.event.ActionEvent evt) {
@@ -427,7 +442,11 @@ public class BusinessInfoPage extends JFrame {
 	  currentHours[6][1] = sunHoursTextField.getText();
 	  for (int i = 0; i <= 6; i++) {
 		  if (!prevHours[i][1].equals(currentHours[i][1])) {
-			  if (prevHours[i][1] == "ADD HOURS") {
+			  if (currentHours[i][1].length() < 11) {
+				  errorMessage = "Business hours must be in 24 hour time. (i.e., 07:00-18:30) ";
+				  errorMessageLabel.setText(errorMessage);
+			  }
+			  else if (prevHours[i][1] == "ADD HOURS") {
 				  try {
 					  String day = currentHours[i][0];
 					  String startTime = currentHours[i][1].substring(0,5);
@@ -450,12 +469,18 @@ public class BusinessInfoPage extends JFrame {
 			  } 
 		  }
 	  }
-	  editBusinessHoursButton.setText("Edit");
-	  refreshData();
-	  pack();
+	  if (errorMessage == null) {
+		  editBusinessHoursButton.setText("Edit");
+		  errorMessageLabel.setText(errorMessage);
+		  refreshData();
+		  pack();
+	  } else {
+		  errorMessageLabel.setText(errorMessage);
+	  }
   }
   private void editContactInfoActionPerformed(java.awt.event.ActionEvent evt) {
 	  errorMessage = null;
+	  editContactInfoButton.setText("Save");
 	  addressTextField.setEditable(true);
 	  phoneNumberTextField.setEditable(true);
 	  emailTextField.setEditable(true);
@@ -479,9 +504,14 @@ public class BusinessInfoPage extends JFrame {
 			  errorMessage = e.getMessage();
 		  }
 	  }
-	  editContactInfoButton.setText("Edit");
-	  refreshData();
-	  pack();
+	  if (errorMessage == null) {
+		  editContactInfoButton.setText("Edit");
+		  errorMessageLabel.setText(errorMessage);
+		  refreshData();
+		  pack();
+	  } else {
+		  errorMessageLabel.setText(errorMessage);
+	  }
   }
 
 }

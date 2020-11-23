@@ -13,6 +13,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.model.*;
@@ -1486,6 +1488,18 @@ public class FlexiBookController {
 	/**
 	 * @author Julie
 	 */
+	private static boolean notValidPhoneNumber(String phoneNumber) {
+		Pattern pattern = Pattern.compile("^((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$");
+		Matcher matcher = pattern.matcher(phoneNumber);
+		if (matcher.matches()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	/**
+	 * @author Julie
+	 */
 	private static void validateBusinessInfo(String name, String address, String phoneNumber, String email) throws InvalidInputException{
 		if (name == null || name.isEmpty()) {
 			throw new InvalidInputException("Invalid business name");
@@ -1493,7 +1507,7 @@ public class FlexiBookController {
 		if (address == null || address.isEmpty()) {
 			throw new InvalidInputException("Invalid address");
 		}
-		if (phoneNumber == null || phoneNumber.isEmpty()) {
+		if (phoneNumber == null || phoneNumber.isEmpty() || notValidPhoneNumber(phoneNumber)) {
 			throw new InvalidInputException("Invalid phone number");
 		}
 		if (email == null || email.isEmpty() || !email.contains("@") || !email.contains(".") || email.contains(" ")) {

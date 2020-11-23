@@ -1,7 +1,6 @@
 package ca.mcgill.ecse.flexibook.view;
 
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
@@ -12,9 +11,11 @@ import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D.Double;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.sql.Date;
@@ -24,49 +25,27 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DailyAppointmentCalendarVisualizer extends JPanel {
+public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisualizer {
 	private static final long serialVersionUID = -8772497283688477006L;
 	
 	// UI elements
 	private Map<Rectangle2D, TOAppointment> appointmentsByRectangle = new LinkedHashMap<Rectangle2D, TOAppointment>();
 	// constants
-	private static final int COLUMN_WIDTH = 200;
-	private static final int ROW_HEIGHT = 20;
-	
+	private static final int MINIMUM_COLUMN_WIDTH = 100;
+	private static final int MINIMUM_ROW_HEIGHT = 20;
+	private static final int LABEL_HEIGHT = 16;
+	private static final int APPOINTMENT_INFO_LABEL_PADDING = 10;
 	// data elements
-	private TOAppointment selectedAppointment;
-	private Rectangle2D selectedRectangle;
 	private TOBusinessHour.DayOfWeek dayOfWeek;
-	private List<TOAppointment> revealedAppointments;
-	private List<TOAppointment> concealedAppointments;
-	private List<TOBusinessHour> businessHours;
-	// constants
-	private static final int HOURS_PER_DAY = 24;
-	private static final int MINUTES_PER_HOUR = 60;
-	private static final int MINIMUM_LABEL_HEIGHT = 16; // dirty
 	
-	// observer support
-	private PropertyChangeSupport support;
-	
-	public DailyAppointmentCalendarVisualizer(TOBusinessHour.DayOfWeek dayOfWeek, List<TOAppointment> revealedAppointments, List<TOAppointment> concealedAppointments, List<TOBusinessHour> businessHours) {
-		support = new PropertyChangeSupport(this);
+	public DailyAppointmentCalendarVisualizer(TOBusinessHour.DayOfWeek dayOfWeek, List<TOBusinessHour> businessHours, List<TOAppointment> revealedAppointments, List<TOAppointment> concealedAppointments) {
+		super(businessHours, revealedAppointments, concealedAppointments);
+		
 		this.dayOfWeek = dayOfWeek;
-		this.revealedAppointments = revealedAppointments;
-		this.concealedAppointments = concealedAppointments;
-		this.businessHours = businessHours;
-		setPreferredSize(new Dimension(COLUMN_WIDTH, ROW_HEIGHT * HOURS_PER_DAY));
+		
+		setMinimumSize(new Dimension(MINIMUM_COLUMN_WIDTH, MINIMUM_ROW_HEIGHT * 24));
 		init();
-		System.out.println("min height");
-		System.out.println(MINIMUM_LABEL_HEIGHT);
 	}
-	
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        support.addPropertyChangeListener(pcl);
-    }
- 
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        support.removePropertyChangeListener(pcl);
-    }
 	
 	private void init() {
 		selectedAppointment = null;
@@ -127,16 +106,16 @@ public class DailyAppointmentCalendarVisualizer extends JPanel {
 				System.out.println(y);
 				System.out.println(height);
 				
-				g.fillRect(0, y, COLUMN_WIDTH, height);
+				g.fillRect(0, y, getColumnWidth(), height);
 			}
 		}
 		
 		// Third pass
 		g.setColor(Color.GRAY); 
 
-		for (int i=0; i<HOURS_PER_DAY; i++) {
-			int height = i * ROW_HEIGHT;
-			g.drawLine(0, height, COLUMN_WIDTH, height); // horizontal line accross the bounds at height i * ROW_HEIGHT
+		for (int i=0; i<24; i++) {
+			int height = i * getRowHeight();
+			g.drawLine(0, height, getColumnWidth(), height); // horizontal line accross the bounds at height i * ROW_HEIGHT
 		}
 		
 		// Fourth pass
@@ -144,32 +123,59 @@ public class DailyAppointmentCalendarVisualizer extends JPanel {
 		
 		appointmentsByRectangle.clear();
 		for (TOAppointment a : revealedAppointments) {
-			
-			System.out.println(a);
-			Time startTime = a.getStartTime();
-			Time endTime = a.getEndTime();
-			System.out.println(endTime);
-			System.out.println(endTime.getHours());
-			System.out.println(endTime.getMinutes()/MINUTES_PER_HOUR);
-			
-			int x = 0;
-			int y = scaleTime(startTime);
-			int width = COLUMN_WIDTH;
-			int height = scaleTime(endTime) - y;
-			
-			System.out.println(y);
-			System.out.println(height);
-			Rectangle2D rectangle = new Rectangle2D.Double(x, y, width, height);
-			g.fillRect(x, y, width, height);
-			appointmentsByRectangle.put(rectangle, a);
-			
-			if (height >= MINIMUM_LABEL_HEIGHT) {
-				// TODO add label
-			}
+			appointmentsByRectangle.put(drawAppointment(g, a, false), a);
+		}
+		
+		for (TOAppointment a : concealedAppointments) {
+			appointmentsByRectangle.put(drawAppointment(g, a, true), a);
 		}
 	}
 	
+	// with the label
+	private Rectangle2D drawAppointment(Graphics g, TOAppointment appointment, boolean concealed) {
+		
+		System.out.println(appointment);
+		Time startTime = appointment.getStartTime();
+		Time endTime = appointment.getEndTime();
+		System.out.println(endTime);
+		System.out.println(endTime.getHours());
+		System.out.println(endTime.getMinutes()/60);
+		
+		int x = 0;
+		int y = scaleTime(startTime);
+		int width = getColumnWidth();
+		int height = scaleTime(endTime) - y - 1; // visually divide consecutive appts
+		
+		System.out.println(y);
+		System.out.println(height);
+		Rectangle2D rectangle = new Rectangle2D.Double(x, y, width, height);
+		g.fillRoundRect(x, y, width, height, 10, 10);
+		
+		Color oldColor = g.getColor();
+		g.setColor(Color.BLACK);
+		Shape oldClip = g.getClip();
+		g.setClip(new Rectangle2D.Double(x + APPOINTMENT_INFO_LABEL_PADDING, y, getColumnWidth() - APPOINTMENT_INFO_LABEL_PADDING * 2, getRowHeight()));
+		if (concealed) {
+			g.drawString("Appointment", APPOINTMENT_INFO_LABEL_PADDING, y + LABEL_HEIGHT);
+		} else {
+			g.drawString(appointment.getCustomerUsername() + " - " + appointment.getBookableServiceName(), APPOINTMENT_INFO_LABEL_PADDING, y + LABEL_HEIGHT);
+		}
+		
+		// clean up
+		g.setClip(oldClip);
+		g.setColor(oldColor);
+		return rectangle;
+	}
+	
+	private int getRowHeight() {
+		return getHeight() / 24;
+	}
+	
+	private int getColumnWidth() {
+		return getWidth();
+	}
+	
 	private int scaleTime(Time time) {
-		return time.getHours() * ROW_HEIGHT + (int) ((time.getMinutes()/(float) MINUTES_PER_HOUR) * ROW_HEIGHT);
+		return time.getHours() * getRowHeight() + (int) ((time.getMinutes() / (float) 60) * getRowHeight());
 	}
 }

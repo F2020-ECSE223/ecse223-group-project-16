@@ -51,7 +51,7 @@ public class ViewCalendarPage extends JFrame {
 		try {
 			
 			FlexiBookController.setUpBusinessInfo("company", "my address", "5141234567", "dasdsad@mgill.ca");
-			FlexiBookController.addNewBusinessHour("Tuesday", "09:00", "12:00");
+			FlexiBookController.addNewBusinessHour("Tuesday", "09:00", "14:00");
 			FlexiBookController.addNewBusinessHour("Tuesday", "14:00", "14:30");
 			FlexiBookController.addNewBusinessHour("Tuesday", "14:35", "15:45");
 		} catch (InvalidInputException e) {
@@ -59,10 +59,11 @@ public class ViewCalendarPage extends JFrame {
 			e.printStackTrace();
 		}
 		try {
-			FlexiBookController.addService("a service", "20", "0", "0");
-			FlexiBookController.createCustomerAccount("foo", "bar");
-			FlexiBookController.login("foo", "bar");
-			FlexiBookController.makeAppointment("foo", "2020-11-24", "a service", "09:01");
+			FlexiBookController.addService("a service", "90", "0", "0");
+			FlexiBookController.createCustomerAccount("Cutomer Username", "bar");
+			FlexiBookController.login("Cutomer Username", "bar");
+			FlexiBookController.makeAppointment("Cutomer Username", "2020-11-24", "a service", "09:01");
+			FlexiBookController.makeAppointment("Cutomer Username", "2020-11-24", "a service", "10:31");
 		} catch (InvalidInputException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

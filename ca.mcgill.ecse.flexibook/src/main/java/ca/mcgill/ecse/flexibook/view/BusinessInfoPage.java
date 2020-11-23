@@ -425,8 +425,8 @@ public class BusinessInfoPage extends JFrame {
 	  currentHours[4][1] = friHoursTextField.getText();
 	  currentHours[5][1] = satHoursTextField.getText();
 	  currentHours[6][1] = sunHoursTextField.getText();
-	  for (int i = 0; i <= 6; i = i + 1) {
-		  if (prevHours[i][1] != currentHours[i][1]) {
+	  for (int i = 0; i <= 6; i++) {
+		  if (!prevHours[i][1].equals(currentHours[i][1])) {
 			  if (prevHours[i][1] == "ADD HOURS") {
 				  try {
 					  String day = currentHours[i][0];
@@ -450,11 +450,10 @@ public class BusinessInfoPage extends JFrame {
 			  } 
 		  }
 	  }
-	  errorMessageLabel.setText("Edit");
+	  editBusinessHoursButton.setText("Edit");
 	  refreshData();
 	  pack();
   }
-
   private void editContactInfoActionPerformed(java.awt.event.ActionEvent evt) {
 	  errorMessage = null;
 	  addressTextField.setEditable(true);
@@ -480,6 +479,7 @@ public class BusinessInfoPage extends JFrame {
 			  errorMessage = e.getMessage();
 		  }
 	  }
+	  editContactInfoButton.setText("Edit");
 	  refreshData();
 	  pack();
   }

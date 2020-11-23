@@ -1525,14 +1525,12 @@ public class FlexiBookController {
 		validateBusinessInfo(name, address, phoneNumber, email);
 	    Business aNewBusiness = new Business(name, address, phoneNumber, email, FlexiBookApplication.getFlexiBook());
 		FlexiBookApplication.getFlexiBook().setBusiness(aNewBusiness);
-		System.out.println("pass1");
 		try{
 			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());
 		}
 		catch(RuntimeException e){
 			throw new InvalidInputException(e.getMessage());
 		}
-		System.out.println("pass2");
 	}
 	/**
 	 * Add a business hour to a business

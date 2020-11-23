@@ -2293,7 +2293,7 @@ public class FlexiBookController {
 		for (Appointment a : FlexiBookApplication.getFlexiBook().getAppointments()) {
 			if (a.getAppointmentStatus() == Appointment.AppointmentStatus.Booked) {
 				TimeSlot t = a.getTimeSlot();
-				if (t.getStartDate().after(SystemTime.getDate()) || (!t.getStartDate().before(SystemTime.getTime()) && t.getStartDate().equals(SystemTime.getDate()))) {
+				if (!t.getStartTime().after(SystemTime.getTime()) && !t.getEndTime().before(SystemTime.getTime()) && t.getStartDate().equals(SystemTime.getDate())) {
 					appointments.add(new TOAppointment(t.getStartDate(), t.getStartTime(), t.getEndDate(), t.getEndTime(), a.getCustomer().getUsername(), a.getBookableService().getName()));
 				}
 			}

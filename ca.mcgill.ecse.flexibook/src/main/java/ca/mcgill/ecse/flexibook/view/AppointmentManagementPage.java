@@ -78,6 +78,7 @@ public class AppointmentManagementPage extends JFrame {
 			FlexiBookController.login("test", "password");
 			SystemTime.setTesting(FlexiBookUtil.getDateFromString("2020-11-01"), FlexiBookUtil.getTimeFromString("12:00"));
 			FlexiBookController.makeAppointment("test", "2020-11-03", "cut", "11:00");
+			FlexiBookController.makeAppointment("test", "2020-11-03", "cut", "10:50");
 			SystemTime.setTesting(FlexiBookUtil.getDateFromString("2020-11-03"), FlexiBookUtil.getTimeFromString("11:00"));
 			
 			FlexiBookController.logout();
@@ -161,18 +162,16 @@ public class AppointmentManagementPage extends JFrame {
 		errorLabel.setText(errorMessage);
 		
 		List<TOAppointment> startingAppt = FlexiBookController.getAppointmentsStarting();
-
 		startingPanel.removeAll();
 		GroupLayout startingLayout = new GroupLayout(startingPanel);
 		startingLayout.setAutoCreateGaps(true);
 		startingLayout.setAutoCreateContainerGaps(true);
-		startingPanel.setLayout(startingLayout);
-		
+		startingPanel.setLayout(startingLayout);		
 		GroupLayout.ParallelGroup h = startingLayout.createParallelGroup();
-		GroupLayout.SequentialGroup v = startingLayout.createSequentialGroup();
-		
+		GroupLayout.SequentialGroup v = startingLayout.createSequentialGroup();		
 		if (startingAppt.size() == 0) {
-			startingPanel.add(noneStartingLabel);
+			h.addComponent(noneStartingLabel);
+			v.addComponent(noneStartingLabel);
 		} else {
 			for (TOAppointment a : startingAppt) {
 				JPanel aPan = new JPanel(true);
@@ -195,38 +194,86 @@ public class AppointmentManagementPage extends JFrame {
 						registerNoShow(event, a);
 					}
 				});
-				
-				aLay.setHorizontalGroup(aLay.createSequentialGroup()
-						.addGroup(aLay.createParallelGroup()
+
+				aLay.setHorizontalGroup(aLay.createParallelGroup(Alignment.CENTER)
+						.addGroup(aLay.createSequentialGroup()
 								.addComponent(aServ)
-								.addComponent(aStart)
-						.addGroup(aLay.createParallelGroup()
 								.addComponent(aDateTime))
+						.addGroup(aLay.createSequentialGroup()
+								.addComponent(aStart)
 								.addComponent(aNoShow)));
-				
+
 				aLay.setVerticalGroup(aLay.createSequentialGroup()
-						.addGroup(aLay.createParallelGroup()
+						.addGroup(aLay.createParallelGroup(Alignment.CENTER)
 								.addComponent(aServ)
 								.addComponent(aDateTime))
-						.addGroup(aLay.createParallelGroup()
+						.addGroup(aLay.createParallelGroup(Alignment.CENTER)
 								.addComponent(aStart)
 								.addComponent(aNoShow)));
-				
+
 				h.addComponent(aPan);
 				v.addComponent(aPan);
 			}
 			
-			startingLayout.setHorizontalGroup(h);
-			startingLayout.setVerticalGroup(v);
 		}
-		startingPanel.setBorder(
-				BorderFactory.createCompoundBorder(
-						BorderFactory.createTitledBorder(
-								BorderFactory.createEtchedBorder(), 
-								"Starting appointments"),
-						new EmptyBorder(5, 5, 5, 5) // inner padding
-						)
-				);
+		startingLayout.setHorizontalGroup(h);
+		startingLayout.setVerticalGroup(v);
+		
+		List<TOAppointment> progressingAppt = FlexiBookController.getAppointmentsInProgress();
+		inProgressPanel.removeAll();
+		GroupLayout progressingLayout = new GroupLayout(inProgressPanel);
+		progressingLayout.setAutoCreateGaps(true);
+		progressingLayout.setAutoCreateContainerGaps(true);
+		inProgressPanel.setLayout(progressingLayout);		
+		h = progressingLayout.createParallelGroup();
+		v = progressingLayout.createSequentialGroup();		
+		if (progressingAppt.size() == 0) {
+			h.addComponent(noneInProgressLabel);
+			v.addComponent(noneInProgressLabel);
+		} else {
+			for (TOAppointment a : progressingAppt) {
+				JPanel aPan = new JPanel(true);
+				GroupLayout aLay = new GroupLayout(aPan);
+				aLay.setAutoCreateGaps(true);
+				aLay.setAutoCreateContainerGaps(true);
+				
+				JLabel aServ = new JLabel(a.getBookableServiceName());
+				JLabel aDateTime = new JLabel(String.format("%s  %s-%s", a.getStartDate(), a.getStartTime(), a.getEndTime()));
+				JButton aEnd = new JButton("End Appointment");
+				
+				aEnd.addActionListener(new java.awt.event.ActionListener() {
+					public void actionPerformed(java.awt.event.ActionEvent event) {
+						endAppointment(event, a);
+					}
+				});
+
+				aLay.setHorizontalGroup(aLay.createParallelGroup(Alignment.CENTER)
+						.addGroup(aLay.createSequentialGroup()
+								.addComponent(aServ)
+								.addComponent(aDateTime))
+						.addGroup(aLay.createSequentialGroup()
+								.addComponent(aEnd)));
+
+				aLay.setVerticalGroup(aLay.createSequentialGroup()
+						.addGroup(aLay.createParallelGroup(Alignment.CENTER)
+								.addComponent(aServ)
+								.addComponent(aDateTime))
+						.addGroup(aLay.createParallelGroup(Alignment.CENTER)
+								.addComponent(aEnd)));
+
+				h.addComponent(aPan);
+				v.addComponent(aPan);
+			}
+			
+		}
+		progressingLayout.setHorizontalGroup(h);
+		progressingLayout.setVerticalGroup(v);
+	
+		inProgressPanel.setMinimumSize(new Dimension(startingPanel.getPreferredSize().width, 0));
+		startingPanel.setMinimumSize(new Dimension(inProgressPanel.getPreferredSize().width, 0));
+		
+		pack();
+		setVisible(true);
 	}
 	
 	private void startAppointment(java.awt.event.ActionEvent evt, TOAppointment appt) {

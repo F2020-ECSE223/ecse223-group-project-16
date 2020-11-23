@@ -164,7 +164,7 @@ public class BusinessInfoPage extends JFrame {
     satHoursTextField.setEditable(false);
     sunHoursTextField.setEditable(false);
 
-    setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     setTitle("Business Info Tab");
 	setMinimumSize(new Dimension(600, 500));
     
@@ -334,7 +334,7 @@ public class BusinessInfoPage extends JFrame {
     		)
     		.addComponent(errorMessageLabel)
     );
-    pack();
+	pack();
   }
 
   private void refreshData() {
@@ -357,24 +357,45 @@ public class BusinessInfoPage extends JFrame {
 	      for (TOBusinessHour bh : FlexiBookController.viewBusinessInfo().getBusinessHours()) {
 	            if (bh.getDayOfWeek().toString().equals("Monday")) {
 	                monHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
+	                if (monHoursTextField.getText() == null) {
+	                	monHoursTextField.setText("ADD HOURS");
+	                }
 	            }
 	            else if (bh.getDayOfWeek().toString().equals("Tuesday")) {
 	                tuesHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
+	                if (tuesHoursTextField.getText() == null) {
+	                	tuesHoursTextField.setText("ADD HOURS");
+	                }
 	            }
 	            else if (bh.getDayOfWeek().toString().equals("Wednesday")) {
 	                wedHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
+	                if (wedHoursTextField.getText() == null) {
+	                	wedHoursTextField.setText("ADD HOURS");
+	                }
 	            }
 	            else if (bh.getDayOfWeek().toString().equals("Thursday")) {
 	                thursHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
+	                if (thursHoursTextField.getText() == null) {
+	                	thursHoursTextField.setText("ADD HOURS");
+	                }
 	            }
 	            else if (bh.getDayOfWeek().toString().equals("Friday")) {
 	                friHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
+	                if (friHoursTextField.getText() == null) {
+	                	friHoursTextField.setText("ADD HOURS");
+	                }
 	            }
 	            else if (bh.getDayOfWeek().toString().equals("Saturday")) {
 	                satHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
+	                if (satHoursTextField.getText() == null) {
+	                	satHoursTextField.setText("ADD HOURS");
+	                }
 	            }
 	            else if (bh.getDayOfWeek().toString().equals("Sunday")) {
 	                sunHoursTextField.setText(bh.getStartTime().toString().substring(0, bh.getStartTime().toString().length()-3) + '-' + bh.getEndTime().toString().substring(0, bh.getStartTime().toString().length()-3));
+	                if (sunHoursTextField.getText() == null) {
+	                	sunHoursTextField.setText("ADD HOURS");
+	                }
 	            }
 	        }
 	  } else {

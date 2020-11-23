@@ -2031,8 +2031,8 @@ public class FlexiBookController {
 		}
 		validateDurationTimes(Integer.parseInt(totalDuration),Integer.parseInt(downtimeStart), Integer.parseInt(downtimeDuration));
 		
-		for (BookableService bS1: flexiBook.getBookableServices()) {
-			if (ogName != newName) {
+		if (!ogName.contentEquals(newName)) {
+			for (BookableService bS1: flexiBook.getBookableServices()) {
 				if (bS1.getName().contentEquals(newName)) {
 					throw new InvalidInputException("Service " + newName + " already exists");
 				}

@@ -3,6 +3,7 @@ package ca.mcgill.ecse.flexibook.view;
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
+import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;
 
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
@@ -36,8 +37,6 @@ public class BusinessInfoPage extends JFrame {
   private JPanel businessInfoPanel;
     // Titles
   private JTextField businessNameTextField;
-  private JLabel businessHoursLabel;
-  private JLabel contactInfoLabel;
   private JLabel addressLabel;
   private JLabel phoneNumberLabel;
   private JLabel emailLabel;
@@ -45,105 +44,147 @@ public class BusinessInfoPage extends JFrame {
   private JButton editBusinessHoursButton;
   private JButton editContactInfoButton;
     // Business Hour Elements
-  private JTable businessHoursContainer;
+  private JLabel monLabel;
+  private JLabel tuesLabel;
+  private JLabel wedLabel;
+  private JLabel thursLabel;
+  private JLabel friLabel;
+  private JLabel satLabel;
+  private JLabel sunLabel;
+  private JTextField monHoursTextField;
+  private JTextField tuesHoursTextField;
+  private JTextField wedHoursTextField;
+  private JTextField thursHoursTextField;
+  private JTextField friHoursTextField;
+  private JTextField satHoursTextField;
+  private JTextField sunHoursTextField;
     // Business address & contact
   private JTextField addressTextField;
   private JTextField phoneNumberTextField;
   private JTextField emailTextField;
   
+  	// Error message
+  private JLabel errorMessageLabel;
+  private String errorMessage = null;
+  
   
   public BusinessInfoPage() {
     initComponents();
+    //refreshData();
   }
  
   private void initComponents(){
 // INTIALIZE
+	// Errors
+	errorMessageLabel = new JLabel();
+	errorMessageLabel.setForeground(Color.RED);
     // Titles
     businessNameTextField = new JTextField("CLICK HERE TO SET BUSINESS NAME");
     businessNameTextField.setHorizontalAlignment(JTextField.CENTER);
-    businessHoursLabel = new JLabel("Business Hours");
-    contactInfoLabel = new JLabel("Contact Information");
     addressLabel = new JLabel("Address");
     phoneNumberLabel = new JLabel("Phone Number");
     emailLabel = new JLabel("Email");
     // Edit buttons
     editBusinessHoursButton = new JButton("Edit");
     editContactInfoButton = new JButton("Edit");
-    
-    // Business Hour elements
-    String[] columnNames = {"Day", "Hours"};
-    String[][] hours = new String[7][2];
-    hours[0][0] = "Monday"; hours[0][1] = "ADD HOURS";
-    hours[1][0] = "Tuesday"; hours[1][1] = "ADD HOURS";
-    hours[2][0] = "Wednesday"; hours[2][1] = "ADD HOURS";
-    hours[3][0] = "Thursday"; hours[3][1] = "ADD HOURS";
-    hours[4][0] = "Friday"; hours[4][1] = "ADD HOURS";
-    hours[5][0] = "Saturday"; hours[5][1] = "ADD HOURS";
-    hours[6][0] = "Sunday"; hours[6][1] = "ADD HOURS";
-    businessHoursContainer = new JTable(hours, columnNames);
-    businessHoursContainer.setRowHeight(19);
-    
-    // Business address and contact
+    // Business Info elements
+    businessNameTextField = new JTextField();
     addressTextField = new JTextField();
-    addressTextField.setText("ADD ADDRESS");
-    phoneNumberTextField = new JTextField();;
-    phoneNumberTextField.setText("ADD PHONE NUMBER");
+    phoneNumberTextField = new JTextField();
     emailTextField = new JTextField();
-    emailTextField.setText("ADD EMAIL");
-/*
-    if (!FlexiBookController.viewBusinessInfo().equals(null)) {
-        businessNameTitle.setText(FlexiBookController.viewBusinessInfo().getName().toString());
-        businessAddress.setText(FlexiBookController.viewBusinessInfo().getAddress().toString());
-        businessPhone.setText(FlexiBookController.viewBusinessInfo().getPhoneNumber().toString());
-        businessEmail.setText(FlexiBookController.viewBusinessInfo().getEmail().toString());
-        */
-          /*
-        String[][] hours = new String[7][2];
-        for (BusinessHour bh : FlexiBookController.viewBusinessHours()) {
+    monLabel = new JLabel("Monday");
+    tuesLabel = new JLabel("Tuesday");
+    wedLabel = new JLabel("Wednesday");
+    thursLabel = new JLabel("Thursday");
+    friLabel = new JLabel("Friday");
+    satLabel = new JLabel("Saturday");
+    sunLabel = new JLabel("Sunday");
+    monHoursTextField = new JTextField();
+    tuesHoursTextField = new JTextField();
+    wedHoursTextField = new JTextField();
+    thursHoursTextField = new JTextField();
+    friHoursTextField = new JTextField();
+    satHoursTextField = new JTextField();
+    sunHoursTextField = new JTextField();
+    
+    if (FlexiBookController.viewBusinessInfo() != null) {
+    	// Contact info elements
+        businessNameTextField.setText(FlexiBookController.viewBusinessInfo().getName().toString());
+        addressTextField.setText(FlexiBookController.viewBusinessInfo().getAddress().toString());
+        phoneNumberTextField.setText(FlexiBookController.viewBusinessInfo().getPhoneNumber().toString());
+        emailTextField.setText(FlexiBookController.viewBusinessInfo().getEmail().toString());
+        // Business hour elements
+        for (TOBusinessHour bh : FlexiBookController.viewBusinessInfo().getBusinessHours()) {
             if (bh.getDayOfWeek().toString().equals("Monday")) {
-                hours[0][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
+                monHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
             }
             else if (bh.getDayOfWeek().toString().equals("Tuesday")) {
-                hours[1][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
+                tuesHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
             }
             else if (bh.getDayOfWeek().toString().equals("Wednesday")) {
-                hours[2][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
+                wedHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
             }
             else if (bh.getDayOfWeek().toString().equals("Thursday")) {
-                hours[3][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
+                thursHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
             }
             else if (bh.getDayOfWeek().toString().equals("Friday")) {
-                hours[4][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
+                friHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
             }
             else if (bh.getDayOfWeek().toString().equals("Saturday")) {
-                hours [5][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
+                satHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
             }
             else if (bh.getDayOfWeek().toString().equals("Sunday")) {
-                hours[6][1] = bh.getStartTime().toString() + bh.getEndTime().toString();
+                sunHoursTextField.setText(bh.getStartTime().toString() + bh.getEndTime().toString());
             }
         }
-        */
-    //}
- 
+
+    } else {
+    	monHoursTextField.setText("ADD HOURS");
+    	tuesHoursTextField.setText("ADD HOURS");
+    	wedHoursTextField.setText("ADD HOURS");
+    	thursHoursTextField.setText("ADD HOURS");
+    	friHoursTextField.setText("ADD HOURS");
+    	satHoursTextField.setText("ADD HOURS");
+    	sunHoursTextField.setText("ADD HOURS");
+        addressTextField.setText("ADD ADDRESS");
+        phoneNumberTextField.setText("ADD PHONE NUMBER");
+        emailTextField.setText("ADD EMAIL");
+    }
+    addressTextField.setEditable(false);
+    phoneNumberTextField.setEditable(false);
+    emailTextField.setEditable(false);
+    monHoursTextField.setEditable(false);
+    tuesHoursTextField.setEditable(false);
+    wedHoursTextField.setEditable(false);
+    thursHoursTextField.setEditable(false);
+    friHoursTextField.setEditable(false);
+    satHoursTextField.setEditable(false);
+    sunHoursTextField.setEditable(false);
+
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     setTitle("Business Info Tab");
 	setMinimumSize(new Dimension(600, 200));
     
+	/*
     // LISTENERS
-    /*
-    editHoursButton.addActionListener(new java.awt.event.ActionListener() {
+    editBusinessHoursButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            editHoursActionPerformed(evt);
-        }
-    });
-    editAddressButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            editAddressActionPerformed(evt);
+        	if (editBusinessHoursButton.getText().equals("Save")) {
+        		saveBusinessHoursActionPerformed(evt);
+        	} else {
+            	editBusinessHoursButton.setText("Save");
+                editBusinessHoursActionPerformed(evt);
+        	}
         }
     });
     editContactInfoButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            editContactInfoActionPerformed(evt);
+        	if (editContactInfoButton.getText().equals("Save")) {
+        		saveContactInfoActionPerformed(evt);
+        	} else {
+            	editContactInfoButton.setText("Save");
+                editContactInfoActionPerformed(evt);
+        	}
         }
     });
     */
@@ -168,14 +209,68 @@ public class BusinessInfoPage extends JFrame {
 				);
 	bhLayout.setHorizontalGroup(
 			bhLayout.createParallelGroup()
-			.addComponent(businessHoursLabel, Alignment.CENTER)
-			.addComponent(businessHoursContainer)
+			.addGroup(
+					bhLayout.createSequentialGroup()
+					.addGroup(
+							bhLayout.createParallelGroup()
+							.addComponent(monLabel)
+							.addComponent(tuesLabel)
+							.addComponent(wedLabel)
+							.addComponent(thursLabel)
+							.addComponent(friLabel)
+							.addComponent(satLabel)
+							.addComponent(sunLabel)
+					)
+					.addGroup(
+							bhLayout.createParallelGroup()
+							.addComponent(monHoursTextField)
+							.addComponent(tuesHoursTextField)
+							.addComponent(wedHoursTextField)
+							.addComponent(thursHoursTextField)
+							.addComponent(friHoursTextField)
+							.addComponent(satHoursTextField)
+							.addComponent(sunHoursTextField)
+					)
+			)
 			.addComponent(editBusinessHoursButton, Alignment.CENTER)
 	);
 	bhLayout.setVerticalGroup(
 			bhLayout.createSequentialGroup()
-			.addComponent(businessHoursLabel)
-			.addComponent(businessHoursContainer)
+			.addGroup(
+					bhLayout.createParallelGroup(Alignment.CENTER)
+					.addComponent(monLabel)
+					.addComponent(monHoursTextField)
+			)
+			.addGroup(
+					bhLayout.createParallelGroup(Alignment.CENTER)
+					.addComponent(tuesLabel)
+					.addComponent(tuesHoursTextField)
+			)
+			.addGroup(
+					bhLayout.createParallelGroup(Alignment.CENTER)
+					.addComponent(wedLabel)
+					.addComponent(wedHoursTextField)
+			)
+			.addGroup(
+					bhLayout.createParallelGroup(Alignment.CENTER)
+					.addComponent(thursLabel)
+					.addComponent(thursHoursTextField)
+			)
+			.addGroup(
+					bhLayout.createParallelGroup(Alignment.CENTER)
+					.addComponent(friLabel)
+					.addComponent(friHoursTextField)
+			)
+			.addGroup(
+					bhLayout.createParallelGroup(Alignment.CENTER)
+					.addComponent(satLabel)
+					.addComponent(satHoursTextField)
+			)
+			.addGroup(
+					bhLayout.createParallelGroup(Alignment.CENTER)
+					.addComponent(sunLabel)
+					.addComponent(sunHoursTextField)
+			)
 			.addComponent(editBusinessHoursButton)
 	);
 	
@@ -218,10 +313,6 @@ public class BusinessInfoPage extends JFrame {
     getContentPane().setLayout(layout);
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
-    Utils.resizeTextFieldToWidth(addressTextField, 50);
-    Utils.resizeTextFieldToWidth(businessNameTextField, 50);
-    Utils.resizeTextFieldToWidth(emailTextField, 50);
-    Utils.resizeTextFieldToWidth(phoneNumberTextField, 50);
 
     layout.setHorizontalGroup(
     		layout.createParallelGroup()
@@ -230,7 +321,8 @@ public class BusinessInfoPage extends JFrame {
     				layout.createSequentialGroup()
     				.addComponent(businessHoursPanel)
     				.addComponent(businessInfoPanel)
-    		)		
+    		)
+    		.addComponent(errorMessageLabel)
     );
     layout.setVerticalGroup(
     		layout.createSequentialGroup()
@@ -240,7 +332,55 @@ public class BusinessInfoPage extends JFrame {
     				.addComponent(businessHoursPanel)
     				.addComponent(businessInfoPanel)
     		)
+    		.addComponent(errorMessageLabel)
     );
     pack();
   }
+  /*
+  private void refreshData() {
+	  errorMessageLabel.setText(errorMessage);
+	  
+	  if (errorMessage != null || errorMessage.length() == 0) {
+		  errorMessageLabel.setText(errorMessage);
+		  businessNameTextField.setText("");
+		  addressTextField.setText("");;
+		  phoneNumberTextField.setText("");
+		  emailTextField.setText("");
+		  
+		  String[] columnNames = {"Day", "Hours"};
+		  String[][] hours = new String[7][2];
+		  businessHoursContainer = new JTable(hours, columnNames);
+		  pack();
+	  }
+  }
+  private void editBusinessHoursActionPerformed(java.awt.event.ActionEvent evt) {
+	  errorMessage = null;
+	  // set textfield editable to true
+  }
+  private void saveBusinessHoursActionPerformed(java.awt.event.ActionEvent evt) {
+	  errorMessage = null;
+	  try {
+		  FlexiBookController.updateBusinessHour(prevDay, prevStartTime, newDay, newStartTime, newEndTime);
+	  } catch (InvalidInputException e) {
+		  errorMessage = e.getMessage();
+	  } finally {
+		  refreshData();
+	  }
+  }
+  
+  private void editContactInfoActionPerformed(java.awt.event.ActionEvent evt) {
+	  errorMessage = null;
+	  // set textfield editable to true
+  }
+  private void saveContactInfoActionPerformed(java.awt.event.ActionEvent evt) {
+	  errorMessage = null;
+	  try {
+		  FlexiBookController.updateBusinessInfo(name, address, phoneNumber, email);
+	  } catch (InvalidInputException e) {
+		  errorMessage = e.getMessage();
+	  } finally {
+		  refreshData();
+	  }
+  }
+  */
 }

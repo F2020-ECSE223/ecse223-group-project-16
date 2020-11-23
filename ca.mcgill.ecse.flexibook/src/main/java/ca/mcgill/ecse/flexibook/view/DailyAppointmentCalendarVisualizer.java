@@ -1,29 +1,22 @@
 package ca.mcgill.ecse.flexibook.view;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-
-// should not interface directly with the FlexiBookController
-import ca.mcgill.ecse.flexibook.controller.TOAppointment;
-import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.event.MouseAdapter;
-import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.sql.Date;
 import java.sql.Time;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.UIManager;
+
+// should not interface directly with the FlexiBookController
+import ca.mcgill.ecse.flexibook.controller.TOAppointment;
+import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;
 
 public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisualizer {
 	private static final long serialVersionUID = -8772497283688477006L;
@@ -36,11 +29,19 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 	private static final int LABEL_HEIGHT = 16;
 	private static final int APPOINTMENT_INFO_LABEL_PADDING = 10;
 	
-	public DailyAppointmentCalendarVisualizer(TOBusinessHour.DayOfWeek dayOfWeek, List<TOBusinessHour> businessHours, List<TOAppointment> revealedAppointments, List<TOAppointment> concealedAppointments) {
-		super(businessHours, revealedAppointments, concealedAppointments);
+	public DailyAppointmentCalendarVisualizer(Date date, List<TOBusinessHour> businessHours, List<TOAppointment> revealedAppointments, List<TOAppointment> concealedAppointments) {
+		super(date, businessHours, revealedAppointments, concealedAppointments);
 		
 		setMinimumSize(new Dimension(MINIMUM_COLUMN_WIDTH, MINIMUM_ROW_HEIGHT * 24));
 		init();
+	}
+	
+	private int getRowHeight() {
+		return getHeight() / 24;
+	}
+	
+	private int getColumnWidth() {
+		return getWidth();
 	}
 	
 	private void init() {
@@ -86,6 +87,7 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 	private void doDrawing(Graphics g) {
 		// First pass
 		g.setColor(Color.LIGHT_GRAY); 
+		
 		g.fillRect(0,  0, getWidth(), getHeight());
 		
 		// Second pass
@@ -160,14 +162,6 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 		g.setClip(oldClip);
 		g.setColor(oldColor);
 		return rectangle;
-	}
-	
-	private int getRowHeight() {
-		return getHeight() / 24;
-	}
-	
-	private int getColumnWidth() {
-		return getWidth();
 	}
 	
 	private int scaleTime(Time time) {

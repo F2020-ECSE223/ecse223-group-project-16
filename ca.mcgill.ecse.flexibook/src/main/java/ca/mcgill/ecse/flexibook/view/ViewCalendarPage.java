@@ -25,11 +25,9 @@ public class ViewCalendarPage extends JFrame {
 		initComponents();
 	}
 
-	
-	
 	private void initComponents() {
 		
-		viz = new DailyAppointmentCalendarVisualizer(TOBusinessHour.DayOfWeek.Tuesday, filterBusinessHoursByDay(FlexiBookController.viewBusinessInfo().getBusinessHours(), TOBusinessHour.DayOfWeek.Tuesday), FlexiBookController.getAppointments(), new ArrayList<>());
+		viz = new DailyAppointmentCalendarVisualizer(SystemTime.getDate(), filterBusinessHoursByDay(FlexiBookController.viewBusinessInfo().getBusinessHours(), TOBusinessHour.DayOfWeek.Tuesday), FlexiBookController.getAppointments(), new ArrayList<>());
 		viewCalendarLabel = new JLabel();
 		viewCalendarLabel.setText("View Calendar Tab here");
 

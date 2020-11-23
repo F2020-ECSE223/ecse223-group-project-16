@@ -2020,7 +2020,6 @@ public class FlexiBookController {
 			throw new InvalidInputException("You are not authorized to perform this operation");
 		}
 		validateDurationTimes(Integer.parseInt(totalDuration),Integer.parseInt(downtimeStart), Integer.parseInt(downtimeDuration));
-		
 		for (BookableService bS1: flexiBook.getBookableServices()) {
 			if (bS1.getName().contentEquals(newName)) {
 				throw new InvalidInputException("Service " + newName + " already exists");

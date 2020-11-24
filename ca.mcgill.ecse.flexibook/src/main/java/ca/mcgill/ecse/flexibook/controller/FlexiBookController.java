@@ -1954,7 +1954,7 @@ public class FlexiBookController {
 	 */
 	public static void addService(String name, String totalDuration, String downtimeStart, String downtimeDuration) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
-		if (FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
+		if (FlexiBookApplication.getCurrentUser() == null || FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
 			throw new InvalidInputException("You are not authorized to perform this operation");
 		}
 		validateDurationTimes(Integer.parseInt(totalDuration),Integer.parseInt(downtimeStart), Integer.parseInt(downtimeDuration));
@@ -2016,14 +2016,16 @@ public class FlexiBookController {
 	public static void updateService(String ogName, String newName, String totalDuration, String downtimeStart, String downtimeDuration) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 	
-		if (FlexiBookApplication.getCurrentUser() != flexiBook.getOwner()) {
+		if (FlexiBookApplication.getCurrentUser() == null || FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
 			throw new InvalidInputException("You are not authorized to perform this operation");
 		}
 		validateDurationTimes(Integer.parseInt(totalDuration),Integer.parseInt(downtimeStart), Integer.parseInt(downtimeDuration));
 		
-		for (BookableService bS1: flexiBook.getBookableServices()) {
-			if (bS1.getName().contentEquals(newName)) {
-				throw new InvalidInputException("Service " + newName + " already exists");
+		if (!ogName.contentEquals(newName)) {
+			for (BookableService bS1: flexiBook.getBookableServices()) {
+				if (bS1.getName().contentEquals(newName)) {
+					throw new InvalidInputException("Service " + newName + " already exists");
+				}
 			}
 		}
 		
@@ -2056,7 +2058,7 @@ public class FlexiBookController {
 	public static void deleteService(String name) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 		
-		if (FlexiBookApplication.getCurrentUser() != flexiBook.getOwner()) {
+		if (FlexiBookApplication.getCurrentUser() == null || FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
 			throw new InvalidInputException("You are not authorized to perform this operation");
 		}
 		

@@ -1,5 +1,6 @@
 package ca.mcgill.ecse.flexibook.view;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +68,7 @@ public class ServicesPage extends JFrame {
 	
 	setMinimumSize(new Dimension(1200, 150));
 	errorMessage = new JLabel();
+	errorMessage.setForeground(Color.RED);
 	
 	// DELETE SERVICE ELEMENTS
     deleteServiceButton = new JButton();

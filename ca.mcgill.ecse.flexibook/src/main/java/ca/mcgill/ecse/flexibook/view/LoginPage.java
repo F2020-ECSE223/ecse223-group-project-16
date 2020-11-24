@@ -32,7 +32,7 @@ public class LoginPage extends JFrame {
   // login 
   private JButton loginButton;
   // page navigation
-  private JButton landingPageButton;
+  private JButton signUpInsteadButton;
   
   // Data elements
   private String errorMessage = "";
@@ -65,9 +65,10 @@ public class LoginPage extends JFrame {
     
     // elements for login button
     loginButton = new JButton("Login");
+    loginButton.setForeground(Color.WHITE);
     
-    // elements for page navigation
-    landingPageButton = new JButton("Back to Landing Page");
+    // elements for sign up instead button
+    signUpInsteadButton = new JButton("Sign Up Instead");
     
     // action listeners
     loginButton.addActionListener(new java.awt.event.ActionListener() {
@@ -82,9 +83,9 @@ public class LoginPage extends JFrame {
   		}
   	});
     
-    landingPageButton.addActionListener(new java.awt.event.ActionListener() {
+    signUpInsteadButton.addActionListener(new java.awt.event.ActionListener() {
   		public void actionPerformed(java.awt.event.ActionEvent evt) {
-  			landingPageButtonActionPerformed(evt);
+  			signUpInsteadButtonActionPerformed(evt);
   		}
   	});
     
@@ -92,11 +93,14 @@ public class LoginPage extends JFrame {
     // formatting
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     setTitle("Login Here");
+    getRootPane().setDefaultButton(loginButton); 
+    setResizable(false);
 
     GroupLayout layout = new GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
+    
     layout.setHorizontalGroup(
       layout.createSequentialGroup()
         .addGroup(layout.createSequentialGroup()
@@ -105,19 +109,24 @@ public class LoginPage extends JFrame {
             .addComponent(passLabel)
           )	  
           .addGroup(layout.createParallelGroup()
-            .addComponent(errorMessageLabel)
             .addComponent(userTextField)
-            .addComponent(passTextField)
-            .addComponent(loginButton)
-            .addComponent(landingPageButton)
+            .addGroup(layout.createSequentialGroup()
+					.addGroup(layout.createParallelGroup()
+							.addComponent(passTextField)
+							.addComponent(signUpInsteadButton)
+							)
+					.addGroup(layout.createParallelGroup()
+							.addComponent(showPassButton)
+							.addComponent(loginButton)
+							)									
+					)
+            .addComponent(errorMessageLabel)
           )
-          .addComponent(showPassButton)
         )
     );
     layout.setVerticalGroup(
       layout.createSequentialGroup() 
         .addGroup(layout.createSequentialGroup()
-          .addComponent(errorMessageLabel)
           .addGroup(layout.createParallelGroup()
             .addComponent(userLabel)
             .addComponent(userTextField)
@@ -127,18 +136,21 @@ public class LoginPage extends JFrame {
             .addComponent(passTextField)
             .addComponent(showPassButton)
           )
-          .addComponent(loginButton)
-          .addComponent(landingPageButton)
+          .addComponent(errorMessageLabel)
+          .addGroup(layout.createParallelGroup()
+        	.addComponent(signUpInsteadButton)
+            .addComponent(loginButton)
+          )
        )
     );
+    
     pack();
-    setResizable(true);
   }
   
   private void refreshData() {
 	  errorMessageLabel.setText(errorMessage);
 
-	  if ( errorMessage.length() != 0) {
+	  if (errorMessage.length() != 0) {
 		  userTextField.setText("");
 		  passTextField.setText("");
 			
@@ -157,7 +169,7 @@ public class LoginPage extends JFrame {
 		// call the controller
 		try {
 			FlexiBookController.login(username, password);
-			Utils.switchToFrame(this, new LandingPage());
+			Utils.switchToFrame(this, new ViewCalendarPage());
 		} catch (InvalidInputException e) {
 			errorMessage = e.getMessage();
 		} finally {
@@ -176,8 +188,8 @@ public class LoginPage extends JFrame {
 		}
   }
   
-  private void landingPageButtonActionPerformed(java.awt.event.ActionEvent evt) {
-	    Utils.switchToFrame(this, new LandingPage());
+  private void signUpInsteadButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	    Utils.switchToFrame(this, new SignUpPage());
   }
 	
 }

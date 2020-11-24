@@ -66,7 +66,6 @@ public class ViewCalendarPage extends JFrame {
 	private boolean scrollPaneWasSetup = false;
 
 	public ViewCalendarPage() {
-		populate();
 		initComponents();
 		refreshData();
 	}
@@ -200,31 +199,8 @@ public class ViewCalendarPage extends JFrame {
 		pack();
 	}
 
-	// populate app with mock values
-	private void populate() {
-		try {
-
-			FlexiBookController.setUpBusinessInfo("company", "my address", "5141234567", "dasdsad@mgill.ca");
-			FlexiBookController.addNewBusinessHour("Tuesday", "09:00", "14:00");
-			FlexiBookController.addNewBusinessHour("Tuesday", "14:00", "14:30");
-			FlexiBookController.addNewBusinessHour("Tuesday", "14:35", "15:45");
-		} catch (InvalidInputException e) {
-			e.printStackTrace();
-		}
-		try {
-			FlexiBookController.addService("a service", "90", "0", "0");
-			FlexiBookController.createCustomerAccount("Cutomer Username", "bar");
-			FlexiBookController.login("Cutomer Username", "bar");
-			FlexiBookController.makeAppointment("Cutomer Username", "2020-11-24", "a service", "09:01");
-			FlexiBookController.makeAppointment("Cutomer Username", "2020-11-24", "a service", "10:31");
-		} catch (InvalidInputException e) {
-			e.printStackTrace();
-		}
-	}
-
 	private void refreshData() {
-		
-		if (scrollPaneWasSetup == false) { // setup once
+		if (!scrollPaneWasSetup) { // setup once
 			scrollPane.setBorder(BorderFactory.createEmptyBorder());
 			scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 			scrollPane.getHorizontalScrollBar().setUnitIncrement(16);

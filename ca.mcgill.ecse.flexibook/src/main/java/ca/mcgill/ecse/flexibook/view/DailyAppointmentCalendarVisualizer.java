@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.Timer;
-import javax.swing.UIManager;
 
 import ca.mcgill.ecse.flexibook.controller.TOAppointment;
 import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;

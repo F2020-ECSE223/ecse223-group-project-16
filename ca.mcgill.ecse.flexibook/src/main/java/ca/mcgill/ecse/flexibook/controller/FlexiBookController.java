@@ -1489,8 +1489,32 @@ public class FlexiBookController {
 	 * @author Julie
 	 */
 	private static boolean notValidPhoneNumber(String phoneNumber) {
-		Pattern pattern = Pattern.compile("^((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$");
+	    Pattern pattern = Pattern.compile("^((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$");
 		Matcher matcher = pattern.matcher(phoneNumber);
+		if (matcher.matches()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	/**
+	 * @author Julie
+	 */
+	private static boolean notValidAddress(String address) {
+		Pattern pattern = Pattern.compile("^\\d+\\s[A-z]+\\s[A-z]+");
+		Matcher matcher = pattern.matcher(address);
+		if (matcher.matches()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	/**
+	 * @author Julie
+	 */
+	private static boolean notValidEmail(String email) {
+		Pattern pattern = Pattern.compile("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
+		Matcher matcher = pattern.matcher(email);
 		if (matcher.matches()) {
 			return false;
 		} else {
@@ -1504,18 +1528,13 @@ public class FlexiBookController {
 		if (name == null || name.isEmpty()) {
 			throw new InvalidInputException("Invalid business name");
 		}
-		if (address == null || address.isEmpty()) {
+		if (notValidAddress(address)) {
 			throw new InvalidInputException("Invalid address");
 		}
-		if (phoneNumber == null || phoneNumber.isEmpty() || notValidPhoneNumber(phoneNumber)) {
+		if (notValidPhoneNumber(phoneNumber)) {
 			throw new InvalidInputException("Invalid phone number");
 		}
-		if (email == null || email.isEmpty() || !email.contains("@") || !email.contains(".") || email.contains(" ")) {
-			throw new InvalidInputException("Invalid email");
-		}
-		// check that @ and . are in the correct order
-		String splitEmail[]= email.split("@", 2);
-		if (!splitEmail[1].contains(".")) {
+		if (notValidEmail(email)) {
 			throw new InvalidInputException("Invalid email");
 		}
 	}

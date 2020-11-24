@@ -22,7 +22,7 @@ public class LandingPage extends JFrame {
 	private static final long serialVersionUID = 8012520089383050363L;
 
 	private static final boolean DEBUG_MODE = true;
-	private static final boolean DEBUG_USER_IS_OWNER = true;
+	private static final boolean DEBUG_USER_IS_OWNER = false;
 
 	// UI elements
 	private JLabel welcomeLabel;

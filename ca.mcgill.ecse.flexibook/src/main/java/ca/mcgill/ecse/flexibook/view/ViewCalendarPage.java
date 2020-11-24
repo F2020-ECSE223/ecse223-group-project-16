@@ -2,10 +2,8 @@ package ca.mcgill.ecse.flexibook.view;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
 import java.sql.Date;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +12,6 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,10 +21,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
-import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOAppointment;
+import ca.mcgill.ecse.flexibook.controller.TOBusiness;
 import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;
 import ca.mcgill.ecse.flexibook.controller.TOUser;
 import ca.mcgill.ecse.flexibook.util.FlexiBookUtil;
@@ -105,7 +102,7 @@ public class ViewCalendarPage extends JFrame {
 
 		// global settings
 		setMinimumSize(new Dimension(200, 300));
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setTitle("View Appointment Calendar");
 		getRootPane().setDefaultButton(viewButton); // Wire enter key to view button
 
@@ -254,7 +251,12 @@ public class ViewCalendarPage extends JFrame {
 		}
 
 		try {
-			allBusinessHours = FlexiBookController.viewBusinessInfo().getBusinessHours();
+			TOBusiness business = FlexiBookController.viewBusinessInfo();
+			if (business != null) {
+				allBusinessHours = business.getBusinessHours();
+			} else {
+				allBusinessHours = new ArrayList<TOBusinessHour>();
+			}
 			allCurrentUserAppointments = FlexiBookController.getAppointments(currentUser.getUsername());
 			allAppointments = FlexiBookController.getAppointments();
 		} catch (InvalidInputException e) {

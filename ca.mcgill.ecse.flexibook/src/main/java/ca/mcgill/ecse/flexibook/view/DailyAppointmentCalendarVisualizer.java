@@ -12,13 +12,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Timer;
 import javax.swing.UIManager;
 
 import ca.mcgill.ecse.flexibook.controller.TOAppointment;
 import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;
+import ca.mcgill.ecse.flexibook.util.SystemTime;
 
 public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisualizer {
 	private static final long serialVersionUID = -8772497283688477006L;
+	
+	// constants
+	private static int REFRESH_DELAY = 15 * 1000; // ms
 	
 	// UI elements
 	private Map<Rectangle2D, TOAppointment> appointmentsByRectangle = new LinkedHashMap<Rectangle2D, TOAppointment>();
@@ -92,6 +97,15 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 				repaint();
 			}
 		});
+		
+		// redraw at regular intervals
+		Timer timer = new Timer(REFRESH_DELAY, new java.awt.event.ActionListener() {
+	        @Override
+	        public void actionPerformed(java.awt.event.ActionEvent e) {
+	            repaint();
+	        }
+	    });
+	    timer.start();
 	}
 	
 	@Override
@@ -108,6 +122,7 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 	 * 4. Daily line divider pass – draw the right margin marking the border to the next day
 	 * 5. Appointment pass – draw the given appointments (revealed or concealed)
 	 * 6. Selection pass – draw the outline of the rectangle of the selected appointment, if any 
+	 * 7. Current time pass – draw a horizonal line marking the current time if the current date is this date
 	 */
 	private void doDrawing(Graphics g) {
 		// First pass
@@ -164,6 +179,14 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 		
 		if (selectedRectangle != null) {
 			g.drawRoundRect((int) selectedRectangle.getX(), (int) selectedRectangle.getY(), (int) selectedRectangle.getWidth(), (int) selectedRectangle.getHeight(), APPOINTMENT_ROUNDING_ARC_RADIUS, APPOINTMENT_ROUNDING_ARC_RADIUS);
+		}
+		
+		// Seventh pass
+		g.setColor(Color.RED);
+		
+		if (SystemTime.getDate().equals(date)) {
+			int height = scaleTime(SystemTime.getTime());
+			g.drawLine(0, height, getColumnWidth(), height);
 		}
 	}
 	

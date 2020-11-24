@@ -22,7 +22,10 @@ public class SystemTime {
         if(isTesting){
             return testDate;
         }
-        return new Date(System.currentTimeMillis());
+        
+        Date currentDate = new Date(System.currentTimeMillis());
+        // Remove hours, minutes, seconds and milliseconds by creating new "clean" Date objects
+        return new Date(currentDate.getYear(), currentDate.getMonth(), currentDate.getDay());
     }
 
     public static Time getTime(){

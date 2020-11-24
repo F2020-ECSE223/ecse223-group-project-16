@@ -28,6 +28,7 @@ public class CalendarDateLegend extends JPanel {
 	private Date date;
 	private Periodical periodical;
 	private List<Date> dates;
+	private List<String> dateStrings;
 	
 	public CalendarDateLegend(Date date, Periodical periodical) {
 		this.date = date;
@@ -47,7 +48,7 @@ public class CalendarDateLegend extends JPanel {
 		monthAndYearLabel.setText(new DateFormatSymbols().getMonths()[date.getMonth()-1] + " " + (date.getYear() + 1900));
 		
 		dates = new ArrayList<Date>();
-		dateLabels = new ArrayList<JLabel>();
+		dateStrings = new ArrayList<String>();
 		
 		if (periodical == Periodical.Daily) {
 			dates.add(date);
@@ -61,8 +62,7 @@ public class CalendarDateLegend extends JPanel {
 				Date today = Date.valueOf(tomorrow);
 				dates.add(today);
 				System.out.println(today.getDay());
-				JLabel dateLabel = new JLabel(Arrays.copyOfRange(new DateFormatSymbols().getWeekdays(), 1, 8)[today.getDay()].substring(0, 3) + " " + today.getDate());
-				dateLabels.add(dateLabel);
+				dateStrings.add(Arrays.copyOfRange(new DateFormatSymbols().getWeekdays(), 1, 8)[today.getDay()].substring(0, 3) + " " + today.getDate());
 				tomorrow = tomorrow.plusDays(1);
 			}
 		}

@@ -1,5 +1,6 @@
 package ca.mcgill.ecse.flexibook.view;
 
+import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Date;
@@ -29,15 +30,14 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 	}
 	
 	private void initComponents() {
-		
 		dailyAppointmentCalendarVisualizers = new ArrayList<DailyAppointmentCalendarVisualizer>();
 		LocalDate tomorrow = date.toLocalDate(); // i.e. start date
 		for (int i = 0; i < 7; i++) {
 			Date today = Date.valueOf(tomorrow);
-			System.out.println(filterAppointmentsByDate(revealedAppointments, today));
-			DailyAppointmentCalendarVisualizer dailyAppointmentCalendarVisualizer = new DailyAppointmentCalendarVisualizer(today, filterBusinessHoursByDate(businessHours, today),
-							filterAppointmentsByDate(revealedAppointments, today),
-							filterAppointmentsByDate(concealedAppointments, today));
+			System.out.println(Utils.filterAppointmentsByDate(revealedAppointments, today));
+			DailyAppointmentCalendarVisualizer dailyAppointmentCalendarVisualizer = new DailyAppointmentCalendarVisualizer(today, Utils.filterBusinessHoursByDate(businessHours, today),
+							Utils.filterAppointmentsByDate(revealedAppointments, today),
+							Utils.filterAppointmentsByDate(concealedAppointments, today));
 			
 			dailyAppointmentCalendarVisualizers.add(dailyAppointmentCalendarVisualizer);
 			
@@ -67,46 +67,5 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 		
 		// TODO, at least go to update appt with this
 		System.out.println(appointment);
-	}
-	
-	private List<TOBusinessHour> filterBusinessHoursByDate(List<TOBusinessHour> businessHours, Date date) {
-		List<TOBusinessHour> result = new ArrayList<TOBusinessHour>();
-		for (TOBusinessHour bH : businessHours) {
-			if (bH.getDayOfWeek() == getDayOfWeekFromDate(date)) {
-				result.add(bH);
-			}
-		}
-		return result;
-	}
-
-	private List<TOAppointment> filterAppointmentsByDate(List<TOAppointment> appointments, Date date) {
-		List<TOAppointment> result = new ArrayList<TOAppointment>();
-		for (TOAppointment a : appointments) {
-			if (a.getStartDate().equals(date)) {
-				result.add(a);
-			}
-		}
-		return result;
-	}
-
-	private TOBusinessHour.DayOfWeek getDayOfWeekFromDate(Date date) {
-		int day = date.getDay();
-		switch (day) {
-		case 0:
-			return TOBusinessHour.DayOfWeek.Sunday;
-		case 1:
-			return TOBusinessHour.DayOfWeek.Monday;
-		case 2:
-			return TOBusinessHour.DayOfWeek.Tuesday;
-		case 3:
-			return TOBusinessHour.DayOfWeek.Wednesday;
-		case 4:
-			return TOBusinessHour.DayOfWeek.Thursday;
-		case 5:
-			return TOBusinessHour.DayOfWeek.Friday;
-		case 6:
-			return TOBusinessHour.DayOfWeek.Saturday;
-		}
-		return null;
 	}
 }

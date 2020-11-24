@@ -44,18 +44,16 @@ public class AppointmentCalendarVisualizerWrapper extends JPanel {
 		calendarHourLegend = new CalendarHourLegend();
 		calendarDateLegend = new CalendarDateLegend(appointmentCalendarVisualizer.getDate(), periodical);
 		
-//		layout.setAutoCreateGaps(true);
-//		layout.setAutoCreateContainerGaps(true);
-		
 		layout.setHorizontalGroup(
-				layout.createParallelGroup()
-				.addComponent(calendarDateLegend)
+				layout.createSequentialGroup()
+				.addComponent(calendarHourLegend)
 				.addGroup(
-					layout.createSequentialGroup()
-					.addComponent(calendarHourLegend)
-					.addComponent(appointmentCalendarVisualizer)
-					)
+						layout.createParallelGroup()
+						.addComponent(calendarDateLegend)
+						.addComponent(appointmentCalendarVisualizer)
+						)
 				);
+
 		
 		layout.setVerticalGroup(
 				layout.createSequentialGroup()

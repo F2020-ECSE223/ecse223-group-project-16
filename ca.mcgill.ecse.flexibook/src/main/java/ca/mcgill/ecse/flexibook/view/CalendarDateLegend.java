@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -20,9 +21,6 @@ import ca.mcgill.ecse.flexibook.view.ViewCalendarPage.Periodical;
 
 public class CalendarDateLegend extends JPanel {	
 	private static final long serialVersionUID = -4927813317988339171L;
-	// UI elements
-	private JLabel monthAndYearLabel;
-	private List<JLabel> dateLabels;
 	
 	// data elements
 	private Date date;
@@ -44,9 +42,6 @@ public class CalendarDateLegend extends JPanel {
 	}
 	
 	private void initComponents() {
-		monthAndYearLabel = new JLabel();
-		monthAndYearLabel.setText(new DateFormatSymbols().getMonths()[date.getMonth()-1] + " " + (date.getYear() + 1900));
-		
 		dates = new ArrayList<Date>();
 		dateStrings = new ArrayList<String>();
 		
@@ -68,29 +63,15 @@ public class CalendarDateLegend extends JPanel {
 		}
 		
 		
-		GroupLayout layout = new GroupLayout(this);
-		setLayout(layout);
-		layout.setAutoCreateGaps(true);
-		layout.setAutoCreateContainerGaps(true);
-		SequentialGroup sequentialDateLayout = layout.createSequentialGroup();
-		ParallelGroup parallelGroupLayout = layout.createParallelGroup();
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
-		for (JLabel l : dateLabels) {
-			sequentialDateLayout.addComponent(l);
-			parallelGroupLayout.addComponent(l);
-		}
-		
-		layout.setHorizontalGroup(
-				layout.createParallelGroup(Alignment.CENTER)
-				.addComponent(monthAndYearLabel)
-				.addGroup(sequentialDateLayout)
-				);
-		
-		layout.setVerticalGroup(
-				layout.createSequentialGroup()
-				.addComponent(monthAndYearLabel)
-				.addGroup(parallelGroupLayout)
-				);		
+//		add(Box.createHorizontalGlue());
+		for (int i=0; i<dateStrings.size(); i++) {
+			add(new JLabel(dateStrings.get(i)));
+//			if (i = 0) {
+				add(Box.createHorizontalGlue());
+//			}
+		}	
 	}
 }
 

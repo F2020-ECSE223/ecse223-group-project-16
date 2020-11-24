@@ -23,17 +23,18 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 	// UI elements
 	private Map<Rectangle2D, TOAppointment> appointmentsByRectangle = new LinkedHashMap<Rectangle2D, TOAppointment>();
 	// constants
-	private static final int MINIMUM_COLUMN_WIDTH = 100;
-	private static final int MINIMUM_ROW_HEIGHT = 20;
+	private static final int MINIMUM_COLUMN_WIDTH = 60;
+	private static final int MINIMUM_ROW_HEIGHT = 40;
+	private static final int PREFERRED_COLUMN_WIDTH = 100;
+	private static final int PREFERRED_ROW_HEIGHT = 50;
 	private static final int LABEL_HEIGHT = 16;
 	private static final int APPOINTMENT_INFO_LABEL_PADDING = 5;
 	private static final int APPOINTMENT_ROUNDING_ARC_RADIUS = 10;
+	private static final int APPOINTMENT_MARGIN_BOTTOM = 1;
 	private static final Color APPOINTMENT_COLOR = new Color(3, 155, 229);
 	
 	public DailyAppointmentCalendarVisualizer(Date date, List<TOBusinessHour> businessHours, List<TOAppointment> revealedAppointments, List<TOAppointment> concealedAppointments) {
 		super(date, businessHours, revealedAppointments, concealedAppointments);
-		
-		setMinimumSize(new Dimension(MINIMUM_COLUMN_WIDTH, MINIMUM_ROW_HEIGHT * 24));
 		init();
 	}
 	
@@ -60,8 +61,15 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 	}
 	
 	private void init() {
+		// global settings
+		setMinimumSize(new Dimension(MINIMUM_COLUMN_WIDTH, MINIMUM_ROW_HEIGHT * 24));
+		setPreferredSize(new Dimension(PREFERRED_COLUMN_WIDTH, PREFERRED_ROW_HEIGHT));
+		setSize(getPreferredSize());
+		
 		selectedAppointment = null;
 		selectedRectangle = null;
+		
+		// listeners
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(java.awt.event.MouseEvent e) {
@@ -115,15 +123,10 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 		for (TOBusinessHour bH : businessHours) {
 			Time startTime = bH.getStartTime();
 			Time endTime = bH.getEndTime();
-			System.out.println(startTime);
-			System.out.println(endTime);
 			int y = scaleTime(startTime);
 			int height = scaleTime(endTime) - y;
-			System.out.println(y);
-			System.out.println(height);
 			
 			g.fillRect(0, y, getColumnWidth(), height);
-
 		}
 		
 		// Third pass
@@ -135,7 +138,7 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 		}
 		
 		// Fourth pass
-		g.drawLine(getColumnWidth(), 0, getColumnWidth(), getRowHeight() * 24);
+		g.drawLine(getColumnWidth() - 1, 0, getColumnWidth() - 1, getRowHeight() * 24);
 		
 		// Fifth pass
 		g.setColor(APPOINTMENT_COLOR); // accent
@@ -168,27 +171,22 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 	
 	// with the label
 	private Rectangle2D drawAppointment(Graphics g, TOAppointment appointment, boolean concealed) {
-		System.out.println(appointment);
 		Time startTime = appointment.getStartTime();
 		Time endTime = appointment.getEndTime();
-		System.out.println(endTime);
-		System.out.println(endTime.getHours());
-		System.out.println(endTime.getMinutes()/60);
 		
 		int x = 0;
 		int y = scaleTime(startTime);
 		int width = getColumnWidth();
-		int height = scaleTime(endTime) - y - 1; // visually divide consecutive appts
+		int height = scaleTime(endTime) - y - APPOINTMENT_MARGIN_BOTTOM; // visually divide consecutive appts
 		
-		System.out.println(y);
-		System.out.println(height);
-		Rectangle2D rectangle = new Rectangle2D.Double(x, y, width, height);
-		g.fillRoundRect(x, y, width, height, APPOINTMENT_ROUNDING_ARC_RADIUS, APPOINTMENT_ROUNDING_ARC_RADIUS);
+		int marginRight = (int) (getColumnWidth() * 0.07);
+		Rectangle2D rectangle = new Rectangle2D.Double(x, y, width - marginRight, height);
+		g.fillRoundRect(x, y, width - marginRight, height, APPOINTMENT_ROUNDING_ARC_RADIUS, APPOINTMENT_ROUNDING_ARC_RADIUS);
 		
 		Color oldColor = g.getColor();
 		g.setColor(Color.BLACK);
 		Shape oldClip = g.getClip();
-		g.setClip(new Rectangle2D.Double(x + APPOINTMENT_INFO_LABEL_PADDING, y + APPOINTMENT_INFO_LABEL_PADDING, getColumnWidth() - APPOINTMENT_INFO_LABEL_PADDING * 2, height - APPOINTMENT_INFO_LABEL_PADDING * 2));
+		g.setClip(new Rectangle2D.Double(x + APPOINTMENT_INFO_LABEL_PADDING, y + APPOINTMENT_INFO_LABEL_PADDING, getColumnWidth() - APPOINTMENT_INFO_LABEL_PADDING * 2 - marginRight, height - APPOINTMENT_INFO_LABEL_PADDING * 2));
 		if (height >= LABEL_HEIGHT) {
 			if (concealed) {
 				g.drawString("Appointment", APPOINTMENT_INFO_LABEL_PADDING, y + LABEL_HEIGHT);

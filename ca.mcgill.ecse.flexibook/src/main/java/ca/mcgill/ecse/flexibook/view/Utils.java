@@ -5,6 +5,9 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -12,7 +15,12 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.text.DefaultCaret;
 
+import ca.mcgill.ecse.flexibook.controller.TOAppointment;
+import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;
+
 public class Utils {
+	public static final int TEXT_FIELD_WIDTH = 300;
+	
 	static void openFrame(JFrame sourceFrame, JFrame targetFrame) {
 		targetFrame.setVisible(true);
 		targetFrame.setLocationRelativeTo(sourceFrame);
@@ -86,5 +94,45 @@ public class Utils {
 		component.setPreferredSize(dimension);
 		component.setMinimumSize(dimension);
 		component.setMaximumSize(dimension);
+	}
+	
+	static TOBusinessHour.DayOfWeek getDayOfWeekFromDate(Date date) {
+		switch (date.getDay()) {
+		case 0:
+			return TOBusinessHour.DayOfWeek.Sunday;
+		case 1:
+			return TOBusinessHour.DayOfWeek.Monday;
+		case 2:
+			return TOBusinessHour.DayOfWeek.Tuesday;
+		case 3:
+			return TOBusinessHour.DayOfWeek.Wednesday;
+		case 4:
+			return TOBusinessHour.DayOfWeek.Thursday;
+		case 5:
+			return TOBusinessHour.DayOfWeek.Friday;
+		case 6:
+			return TOBusinessHour.DayOfWeek.Saturday;
+		}
+		return null;
+	}
+	
+	static List<TOBusinessHour> filterBusinessHoursByDate(List<TOBusinessHour> businessHours, Date date) {
+		List<TOBusinessHour> result = new ArrayList<TOBusinessHour>();
+		for (TOBusinessHour bH : businessHours) {
+			if (bH.getDayOfWeek() == Utils.getDayOfWeekFromDate(date)) {
+				result.add(bH);
+			}
+		}
+		return result;
+	}
+
+	static List<TOAppointment> filterAppointmentsByDate(List<TOAppointment> appointments, Date date) {
+		List<TOAppointment> result = new ArrayList<TOAppointment>();
+		for (TOAppointment a : appointments) {
+			if (a.getStartDate().equals(date)) {
+				result.add(a);
+			}
+		}
+		return result;
 	}
 }

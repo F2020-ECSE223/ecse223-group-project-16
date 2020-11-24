@@ -9,7 +9,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -26,9 +25,6 @@ public class ServicesPage extends JFrame {
   private static final long serialVersionUID = 4990227802404187714L;
  
   private JLabel errorMessage;
-
-  private JLabel serviceLabel;
-  
 
   private JButton deleteServiceButton;
  

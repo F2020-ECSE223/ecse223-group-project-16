@@ -206,6 +206,6 @@ public class SignUpPage extends JFrame {
 	}
 
 	private void switchToLoginButtonActionPerformed(java.awt.event.ActionEvent evt) {
-		Utils.switchToFrame(this, new LoginPage(usernameTextField.getText()));
+		Utils.switchToFrame(this, new LoginPage());
 	}
 }

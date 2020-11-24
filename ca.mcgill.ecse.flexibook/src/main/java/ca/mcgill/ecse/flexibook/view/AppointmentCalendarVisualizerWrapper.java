@@ -1,8 +1,12 @@
 package ca.mcgill.ecse.flexibook.view;
 
+import java.awt.GridLayout;
+
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.JPanel;
+
+import ca.mcgill.ecse.flexibook.view.ViewCalendarPage.Periodical;
 
 /**
  * Adds calendar info (e.g. hours, day of week and and date, month, year) to either a DailyAppointmentCalendarVisualizer or WeeklyAppointmentCalendarVisualizer, and wraps these in a scrollable container (?)
@@ -10,12 +14,13 @@ import javax.swing.JPanel;
  * @author louca
  *
  */
-public class AppointmentCalendarVisualizerWrapper extends JPanel {
-	private enum Periodical {Daily, Weekly};
-	
+public class AppointmentCalendarVisualizerWrapper extends JPanel {	
 	// data elements
 	private Periodical periodical;
 	private AppointmentCalendarVisualizer appointmentCalendarVisualizer;
+	private CalendarHourLegend calendarHourLegend;
+	private CalendarDateLegend calendarDateLegend;
+	
 	
 	private AppointmentCalendarVisualizerWrapper(AppointmentCalendarVisualizer appointmentCalendarVisualizer, Periodical periodical) {
 		super();
@@ -36,9 +41,33 @@ public class AppointmentCalendarVisualizerWrapper extends JPanel {
 	private void initComponents() {
 		GroupLayout layout = new GroupLayout(this);
 		setLayout(layout);
-		layout.setAutoCreateGaps(true);
-		layout.setAutoCreateContainerGaps(true);
+		calendarHourLegend = new CalendarHourLegend();
+		calendarDateLegend = new CalendarDateLegend(appointmentCalendarVisualizer.getDate(), periodical);
+		
+//		layout.setAutoCreateGaps(true);
+//		layout.setAutoCreateContainerGaps(true);
+		
 		layout.setHorizontalGroup(
+				layout.createParallelGroup()
+				.addComponent(calendarDateLegend)
+				.addGroup(
+					layout.createSequentialGroup()
+					.addComponent(calendarHourLegend)
+					.addComponent(appointmentCalendarVisualizer)
+					)
+				);
+		
+		layout.setVerticalGroup(
+				layout.createSequentialGroup()
+				.addComponent(calendarDateLegend)
+				.addGroup(
+					layout.createParallelGroup()
+					.addComponent(calendarHourLegend)
+					.addComponent(appointmentCalendarVisualizer)
+					)
+				);
+		
+		
 	}
 	
 	private void refreshData() {

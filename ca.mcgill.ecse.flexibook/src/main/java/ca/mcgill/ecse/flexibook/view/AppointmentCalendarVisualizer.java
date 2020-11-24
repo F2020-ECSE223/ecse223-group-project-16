@@ -35,6 +35,10 @@ public abstract class AppointmentCalendarVisualizer extends JPanel {
 		support = new PropertyChangeSupport(this);
 	}
 	
+	public Date getDate() {
+		return date;
+	}
+	
     public void addPropertyChangeListener(PropertyChangeListener pcl) {
         support.addPropertyChangeListener(pcl);
     }

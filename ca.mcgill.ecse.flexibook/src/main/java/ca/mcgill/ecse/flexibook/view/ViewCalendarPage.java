@@ -16,6 +16,9 @@ import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;
 import ca.mcgill.ecse.flexibook.util.SystemTime;
 
 public class ViewCalendarPage extends JFrame {
+	public enum Periodical {Daily, Weekly};
+	
+	// data elements
 	private static final long serialVersionUID = 1704467229218861611L;
 	private JLabel viewCalendarLabel;
 

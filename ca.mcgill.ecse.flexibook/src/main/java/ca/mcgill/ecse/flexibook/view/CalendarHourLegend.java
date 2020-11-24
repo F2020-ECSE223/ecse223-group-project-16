@@ -6,7 +6,7 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
-public class CalendarHoursLegend extends JPanel {
+public class CalendarHourLegend extends JPanel {
 	private static enum Period {AM, PM};
 	
 	// UI elements
@@ -15,10 +15,10 @@ public class CalendarHoursLegend extends JPanel {
 	private static final int MINIMUM_ROW_HEIGHT = 20;
 	private static final int LABEL_HEIGHT = 16;
 	
-	public CalendarHoursLegend() {
+	public CalendarHourLegend() {
 		System.out.println("created legend");
-		setMaximumSize(new Dimension(100, Integer.MAX_VALUE));
-		setMinimumSize(new Dimension(100, 0));
+		setMaximumSize(new Dimension(50, Integer.MAX_VALUE));
+		setMinimumSize(new Dimension(50, 0));
 		setPreferredSize(new Dimension(50, getHeight()));
 		init();
 	}

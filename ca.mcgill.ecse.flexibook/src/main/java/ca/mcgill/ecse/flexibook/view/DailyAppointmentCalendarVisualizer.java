@@ -205,6 +205,7 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 	}
 	
 	private int scaleTime(Time time) {
+		// we are expecting a value between 0 & 1 and we'll use this to place the size/location of the block
 		return time.getHours() * getRowHeight() + (int) ((time.getMinutes() / (float) 60) * getRowHeight());
 	}
 }

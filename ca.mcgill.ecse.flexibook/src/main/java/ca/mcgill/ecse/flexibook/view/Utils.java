@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,5 +135,10 @@ public class Utils {
 			}
 		}
 		return result;
+	}
+	
+	static String formatDate(Date date, String pattern) {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+		return simpleDateFormat.format(date);
 	}
 }

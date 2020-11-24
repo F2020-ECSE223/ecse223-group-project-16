@@ -24,6 +24,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
+import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOAppointment;
@@ -40,7 +41,7 @@ public class ViewCalendarPage extends JFrame {
 	private static final long serialVersionUID = 1704467229218861611L;
 
 	// constants
-	private static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
+	private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd";
 
 	// UI elements
 	// error
@@ -52,11 +53,12 @@ public class ViewCalendarPage extends JFrame {
 	private ButtonGroup periodicalButtonGroup;
 	private JPanel periodicalPanel;
 	private JTextField dateTextField;
+	private JButton previousButton;
+	private JButton nextButton;
+	private JButton todayButton;
 	private JButton viewButton;
+	
 	// appointment calendar visualization
-	private JPanel contentPanel;
-	private JLabel monthAndYearLabel;
-	private List<JLabel> dateLabels;
 	private AppointmentCalendarVisualizer appointmentCalendarVisualizer;
 	private AppointmentCalendarVisualizerWrapper appointmentCalendarVisualizerWrapper;
 	private JScrollPane scrollPane;
@@ -64,7 +66,7 @@ public class ViewCalendarPage extends JFrame {
 	// data elements
 	private String errorMessage;
 	private Periodical currentPeriodical;
-	private boolean scrollPaneBorderWasSet = false;
+	private boolean scrollPaneWasSetup = false;
 
 	public ViewCalendarPage() {
 		populate();
@@ -73,6 +75,7 @@ public class ViewCalendarPage extends JFrame {
 	}
 
 	private void initComponents() {
+		// UI elements
 		errorMessageLabel = new JLabel();
 		errorMessageLabel.setForeground(Color.RED);
 
@@ -86,20 +89,19 @@ public class ViewCalendarPage extends JFrame {
 
 		dateTextField = new JTextField();
 		Utils.fixSize(dateTextField, new Dimension(300, dateTextField.getPreferredSize().height));
-		Utils.makePlaceholder(dateTextField, DATE_FORMAT_STRING);
+		Utils.makePlaceholder(dateTextField, DATE_FORMAT_PATTERN);
+		
+		previousButton = new JButton("<");
+		nextButton = new JButton(">");
+		
+		todayButton = new JButton("Today");
 
 		viewButton = new JButton("Show");
 
-		monthAndYearLabel = new JLabel();
-
-//		appointmentCalendarVisualizer = new DailyAppointmentCalendarVisualizer(SystemTime.getDate(), filterBusinessHoursByDay(FlexiBookController.viewBusinessInfo().getBusinessHours(), TOBusinessHour.DayOfWeek.Tuesday), FlexiBookController.getAppointments(), new ArrayList<>());
-//		appointmentCalendarVisualizer = new WeeklyAppointmentCalendarVisualizer(Date.valueOf(LocalDate.now()), FlexiBookController.viewBusinessInfo().getBusinessHours(), FlexiBookController.getAppointments(), new ArrayList<>());
-//		appointmentCalendarVisualizerWrapper = new AppointmentCalendarVisualizerWrapper((WeeklyAppointmentCalendarVisualizer)  appointmentCalendarVisualizer);
-		
 		scrollPane = new JScrollPane();
-//		
-//		scrollPane = new JScrollPane(scrollableContentPanel);
-//		scrollPane.setBorder(BorderFactory.createEmptyBorder());
+		
+		// data elements
+		currentPeriodical = Periodical.Daily;
 
 		// global settings
 		setMinimumSize(new Dimension(200, 300));
@@ -108,6 +110,31 @@ public class ViewCalendarPage extends JFrame {
 		getRootPane().setDefaultButton(viewButton); // Wire enter key to view button
 
 		// listeners
+		dayRadioButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				dayRadioButtonActionPerformed(evt);
+			}
+		});
+		weekRadioButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				weekRadioButtonActionPerformed(evt);
+			}
+		});
+		previousButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				previousButtonActionPerformed(evt);
+			}
+		});
+		nextButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				nextButtonActionPerformed(evt);
+			}
+		});
+		todayButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				todayButtonActionPerformed(evt);
+			}
+		});
 		viewButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				viewButtonActionPerformed(evt);
@@ -130,7 +157,16 @@ public class ViewCalendarPage extends JFrame {
 				.addGroup(
 						layout.createSequentialGroup()
 						.addComponent(periodicalPanel)
-						.addComponent(dateTextField)
+						.addGroup(
+								layout.createParallelGroup()
+								.addComponent(dateTextField)
+								.addGroup(
+										layout.createSequentialGroup()
+										.addComponent(todayButton)
+										.addComponent(previousButton)
+										.addComponent(nextButton)
+										)
+								)
 						.addComponent(viewButton)
 						)
 				.addComponent(errorMessageLabel)
@@ -140,10 +176,22 @@ public class ViewCalendarPage extends JFrame {
 		layout.setVerticalGroup(
 				layout.createSequentialGroup()
 				.addGroup(
-						layout.createParallelGroup(Alignment.CENTER)
+						layout.createParallelGroup()
 						.addComponent(periodicalPanel)
-						.addComponent(dateTextField)
-						.addComponent(viewButton)
+						.addGroup(
+								layout.createSequentialGroup()
+								.addGroup(
+										layout.createParallelGroup()
+										.addComponent(dateTextField)
+										.addComponent(viewButton)
+										)
+								.addGroup(
+										layout.createParallelGroup()
+										.addComponent(todayButton)
+										.addComponent(previousButton)
+										.addComponent(nextButton)
+										)
+								)
 						)
 				.addComponent(errorMessageLabel)
 				.addComponent(scrollPane)
@@ -157,9 +205,6 @@ public class ViewCalendarPage extends JFrame {
 
 	// populate app with mock values
 	private void populate() {
-
-		System.out.println(SystemTime.getDate());
-		System.out.println(SystemTime.getTime());
 		try {
 
 			FlexiBookController.setUpBusinessInfo("company", "my address", "5141234567", "dasdsad@mgill.ca");
@@ -167,7 +212,6 @@ public class ViewCalendarPage extends JFrame {
 			FlexiBookController.addNewBusinessHour("Tuesday", "14:00", "14:30");
 			FlexiBookController.addNewBusinessHour("Tuesday", "14:35", "15:45");
 		} catch (InvalidInputException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		try {
@@ -177,16 +221,17 @@ public class ViewCalendarPage extends JFrame {
 			FlexiBookController.makeAppointment("Cutomer Username", "2020-11-24", "a service", "09:01");
 			FlexiBookController.makeAppointment("Cutomer Username", "2020-11-24", "a service", "10:31");
 		} catch (InvalidInputException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	private void refreshData() {
 		
-		if (scrollPaneBorderWasSet == false) {
+		if (scrollPaneWasSetup == false) { // setup once
 			scrollPane.setBorder(BorderFactory.createEmptyBorder());
-			scrollPaneBorderWasSet = true;
+			scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+			scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+			scrollPaneWasSetup = true;
 		}
 		
 		errorMessageLabel.setText(errorMessage);
@@ -196,29 +241,8 @@ public class ViewCalendarPage extends JFrame {
 			}
 		}
 	}
-
-	/**
-	 * As a "MMMMM yyyy" String.
-	 * 
-	 * @param date
-	 */
-	private String formatDate(Date date) {
-		String pattern = "MMMMM yyyy";
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-
-		return simpleDateFormat.format(date);
-	}
-
-	private void viewButtonActionPerformed(ActionEvent evt) {
-		errorMessage = "";
-		String selectedDateString = dateTextField.getText();
-
-		if (dayRadioButton.isSelected()) {
-			currentPeriodical = Periodical.Daily;
-		} else {
-			currentPeriodical = Periodical.Weekly;
-		}
-
+	
+	private void refreshAppointmentCalendar() {
 		List<TOBusinessHour> allBusinessHours;
 		List<TOAppointment> allCurrentUserAppointments;
 		List<TOAppointment> allAppointments;
@@ -238,14 +262,13 @@ public class ViewCalendarPage extends JFrame {
 			refreshData();
 			return;
 		}
-		Date selectedDate;
-		try {
-			selectedDate = FlexiBookUtil.getDateFromString(selectedDateString);
-		} catch (ParseException e) {
-			errorMessage = "Make sure you have formatted the date as '" + DATE_FORMAT_STRING + "'";
-			refreshData();
+		
+		Date selectedDate = interpretDate();
+		if (selectedDate == null) {
 			return;
 		}
+		
+		saveCurrentPeriodical();
 
 		if (currentPeriodical == Periodical.Daily) {
 			appointmentCalendarVisualizer = new DailyAppointmentCalendarVisualizer(selectedDate,
@@ -253,12 +276,111 @@ public class ViewCalendarPage extends JFrame {
 					Utils.filterAppointmentsByDate(allCurrentUserAppointments, selectedDate),
 					Utils.filterAppointmentsByDate(allAppointments, selectedDate));
 			appointmentCalendarVisualizerWrapper = new AppointmentCalendarVisualizerWrapper((DailyAppointmentCalendarVisualizer) appointmentCalendarVisualizer);
-
 		} else {
 			appointmentCalendarVisualizer = new WeeklyAppointmentCalendarVisualizer(selectedDate, allBusinessHours, allCurrentUserAppointments, allAppointments); // this is lazy, client should not expect viz to filter events in the date range that makes sense
 			appointmentCalendarVisualizerWrapper = new AppointmentCalendarVisualizerWrapper((WeeklyAppointmentCalendarVisualizer) appointmentCalendarVisualizer);
 		}
 		
 		refreshData();
+	}
+	
+	private void dayRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		if (appointmentCalendarVisualizerWrapper == null) {
+			return;
+		}
+		
+		saveCurrentPeriodical();
+		
+		refreshAppointmentCalendar(); // based on the current periodical now selected
+	}
+	
+	private void weekRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		if (appointmentCalendarVisualizerWrapper == null) {
+			return;
+		}
+		
+		saveCurrentPeriodical();
+		
+		refreshAppointmentCalendar(); // based on the current periodical now selected
+	}
+	
+	private void previousButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		Date selectedDate = interpretDate();
+		if (selectedDate == null) {
+			return;
+		}
+		
+		LocalDate selectedLocalDate = selectedDate.toLocalDate();
+		
+		if (currentPeriodical == Periodical.Daily) {
+			selectedLocalDate = selectedLocalDate.minusDays(1);
+		} else {
+			selectedLocalDate = selectedLocalDate.minusWeeks(1);
+		}
+		
+		dateTextField.setForeground(Color.BLACK);
+		dateTextField.setText(Utils.formatDate(Date.valueOf(selectedLocalDate), DATE_FORMAT_PATTERN));
+		
+		refreshAppointmentCalendar(); // based on the date string now in the date text field
+	}
+	
+	private void nextButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		Date selectedDate = interpretDate();
+		if (selectedDate == null) {
+			return;
+		}
+		
+		LocalDate selectedLocalDate = selectedDate.toLocalDate();
+		
+		if (currentPeriodical == Periodical.Daily) {
+			selectedLocalDate = selectedLocalDate.plusDays(1);
+		} else {
+			selectedLocalDate = selectedLocalDate.plusWeeks(1);
+		}
+		
+		dateTextField.setForeground(Color.BLACK);
+		dateTextField.setText(Utils.formatDate(Date.valueOf(selectedLocalDate), DATE_FORMAT_PATTERN));
+		
+		refreshAppointmentCalendar(); // based on the date string now in the date text field
+	}
+	
+	private void todayButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		errorMessage = "";
+		
+		dateTextField.setForeground(Color.BLACK);
+		dateTextField.setText(Utils.formatDate(SystemTime.getDate(), DATE_FORMAT_PATTERN));
+		
+		refreshAppointmentCalendar(); // based on the date string now in the date text field
+	}
+
+	private void viewButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		errorMessage = "";
+		
+		saveCurrentPeriodical();
+		
+		refreshAppointmentCalendar();
+	}
+	
+	private Date interpretDate() {
+		if (dateTextField.getText().trim().length() == 0 || dateTextField.getText().equals(DATE_FORMAT_PATTERN)) {
+			errorMessage = "Please enter a date";
+			refreshData();
+			return null;
+		}
+		try {
+			return FlexiBookUtil.getDateFromString(dateTextField.getText());
+		} catch (ParseException e) {
+			errorMessage = "Make sure you have formatted the date as '" + DATE_FORMAT_PATTERN + "'";
+			refreshData();
+			return null;
+		}
+	}
+	
+	private void saveCurrentPeriodical() {
+		if (dayRadioButton.isSelected()) {
+			currentPeriodical = Periodical.Daily;
+		} else {
+			currentPeriodical = Periodical.Weekly;
+		}
 	}
 }

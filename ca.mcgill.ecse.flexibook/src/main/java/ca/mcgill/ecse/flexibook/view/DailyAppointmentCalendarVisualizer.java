@@ -78,8 +78,6 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 				
 				for (Map.Entry<Rectangle2D, TOAppointment> entry : appointmentsByRectangle.entrySet()) {
 					if (entry.getKey().contains(x, y)) {
-						System.out.println("clicked on ");
-						System.out.println(entry.getValue());
 						selectedRectangle = entry.getKey();
 						// event consumer is responsible for determining whether user should have read access on this resource
 						support.firePropertyChange("selectedAppointment", selectedAppointment, entry.getValue()); // observe as seen here: https://www.baeldung.com/java-observer-pattern
@@ -126,7 +124,7 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 			int y = scaleTime(startTime);
 			int height = scaleTime(endTime) - y;
 			
-			g.fillRect(0, y, getColumnWidth(), height);
+			g.fillRect(0, y, getColumnWidth() - 1, height);
 		}
 		
 		// Third pass

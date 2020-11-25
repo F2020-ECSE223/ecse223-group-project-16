@@ -14,7 +14,6 @@ import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -190,14 +189,17 @@ public class SignUpPage extends JFrame {
 		Utils.togglePasswordFieldVisibility(passwordField, passwordVisibilityButton);
 	}
 
+	private void switchToLogin() {
+		Utils.switchToFrame(this, new LoginPage()); // would like to be able to pass in a username here into the login
+													// constructor, to use as a default value
+	}
+
 	private void signUpButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		errorMessage = null;
 		try {
-			String username = usernameTextField.getText();
-			FlexiBookController.createCustomerAccount(username,
+			FlexiBookController.createCustomerAccount(usernameTextField.getText(),
 					String.valueOf(passwordField.getPassword()));
-			JOptionPane.showMessageDialog(this, "Account successfully created!\nPlease process to login.", "FlexiBook", JOptionPane.PLAIN_MESSAGE);
-			Utils.switchToFrame(this, new LoginPage(username));
+			switchToLogin();
 		} catch (InvalidInputException e) {
 			errorMessage = e.getMessage();
 		} finally {
@@ -206,6 +208,6 @@ public class SignUpPage extends JFrame {
 	}
 
 	private void switchToLoginButtonActionPerformed(java.awt.event.ActionEvent evt) {
-		Utils.switchToFrame(this, new LoginPage());
+		switchToLogin();
 	}
 }

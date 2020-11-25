@@ -18,11 +18,15 @@ public class SystemTime {
         isTesting = false;
     }
 
+    @SuppressWarnings("deprecation")
 	public static Date getDate(){
         if(isTesting){
             return testDate;
         }
-        return new Date(System.currentTimeMillis());
+        
+        Date currentDate = new Date(System.currentTimeMillis());
+        // Remove hours, minutes, seconds and milliseconds by creating new "clean" Date object
+        return new Date(currentDate.getYear(), currentDate.getMonth(), currentDate.getDate());
     }
 
     public static Time getTime(){

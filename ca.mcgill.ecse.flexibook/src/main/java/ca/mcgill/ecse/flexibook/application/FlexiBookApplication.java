@@ -6,7 +6,6 @@ package ca.mcgill.ecse.flexibook.application;
 import ca.mcgill.ecse.flexibook.model.FlexiBook;
 import ca.mcgill.ecse.flexibook.model.User;
 import ca.mcgill.ecse.flexibook.persistence.FlexiBookPersistence;
-import ca.mcgill.ecse.flexibook.view.FlexiBookPage;
 import ca.mcgill.ecse.flexibook.view.LandingPage;
 
 

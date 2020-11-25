@@ -156,7 +156,7 @@ public class ServicesPage extends JFrame {
     
 
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    setTitle("Services Tab");
+    setTitle("Services");
 
     GroupLayout layout = new GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
@@ -253,7 +253,7 @@ public class ServicesPage extends JFrame {
 	  updateServiceList.removeAllItems();
 	  bookableServices = new ArrayList<String>();
 	  
-	  Integer index = 0;
+	  int index = 0;
       for (TOBookableService service : FlexiBookController.getBookableServices()) {
           bookableServices.add(service.getName());
     	  updateServiceList.addItem(service.getName());

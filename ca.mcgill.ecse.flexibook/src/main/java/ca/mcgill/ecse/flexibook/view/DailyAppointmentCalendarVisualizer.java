@@ -6,6 +6,8 @@ import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.LinkedHashMap;
@@ -37,8 +39,14 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 	private static final int APPOINTMENT_MARGIN_BOTTOM = 1;
 	private static final Color APPOINTMENT_COLOR = new Color(3, 155, 229);
 	
+	// observer support
+	private PropertyChangeSupport support;
+	
 	public DailyAppointmentCalendarVisualizer(Date date, List<TOBusinessHour> businessHours, List<TOAppointment> revealedAppointments, List<TOAppointment> concealedAppointments) {
 		super(date, businessHours, revealedAppointments, concealedAppointments);
+		
+		support = new PropertyChangeSupport(this);
+
 		init();
 	}
 	
@@ -64,6 +72,14 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 		return date;
 	}
 	
+    public void addSelectionChangeListener(PropertyChangeListener pcl) {
+        support.addPropertyChangeListener(pcl);
+    }
+
+    public void removeSelectionChangeListener(PropertyChangeListener pcl) {
+        support.removePropertyChangeListener(pcl);
+    }
+	
 	private void init() {
 		// global settings
 		setMinimumSize(new Dimension(MINIMUM_COLUMN_WIDTH, MINIMUM_ROW_HEIGHT * 24));
@@ -75,6 +91,9 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 		
 		// listeners
 		addMouseListener(new MouseAdapter() {
+			/**
+			 * @see https://www.baeldung.com/java-observer-pattern
+			 */
 			@Override
 			public void mousePressed(java.awt.event.MouseEvent e) {
 				int x = e.getX();
@@ -83,21 +102,27 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 				for (Map.Entry<Rectangle2D, TOAppointment> entry : appointmentsByRectangle.entrySet()) {
 					if (entry.getKey().contains(x, y)) {
 						selectedRectangle = entry.getKey();
-						// event consumer is responsible for determining whether user should have read access on this resource
-						support.firePropertyChange("selectedAppointment", selectedAppointment, entry.getValue()); // observe as seen here: https://www.baeldung.com/java-observer-pattern
+						// fire new appointment selected event
+						support.firePropertyChange("selectedAppointment", selectedAppointment, entry.getValue());
 						selectedAppointment = entry.getValue();
 						repaint();
 						return;
 					}
 				}
-				support.firePropertyChange("selectedAppointment", selectedAppointment, null); // observe as seen here: https://www.baeldung.com/java-observer-pattern
+				
+				if (selectedAppointment != null) {
+					// fire appointment unselected event
+					support.firePropertyChange("selectedAppointment", selectedAppointment, null);
+				}
+				
+				// fire no event
 				selectedRectangle = null;
 				selectedAppointment = null;
 				repaint();
 			}
 		});
 		
-		// redraw at regular intervals
+		// repaint at regular intervals to account for moving "now" line, and for business hour / time slot changes made in another open window of the application
 		Timer timer = new Timer(REFRESH_DELAY, new java.awt.event.ActionListener() {
 	        @Override
 	        public void actionPerformed(java.awt.event.ActionEvent e) {

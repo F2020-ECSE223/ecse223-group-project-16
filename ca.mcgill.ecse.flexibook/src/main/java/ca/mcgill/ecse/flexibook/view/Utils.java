@@ -5,11 +5,12 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPasswordField;
@@ -90,7 +91,10 @@ public class Utils {
 			}
 		});
 	}
-	
+    static String formatTime(Time time, String pattern) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        return simpleDateFormat.format(time);
+    }
 	static void fixSize(Component component, Dimension dimension) {
 		component.setPreferredSize(dimension);
 		component.setMinimumSize(dimension);

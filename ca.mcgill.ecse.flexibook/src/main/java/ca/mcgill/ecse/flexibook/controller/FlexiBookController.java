@@ -13,6 +13,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.model.*;
@@ -550,24 +552,24 @@ public class FlexiBookController {
 		c.setTime(startDate);
 		int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
 		if(!(FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours().stream().anyMatch(x -> 
-      x.getDayOfWeek().equals(getDayOfWeek(dayOfWeek))
-      && x.getStartTime().before(startTime)
-      && !x.getEndTime().before(endTimeWithDowntime)))) {
-		  	throw new InvalidInputException(noTimeSlotMessage);
+		x.getDayOfWeek().equals(getDayOfWeek(dayOfWeek))
+		&& x.getStartTime().before(startTime)
+		&& !x.getEndTime().before(endTimeWithDowntime)))) {
+			throw new InvalidInputException(noTimeSlotMessage);
 		}		
 		// checks if appointment is during vacation times
 		if(FlexiBookApplication.getFlexiBook().getBusiness().getVacation().stream().anyMatch(x -> 
-      x.getStartDate().after(startDate) && x.getEndDate().before(startDate)
-      || (x.getStartDate().equals(startDate) && x.getStartTime().before(endTimeWithDowntime))
-      || (x.getEndDate().equals(startDate) && x.getEndTime().after(startTime)))) {
-        throw new InvalidInputException(noTimeSlotMessage);
+		x.getStartDate().after(startDate) && x.getEndDate().before(startDate)
+		|| (x.getStartDate().equals(startDate) && x.getStartTime().before(endTimeWithDowntime))
+		|| (x.getEndDate().equals(startDate) && x.getEndTime().after(startTime)))) {
+			throw new InvalidInputException(noTimeSlotMessage);
 		}
 		// checks if appointment is during holiday times
 		if(FlexiBookApplication.getFlexiBook().getBusiness().getHolidays().stream().anyMatch(x -> 
-      x.getStartDate().after(startDate) && x.getEndDate().before(startDate)
-      || (x.getStartDate().equals(startDate) && x.getStartTime().before(endTimeWithDowntime))
-      || (x.getEndDate().equals(startDate) && x.getEndTime().after(startTime)))) {
-        throw new InvalidInputException(noTimeSlotMessage);
+		x.getStartDate().after(startDate) && x.getEndDate().before(startDate)
+		|| (x.getStartDate().equals(startDate) && x.getStartTime().before(endTimeWithDowntime))
+		|| (x.getEndDate().equals(startDate) && x.getEndTime().after(startTime)))) {
+			throw new InvalidInputException(noTimeSlotMessage);
 		}
 		// checks for collision with other appointments
 		if (bookableService instanceof Service) {
@@ -1486,22 +1488,53 @@ public class FlexiBookController {
 	/**
 	 * @author Julie
 	 */
+	private static boolean notValidPhoneNumber(String phoneNumber) {
+	    Pattern pattern = Pattern.compile("^((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$");
+		Matcher matcher = pattern.matcher(phoneNumber);
+		if (matcher.matches()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	/**
+	 * @author Julie
+	 */
+	private static boolean notValidAddress(String address) {
+		Pattern pattern = Pattern.compile("^\\d+\\s[A-z]+\\s[A-z]+");
+		Matcher matcher = pattern.matcher(address);
+		if (matcher.matches()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	/**
+	 * @author Julie
+	 */
+	private static boolean notValidEmail(String email) {
+		Pattern pattern = Pattern.compile("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
+		Matcher matcher = pattern.matcher(email);
+		if (matcher.matches()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	/**
+	 * @author Julie
+	 */
 	private static void validateBusinessInfo(String name, String address, String phoneNumber, String email) throws InvalidInputException{
 		if (name == null || name.isEmpty()) {
 			throw new InvalidInputException("Invalid business name");
 		}
-		if (address == null || address.isEmpty()) {
+		if (notValidAddress(address)) {
 			throw new InvalidInputException("Invalid address");
 		}
-		if (phoneNumber == null || phoneNumber.isEmpty()) {
+		if (notValidPhoneNumber(phoneNumber)) {
 			throw new InvalidInputException("Invalid phone number");
 		}
-		if (email == null || email.isEmpty() || !email.contains("@") || !email.contains(".") || email.contains(" ")) {
-			throw new InvalidInputException("Invalid email");
-		}
-		// check that @ and . are in the correct order
-		String splitEmail[]= email.split("@", 2);
-		if (!splitEmail[1].contains(".")) {
+		if (notValidEmail(email)) {
 			throw new InvalidInputException("Invalid email");
 		}
 	}

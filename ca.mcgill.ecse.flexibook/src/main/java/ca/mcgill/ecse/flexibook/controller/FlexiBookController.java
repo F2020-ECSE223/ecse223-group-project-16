@@ -1987,7 +1987,7 @@ public class FlexiBookController {
 	 */
 	public static void addService(String name, String totalDuration, String downtimeStart, String downtimeDuration) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
-		if (FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
+		if (FlexiBookApplication.getCurrentUser() == null || FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
 			throw new InvalidInputException("You are not authorized to perform this operation");
 		}
 		validateDurationTimes(Integer.parseInt(totalDuration),Integer.parseInt(downtimeStart), Integer.parseInt(downtimeDuration));
@@ -2049,14 +2049,16 @@ public class FlexiBookController {
 	public static void updateService(String ogName, String newName, String totalDuration, String downtimeStart, String downtimeDuration) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 	
-		if (FlexiBookApplication.getCurrentUser() != flexiBook.getOwner()) {
+		if (FlexiBookApplication.getCurrentUser() == null || FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
 			throw new InvalidInputException("You are not authorized to perform this operation");
 		}
 		validateDurationTimes(Integer.parseInt(totalDuration),Integer.parseInt(downtimeStart), Integer.parseInt(downtimeDuration));
 		
-		for (BookableService bS1: flexiBook.getBookableServices()) {
-			if (bS1.getName().contentEquals(newName)) {
-				throw new InvalidInputException("Service " + newName + " already exists");
+		if (!ogName.contentEquals(newName)) {
+			for (BookableService bS1: flexiBook.getBookableServices()) {
+				if (bS1.getName().contentEquals(newName)) {
+					throw new InvalidInputException("Service " + newName + " already exists");
+				}
 			}
 		}
 		
@@ -2089,7 +2091,7 @@ public class FlexiBookController {
 	public static void deleteService(String name) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 		
-		if (FlexiBookApplication.getCurrentUser() != flexiBook.getOwner()) {
+		if (FlexiBookApplication.getCurrentUser() == null || FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
 			throw new InvalidInputException("You are not authorized to perform this operation");
 		}
 		
@@ -2353,4 +2355,39 @@ public class FlexiBookController {
     	}
     	return new TOService(service.getName(), service.getDuration(), service.getDowntimeDuration(), service.getDowntimeStart());
     }
+    
+    // TODO: javadoc
+    /**
+     * 
+     * @return
+     */
+    public static List<TOAppointment> getAppointments() {
+    	List<TOAppointment> appointments = new ArrayList<TOAppointment>();
+
+		
+		for (Appointment a : FlexiBookApplication.getFlexiBook().getAppointments()) {
+			TimeSlot t = a.getTimeSlot();
+			appointments.add(new TOAppointment(t.getStartDate(), t.getStartTime(), t.getEndDate(), t.getEndTime(), a.getCustomer().getUsername(), a.getBookableService().getName()));
+		}
+		
+		Collections.sort(appointments, new Comparator<TOAppointment>() {
+			@Override
+			public int compare(TOAppointment a1, TOAppointment a2) {
+				if (a1.getStartDate().equals(a2.getStartDate())) {
+		        	if (a1.getStartTime().equals(a2.getStartTime())) {
+		        		return 0; // a1 == a2
+		        	} else if (a1.getStartTime().before(a2.getStartTime())) {
+		        		return -1; // a1 <= a2 
+		        	} else {
+		        		return 1; // a1 >= a2
+		        	}
+		        } else if (a1.getStartDate().before(a2.getStartDate())) {
+		        	return -1;
+		        } else {
+		        	return 0;
+		        }
+			}
+		});
+		return appointments;
+	}
 }

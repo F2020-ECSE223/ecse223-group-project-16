@@ -121,6 +121,7 @@ public class BusinessInfoPage extends JFrame {
     editContactInfoButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
         	if (editContactInfoButton.getText().equals("Save")) {
+        		System.out.println("save contact");
         		saveContactInfoActionPerformed(evt);
         	} else {
                 editContactInfoActionPerformed(evt);
@@ -285,6 +286,7 @@ public class BusinessInfoPage extends JFrame {
     	  tf.setEditable(false);
       }
 	  editBusinessHoursButton.setText("Edit");
+	  editContactInfoButton.setText("Edit");
 	  errorMessageLabel.setText(errorMessage);
 	  if (FlexiBookController.viewBusinessInfo() != null) {
 		  errorMessageLabel.setText(errorMessage);
@@ -294,43 +296,43 @@ public class BusinessInfoPage extends JFrame {
 		  emailTextField.setText(FlexiBookController.viewBusinessInfo().getEmail());
 	      for (TOBusinessHour bh : FlexiBookController.viewBusinessInfo().getBusinessHours()) {
 	    	  String pattern = "HH:mm";
-	            if (bh.getDayOfWeek().toString().equals("Monday")) {
+	            if (bh.getDayOfWeek().toString().equals("Sunday")) {
 	            	dayTextFields.get(0).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
 	                if (dayTextFields.get(0) == null) {
 	                	dayTextFields.get(0).setText("ADD HOURS");
 	                }
 	            }
-	            else if (bh.getDayOfWeek().toString().equals("Tuesday")) {
+	            else if (bh.getDayOfWeek().toString().equals("Monday")) {
 	            	dayTextFields.get(1).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
 	                if (dayTextFields.get(1).getText() == null) {
 	                	dayTextFields.get(1).setText("ADD HOURS");
 	                }
 	            }
-	            else if (bh.getDayOfWeek().toString().equals("Wednesday")) {
+	            else if (bh.getDayOfWeek().toString().equals("Tuesday")) {
 	            	dayTextFields.get(2).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
 	                if (dayTextFields.get(2).getText() == null) {
 	                	dayTextFields.get(2).setText("ADD HOURS");
 	                }
 	            }
-	            else if (bh.getDayOfWeek().toString().equals("Thursday")) {
+	            else if (bh.getDayOfWeek().toString().equals("Wednesday")) {
 	            	dayTextFields.get(3).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
 	                if (dayTextFields.get(3).getText() == null) {
 	                	dayTextFields.get(3).setText("ADD HOURS");
 	                }
 	            }
-	            else if (bh.getDayOfWeek().toString().equals("Friday")) {
+	            else if (bh.getDayOfWeek().toString().equals("Thursday")) {
 	            	dayTextFields.get(4).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
 	                if (dayTextFields.get(4).getText() == null) {
 	                	dayTextFields.get(4).setText("ADD HOURS");
 	                }
 	            }
-	            else if (bh.getDayOfWeek().toString().equals("Saturday")) {
+	            else if (bh.getDayOfWeek().toString().equals("Friday")) {
 	            	dayTextFields.get(5).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
 	                if (dayTextFields.get(5).getText() == null) {
 	                	dayTextFields.get(5).setText("ADD HOURS");
 	                }
 	            }
-	            else if (bh.getDayOfWeek().toString().equals("Sunday")) {
+	            else if (bh.getDayOfWeek().toString().equals("Saturday")) {
 	            	dayTextFields.get(6).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
 	                if (dayTextFields.get(6).getText() == null) {
 	                	dayTextFields.get(6).setText("ADD HOURS");
@@ -432,9 +434,11 @@ public class BusinessInfoPage extends JFrame {
 		  }
 	  }
 	  if (errorMessage == null) {
+		  System.out.println("null");
 		  refreshData();
 		  pack();
 	  } else {
+		  System.out.println(errorMessage);
 		  errorMessageLabel.setText(errorMessage);
 	  }
   }

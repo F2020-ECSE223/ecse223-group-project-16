@@ -2,6 +2,8 @@ package ca.mcgill.ecse.flexibook.view;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.sql.Date;
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -30,7 +32,7 @@ import ca.mcgill.ecse.flexibook.controller.TOUser;
 import ca.mcgill.ecse.flexibook.util.FlexiBookUtil;
 import ca.mcgill.ecse.flexibook.util.SystemTime;
 
-public class ViewCalendarPage extends JFrame {
+public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 	public enum Periodical {
 		Daily, Weekly
 	};
@@ -136,6 +138,7 @@ public class ViewCalendarPage extends JFrame {
 				viewButtonActionPerformed(evt);
 			}
 		});
+		
 
 		// layout
 		periodicalPanel.setLayout(new BoxLayout(periodicalPanel, BoxLayout.Y_AXIS));
@@ -198,7 +201,7 @@ public class ViewCalendarPage extends JFrame {
 		
 		pack();
 	}
-
+	
 	private void refreshData() {
 		if (!scrollPaneWasSetup) { // setup once
 			scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -210,6 +213,7 @@ public class ViewCalendarPage extends JFrame {
 		errorMessageLabel.setText(errorMessage);
 		if (errorMessage == null || errorMessage.trim().length() == 0) {
 			if (appointmentCalendarVisualizerWrapper != null) {
+				appointmentCalendarVisualizer.addSelectionChangeListener(this);
 				scrollPane.setViewportView(appointmentCalendarVisualizerWrapper);
 			}
 		}
@@ -360,5 +364,11 @@ public class ViewCalendarPage extends JFrame {
 		} else {
 			currentPeriodical = Periodical.Weekly;
 		}
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		// this will get called whenever the selection changes, either for a daily or weekly appt calendar
+		System.out.println("Selection changed");
 	}
 }

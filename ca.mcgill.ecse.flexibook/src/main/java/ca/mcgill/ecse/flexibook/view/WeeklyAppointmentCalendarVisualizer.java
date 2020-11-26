@@ -22,7 +22,6 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 	// observers
 	private List<PropertyChangeListener> pcls;
 	
-	// **
 	private PropertyChangeSupport support;
 	
 	public WeeklyAppointmentCalendarVisualizer(Date startDate, List<TOBusinessHour> businessHours,
@@ -30,7 +29,8 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 		super(startDate, businessHours, revealedAppointments, concealedAppointments);
 		
 		pcls = new ArrayList<PropertyChangeListener>();
-
+		support = new PropertyChangeSupport(this); 
+		
 		initComponents();
 	}
 	
@@ -40,7 +40,7 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 	
 	public void removeSelectionChangeListener(PropertyChangeListener pcl) {
 		pcls.remove(pcl);
-	}
+	} 
 	
 	private void initComponents() {		
 		dailyAppointmentCalendarVisualizers = new ArrayList<DailyAppointmentCalendarVisualizer>();
@@ -68,15 +68,16 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 	
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		TOAppointment appointment = (TOAppointment) evt.getNewValue();
+		System.out.println(evt.getNewValue().getClass());
 		
+		TOAppointment appointment = (TOAppointment) evt.getNewValue(); 
 		
 		// unselect previously selected appointment if there is any in a different daily appointment calendar visualizer
 		for (DailyAppointmentCalendarVisualizer v : dailyAppointmentCalendarVisualizers) {
 			if (appointment == null || !v.getDate().equals(appointment.getStartDate())) {
 				v.unsetSelectedAppointment();
 			}
-		}
+		} 
 		
 		// notify own listeners about selection change
 		for (PropertyChangeListener pcl : pcls) {

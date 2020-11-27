@@ -112,7 +112,7 @@ public class AppointmentsPage extends JFrame {
       }
     });
 
-	setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setTitle("Appointments");
 
     GroupLayout layout = new GroupLayout(getContentPane());

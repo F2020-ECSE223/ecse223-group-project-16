@@ -100,7 +100,7 @@ public class AccountSettingsPage extends JFrame {
 				new Dimension(deleteButton.getPreferredSize().width * 2, deleteButton.getPreferredSize().height));
 
 		// global settings
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Account Settings");
 		setResizable(false);
 

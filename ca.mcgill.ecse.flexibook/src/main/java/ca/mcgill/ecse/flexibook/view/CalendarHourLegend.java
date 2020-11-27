@@ -13,9 +13,7 @@ public class CalendarHourLegend extends JPanel {
 	
 	// UI elements
 	// constants
-	private static final int MINIMUM_COLUMN_WIDTH = 100;
-	private static final int MINIMUM_ROW_HEIGHT = 20;
-	private static final int LABEL_HEIGHT = 16;
+	private static final int LABEL_HEIGHT = 10;
 	
 	public CalendarHourLegend() {
 		setMaximumSize(new Dimension(50, Integer.MAX_VALUE));
@@ -61,7 +59,7 @@ public class CalendarHourLegend extends JPanel {
 				leftPadding = "  ";
 			}
 			g.setColor(Color.BLACK);
-			g.drawString(leftPadding + String.valueOf(hour) + " " + period.toString(), 0, height + (LABEL_HEIGHT - 5) / 2);
+			g.drawString(leftPadding + String.valueOf(hour) + " " + period.toString(), 0, height + (LABEL_HEIGHT) / 2);
 			g.setColor(Color.GRAY);
 			g.drawLine(getWidth() - 5, height, getWidth(), height);
 		}

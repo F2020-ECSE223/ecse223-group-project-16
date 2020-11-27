@@ -375,7 +375,12 @@ public class BusinessInfoPage extends JFrame {
                       String newDay = prevDay;
                       String newStartTime = currentHours[i].substring(0,5);
                       String newEndTime = currentHours[i].substring(6);
-                      FlexiBookController.updateBusinessHour(prevDay, prevStartTime, newDay, newStartTime, newEndTime);
+                      if (prevDay.equals(newDay)) {
+                    	  FlexiBookController.addNewBusinessHour(prevDay, newStartTime, newEndTime);
+                      }
+                      else {
+                          FlexiBookController.updateBusinessHour(prevDay, prevStartTime, newDay, newStartTime, newEndTime);
+                      }
                   } catch (InvalidInputException e) {
                       errorMessage = e.getMessage();
                       valid = false;

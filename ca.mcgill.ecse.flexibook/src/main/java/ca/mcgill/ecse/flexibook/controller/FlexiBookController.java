@@ -13,6 +13,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.model.*;
@@ -587,24 +589,24 @@ public class FlexiBookController {
 		c.setTime(startDate);
 		int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
 		if(!(FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours().stream().anyMatch(x -> 
-      x.getDayOfWeek().equals(getDayOfWeek(dayOfWeek))
-      && x.getStartTime().before(startTime)
-      && !x.getEndTime().before(endTimeWithDowntime)))) {
-		  	throw new InvalidInputException(noTimeSlotMessage);
+		x.getDayOfWeek().equals(getDayOfWeek(dayOfWeek))
+		&& x.getStartTime().before(startTime)
+		&& !x.getEndTime().before(endTimeWithDowntime)))) {
+			throw new InvalidInputException(noTimeSlotMessage);
 		}		
 		// checks if appointment is during vacation times
 		if(FlexiBookApplication.getFlexiBook().getBusiness().getVacation().stream().anyMatch(x -> 
-      x.getStartDate().after(startDate) && x.getEndDate().before(startDate)
-      || (x.getStartDate().equals(startDate) && x.getStartTime().before(endTimeWithDowntime))
-      || (x.getEndDate().equals(startDate) && x.getEndTime().after(startTime)))) {
-        throw new InvalidInputException(noTimeSlotMessage);
+		x.getStartDate().after(startDate) && x.getEndDate().before(startDate)
+		|| (x.getStartDate().equals(startDate) && x.getStartTime().before(endTimeWithDowntime))
+		|| (x.getEndDate().equals(startDate) && x.getEndTime().after(startTime)))) {
+			throw new InvalidInputException(noTimeSlotMessage);
 		}
 		// checks if appointment is during holiday times
 		if(FlexiBookApplication.getFlexiBook().getBusiness().getHolidays().stream().anyMatch(x -> 
-      x.getStartDate().after(startDate) && x.getEndDate().before(startDate)
-      || (x.getStartDate().equals(startDate) && x.getStartTime().before(endTimeWithDowntime))
-      || (x.getEndDate().equals(startDate) && x.getEndTime().after(startTime)))) {
-        throw new InvalidInputException(noTimeSlotMessage);
+		x.getStartDate().after(startDate) && x.getEndDate().before(startDate)
+		|| (x.getStartDate().equals(startDate) && x.getStartTime().before(endTimeWithDowntime))
+		|| (x.getEndDate().equals(startDate) && x.getEndTime().after(startTime)))) {
+			throw new InvalidInputException(noTimeSlotMessage);
 		}
 		// checks for collision with other appointments
 		if (bookableService instanceof Service) {
@@ -1619,22 +1621,41 @@ public class FlexiBookController {
 	/**
 	 * @author Julie
 	 */
+	private static boolean notValidPhoneNumber(String phoneNumber) {
+	    Pattern pattern = Pattern.compile("^((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$");
+		Matcher matcher = pattern.matcher(phoneNumber);
+		if (matcher.matches()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	/**
+	 * @author Julie
+	 */
+	private static boolean notValidEmail(String email) {
+		Pattern pattern = Pattern.compile("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
+		Matcher matcher = pattern.matcher(email);
+		if (matcher.matches()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	/**
+	 * @author Julie
+	 */
 	private static void validateBusinessInfo(String name, String address, String phoneNumber, String email) throws InvalidInputException{
 		if (name == null || name.isEmpty()) {
 			throw new InvalidInputException("Invalid business name");
 		}
-		if (address == null || address.isEmpty()) {
+		if (address.isEmpty() || address == null) {
 			throw new InvalidInputException("Invalid address");
 		}
-		if (phoneNumber == null || phoneNumber.isEmpty()) {
+		if (notValidPhoneNumber(phoneNumber)) {
 			throw new InvalidInputException("Invalid phone number");
 		}
-		if (email == null || email.isEmpty() || !email.contains("@") || !email.contains(".") || email.contains(" ")) {
-			throw new InvalidInputException("Invalid email");
-		}
-		// check that @ and . are in the correct order
-		String splitEmail[]= email.split("@", 2);
-		if (!splitEmail[1].contains(".")) {
+		if (notValidEmail(email)) {
 			throw new InvalidInputException("Invalid email");
 		}
 	}
@@ -1840,9 +1861,10 @@ public class FlexiBookController {
 			throw new InvalidInputException("No permission to update business information");
 		}
 		validateBusinessInfo(name, address, phoneNumber, email);
-		FlexiBookApplication.getFlexiBook().getBusiness().delete();
-	    Business aNewBusiness = new Business(name, address, phoneNumber, email, FlexiBookApplication.getFlexiBook());
-		FlexiBookApplication.getFlexiBook().setBusiness(aNewBusiness);
+		FlexiBookApplication.getFlexiBook().getBusiness().setName(name);
+		FlexiBookApplication.getFlexiBook().getBusiness().setAddress(address);
+		FlexiBookApplication.getFlexiBook().getBusiness().setPhoneNumber(phoneNumber);
+		FlexiBookApplication.getFlexiBook().getBusiness().setEmail(email);
 		try{
 			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());
 		}
@@ -2087,7 +2109,7 @@ public class FlexiBookController {
 	 */
 	public static void addService(String name, String totalDuration, String downtimeStart, String downtimeDuration) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
-		if (FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
+		if (FlexiBookApplication.getCurrentUser() == null || FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
 			throw new InvalidInputException("You are not authorized to perform this operation");
 		}
 		validateDurationTimes(Integer.parseInt(totalDuration),Integer.parseInt(downtimeStart), Integer.parseInt(downtimeDuration));
@@ -2149,14 +2171,16 @@ public class FlexiBookController {
 	public static void updateService(String ogName, String newName, String totalDuration, String downtimeStart, String downtimeDuration) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 	
-		if (FlexiBookApplication.getCurrentUser() != flexiBook.getOwner()) {
+		if (FlexiBookApplication.getCurrentUser() == null || FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
 			throw new InvalidInputException("You are not authorized to perform this operation");
 		}
 		validateDurationTimes(Integer.parseInt(totalDuration),Integer.parseInt(downtimeStart), Integer.parseInt(downtimeDuration));
 		
-		for (BookableService bS1: flexiBook.getBookableServices()) {
-			if (bS1.getName().contentEquals(newName)) {
-				throw new InvalidInputException("Service " + newName + " already exists");
+		if (!ogName.contentEquals(newName)) {
+			for (BookableService bS1: flexiBook.getBookableServices()) {
+				if (bS1.getName().contentEquals(newName)) {
+					throw new InvalidInputException("Service " + newName + " already exists");
+				}
 			}
 		}
 		
@@ -2189,7 +2213,7 @@ public class FlexiBookController {
 	public static void deleteService(String name) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 		
-		if (FlexiBookApplication.getCurrentUser() != flexiBook.getOwner()) {
+		if (FlexiBookApplication.getCurrentUser() == null || FlexiBookApplication.getCurrentUser() != FlexiBookApplication.getFlexiBook().getOwner()) {
 			throw new InvalidInputException("You are not authorized to perform this operation");
 		}
 		
@@ -2237,6 +2261,7 @@ public class FlexiBookController {
 			throw new InvalidInputException(e.getMessage());
 		}
 	}
+
 	/**
 	 * Get all appointments of the User with the provided username as a list of transfer objects.
 	 * 
@@ -2525,4 +2550,39 @@ public class FlexiBookController {
     	}
     	return new TOService(service.getName(), service.getDuration(), service.getDowntimeDuration(), service.getDowntimeStart());
     }
+    
+    // TODO: javadoc
+    /**
+     * 
+     * @return
+     */
+    public static List<TOAppointment> getAppointments() {
+    	List<TOAppointment> appointments = new ArrayList<TOAppointment>();
+
+		
+		for (Appointment a : FlexiBookApplication.getFlexiBook().getAppointments()) {
+			TimeSlot t = a.getTimeSlot();
+			appointments.add(new TOAppointment(t.getStartDate(), t.getStartTime(), t.getEndDate(), t.getEndTime(), a.getCustomer().getUsername(), a.getBookableService().getName()));
+		}
+		
+		Collections.sort(appointments, new Comparator<TOAppointment>() {
+			@Override
+			public int compare(TOAppointment a1, TOAppointment a2) {
+				if (a1.getStartDate().equals(a2.getStartDate())) {
+		        	if (a1.getStartTime().equals(a2.getStartTime())) {
+		        		return 0; // a1 == a2
+		        	} else if (a1.getStartTime().before(a2.getStartTime())) {
+		        		return -1; // a1 <= a2 
+		        	} else {
+		        		return 1; // a1 >= a2
+		        	}
+		        } else if (a1.getStartDate().before(a2.getStartDate())) {
+		        	return -1;
+		        } else {
+		        	return 0;
+		        }
+			}
+		});
+		return appointments;
+	}
 }

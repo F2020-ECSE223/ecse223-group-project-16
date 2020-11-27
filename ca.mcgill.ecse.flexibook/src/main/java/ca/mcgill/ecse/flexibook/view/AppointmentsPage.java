@@ -1,7 +1,6 @@
 package ca.mcgill.ecse.flexibook.view;
 
 import java.awt.Color;
-import java.io.File;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -9,7 +8,6 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-import javax.swing.WindowConstants;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
@@ -57,33 +55,6 @@ public class AppointmentsPage extends JFrame {
   private String error = null;
 
   public AppointmentsPage() {
-    // below is testing
-    // File f = new File("data.flexibook");
-		// f.delete();
-    // FlexiBookApplication.getFlexiBook();
-
-    // try{
-    //   FlexiBookController.login("owner", "password");
-    //   FlexiBookController.setUpBusinessInfo("Jimmy G", "WallStreet", "0123456789", "hq@wang.com");
-    //   FlexiBookController.addNewBusinessHour("Monday", "09:00", "20:00");
-    //   FlexiBookController.addNewBusinessHour("Tuesday", "09:00", "20:00");
-    //   FlexiBookController.addNewBusinessHour("Wednesday", "09:00", "20:00");
-    //   FlexiBookController.addNewBusinessHour("Thursday", "09:00", "20:00");
-    //   FlexiBookController.addNewBusinessHour("Friday", "09:00", "20:00");
-    //   FlexiBookController.addNewBusinessHour("Saturday", "09:00", "20:00");
-    //   FlexiBookController.addNewBusinessHour("Sunday", "09:00", "20:00");
-    //   FlexiBookController.addService("cut", "10", "0", "0");
-    //   FlexiBookController.addService("trim", "10", "0", "0");
-
-    //   FlexiBookController.logout();
-
-    //   FlexiBookController.createCustomerAccount("test", "password");
-    //   FlexiBookController.login("test", "password");
-    // }
-    // catch(InvalidInputException e){
-
-    // }
-    // everything above is to be removed
     initComponents();
     refreshData();
   }
@@ -128,25 +99,16 @@ public class AppointmentsPage extends JFrame {
     makeAppointmentButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         makeAppointmentActionPerformed(evt);
-        // new FlexiBookPage().setVisible(true);
-        // dispose();
-        // we'll add another button to return to home later
       }
     });
     updateAppointmentButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         updateAppointmentActionPerformed(evt);
-        // new FlexiBookPage().setVisible(true);
-        // dispose();
-        // we'll add another button to return to home later
       }
     });
     cancelAppointmentButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         cancelAppointmentActionPerformed(evt);
-        // new FlexiBookPage().setVisible(true);
-        // dispose();
-        // we'll add another button to return to home later
       }
     });
 

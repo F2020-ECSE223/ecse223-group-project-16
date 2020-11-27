@@ -75,7 +75,6 @@ public class FlexiBookPage extends JFrame {
     goToBusinessInfo.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         new BusinessInfoPage().setVisible(true);
-        dispose();
       }
     });
     goToAppointmentMake.addActionListener(new java.awt.event.ActionListener() {

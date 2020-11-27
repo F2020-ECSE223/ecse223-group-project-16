@@ -312,69 +312,6 @@ public class BusinessInfoPage extends JFrame {
             emailTextField.setText("ADD EMAIL");
             errorMessageLabel.setText(errorMessage);
       }
-	  editBusinessHoursButton.setText("Edit");
-	  errorMessageLabel.setText(errorMessage);
-	  if (FlexiBookController.viewBusinessInfo() != null) {
-		  errorMessageLabel.setText(errorMessage);
-		  businessNameTextField.setText(FlexiBookController.viewBusinessInfo().getName());
-		  addressTextField.setText(FlexiBookController.viewBusinessInfo().getAddress());;
-		  phoneNumberTextField.setText(FlexiBookController.viewBusinessInfo().getPhoneNumber());
-		  emailTextField.setText(FlexiBookController.viewBusinessInfo().getEmail());
-	      for (TOBusinessHour bh : FlexiBookController.viewBusinessInfo().getBusinessHours()) {
-	    	  String pattern = "HH:mm";
-	            if (bh.getDayOfWeek().toString().equals("Monday")) {
-	            	dayTextFields.get(0).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
-	                if (dayTextFields.get(0) == null) {
-	                	dayTextFields.get(0).setText("ADD HOURS");
-	                }
-	            }
-	            else if (bh.getDayOfWeek().toString().equals("Tuesday")) {
-	            	dayTextFields.get(1).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
-	                if (dayTextFields.get(1).getText() == null) {
-	                	dayTextFields.get(1).setText("ADD HOURS");
-	                }
-	            }
-	            else if (bh.getDayOfWeek().toString().equals("Wednesday")) {
-	            	dayTextFields.get(2).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
-	                if (dayTextFields.get(2).getText() == null) {
-	                	dayTextFields.get(2).setText("ADD HOURS");
-	                }
-	            }
-	            else if (bh.getDayOfWeek().toString().equals("Thursday")) {
-	            	dayTextFields.get(3).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
-	                if (dayTextFields.get(3).getText() == null) {
-	                	dayTextFields.get(3).setText("ADD HOURS");
-	                }
-	            }
-	            else if (bh.getDayOfWeek().toString().equals("Friday")) {
-	            	dayTextFields.get(4).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
-	                if (dayTextFields.get(4).getText() == null) {
-	                	dayTextFields.get(4).setText("ADD HOURS");
-	                }
-	            }
-	            else if (bh.getDayOfWeek().toString().equals("Saturday")) {
-	            	dayTextFields.get(5).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
-	                if (dayTextFields.get(5).getText() == null) {
-	                	dayTextFields.get(5).setText("ADD HOURS");
-	                }
-	            }
-	            else if (bh.getDayOfWeek().toString().equals("Sunday")) {
-	            	dayTextFields.get(6).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
-	                if (dayTextFields.get(6).getText() == null) {
-	                	dayTextFields.get(6).setText("ADD HOURS");
-	                }
-	            }
-	        }
-	  } else {
-	    	businessNameTextField.setText("CLICK TO ADD BUSINESS NAME");
-	        for (JTextField tf : dayTextFields) {
-	        	tf.setText("ADD HOURS");
-	        }
-	        addressTextField.setText("ADD ADDRESS");
-	        phoneNumberTextField.setText("ADD PHONE NUMBER");
-	        emailTextField.setText("ADD EMAIL");
-	        errorMessageLabel.setText(errorMessage);
-	  }
   }
   private void editBusinessHoursActionPerformed(java.awt.event.ActionEvent evt) {
       if (!FlexiBookController.isCurrentUserOwner()) {
@@ -387,9 +324,7 @@ public class BusinessInfoPage extends JFrame {
               for (int i=0; i<7; i++) {
                   prevHours[i] = dayTextFields.get(i).getText();
               }
-              
               editBusinessHoursButton.setText("Save");
-              
               for (JTextField tf : dayTextFields) {
                   tf.setEditable(true);
               }

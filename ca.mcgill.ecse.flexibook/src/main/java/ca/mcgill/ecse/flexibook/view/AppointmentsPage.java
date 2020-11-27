@@ -188,6 +188,7 @@ public class AppointmentsPage extends JFrame {
           .addComponent(cancelAppointmentButton)
         )
     );
+    setJMenuBar(new FlexiBookMenuBar(this, "Appointments"));
     pack();
   }
 

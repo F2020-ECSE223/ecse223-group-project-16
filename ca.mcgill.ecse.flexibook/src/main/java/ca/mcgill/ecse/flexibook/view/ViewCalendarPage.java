@@ -219,7 +219,7 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 
 		setPreferredSize(new Dimension(getPreferredSize().width + 20, getPreferredSize().height));
 		// @formatter:on
-		
+		setJMenuBar(new FlexiBookMenuBar(this, "View Calendar"));
 		pack();
 	}
 	

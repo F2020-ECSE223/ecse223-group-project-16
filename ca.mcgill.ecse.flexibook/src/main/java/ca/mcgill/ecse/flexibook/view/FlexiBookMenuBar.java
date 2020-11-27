@@ -65,10 +65,9 @@ public class FlexiBookMenuBar extends JMenuBar {
 
 		navigationMenuItemsByPageName.put("Home", goToHomeMenuItem);
 		navigationMenuItemsByPageName.put("Business Info", goToBusinessInfoMenuItem);
-		navigationMenuItemsByPageName.put("View Calendar", goToViewCalendarMenuItem);
-		navigationMenuItemsByPageName.put("Services", new JMenuItem("Services"));
-		navigationMenuItemsByPageName.put("Appointments", new JMenuItem("Appointments"));
-
+    navigationMenuItemsByPageName.put("View Calendar", goToViewCalendarMenuItem);
+    navigationMenuItemsByPageName.put("Services", goToServicesMenuItem);
+    navigationMenuItemsByPageName.put("Appointments", goToAppointmentsMenuItem);
 		for (Map.Entry<String, JMenuItem> entry : navigationMenuItemsByPageName.entrySet()) {
 			navigationMenu.add(entry.getValue());
 		}

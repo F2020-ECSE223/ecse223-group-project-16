@@ -273,7 +273,8 @@ public class BusinessInfoPage extends JFrame {
     		)
     		.addComponent(errorMessageLabel)
     );
-	pack();
+    setJMenuBar(new FlexiBookMenuBar(this, "Business Info"));
+    pack();
   }
 
   private void refreshData() {

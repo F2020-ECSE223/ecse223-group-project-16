@@ -18,7 +18,7 @@ public class SystemTime {
         isTesting = false;
     }
 
-    @SuppressWarnings("deprecation")
+  @SuppressWarnings("deprecation")
 	public static Date getDate(){
         if(isTesting){
             return testDate;
@@ -29,10 +29,12 @@ public class SystemTime {
         return new Date(currentDate.getYear(), currentDate.getMonth(), currentDate.getDate());
     }
 
+    @SuppressWarnings("deprecation")
     public static Time getTime(){
         if(isTesting){
             return testTime;
         }
-        return new Time(System.currentTimeMillis());
+        Time currentTime = new Time(System.currentTimeMillis());
+        return new Time(currentTime.getHours(), currentTime.getMinutes(), currentTime.getSeconds());
     }
 }

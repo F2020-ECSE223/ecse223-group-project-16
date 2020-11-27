@@ -23,15 +23,8 @@ import javax.swing.border.EmptyBorder;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOUser;
+import ca.mcgill.ecse.flexibook.util.SystemTime;
 import ca.mcgill.ecse.flexibook.controller.TOAppointment;
-
-
-
-//import ca.mcgill.ecse.flexibook.util.SystemTime; // THESE IMPORTs SHOULD BE DELETED, IS BEING USED FOR TESTING PURPOSES ONLY
-//import ca.mcgill.ecse.flexibook.util.FlexiBookUtil; 
-//import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
-//import java.io.File;
-//import java.text.ParseException;
 
 public class AppointmentManagementPage extends JFrame {
 	private static final long serialVersionUID = 18008888888L;
@@ -56,62 +49,6 @@ public class AppointmentManagementPage extends JFrame {
 
 	private void initComponents() {
 		//below is testing
-//		
-//		File f = new File("data.flexibook");
-//		f.delete();
-//		FlexiBookApplication.getFlexiBook();
-//		try {
-//			FlexiBookController.login("owner", "password");
-//			try {
-//				FlexiBookController.setUpBusinessInfo("Jimmy G", "WallStreet", "0123456789", "hq@wang.com");
-//				FlexiBookController.addNewBusinessHour("Monday", "09:00", "20:00");
-//				FlexiBookController.addNewBusinessHour("Tuesday", "09:00", "20:00");
-//				FlexiBookController.addNewBusinessHour("Wednesday", "09:00", "20:00");
-//				FlexiBookController.addNewBusinessHour("Thursday", "09:00", "20:00");
-//				FlexiBookController.addNewBusinessHour("Friday", "09:00", "20:00");
-//				FlexiBookController.addNewBusinessHour("Saturday", "09:00", "20:00");
-//				FlexiBookController.addNewBusinessHour("Sunday", "09:00", "20:00");
-//
-//				FlexiBookController.addService("cut", "10", "0", "0");
-//				FlexiBookController.addService("trim", "10", "0", "0");
-//
-//				FlexiBookController.logout();
-//				FlexiBookController.createCustomerAccount("test", "password");
-//				FlexiBookController.login("test", "password");
-//
-//			} catch (RuntimeException e) {
-//				FlexiBookController.logout();
-//				FlexiBookController.login("test", "password");
-//			}
-//
-//			SystemTime.setTesting(FlexiBookUtil.getDateFromString("2020-11-01"), FlexiBookUtil.getTimeFromString("12:00"));
-//			try {
-//				FlexiBookController.makeAppointment("test", "2020-11-03", "cut", "11:00");
-//				FlexiBookController.makeAppointment("test", "2020-11-03", "cut", "10:50");
-//			} catch (InvalidInputException e) {
-//
-//			}
-//			SystemTime.setTesting(FlexiBookUtil.getDateFromString("2020-11-03"), FlexiBookUtil.getTimeFromString("11:00"));
-//
-//			FlexiBookController.logout();
-//			FlexiBookController.login("owner", "password");
-//		} catch(InvalidInputException e) {
-//			System.out.println(e);
-//			System.err.println(e);
-//			try {
-//				FlexiBookController.logout();
-//				FlexiBookController.login("owner", "password");
-//			} catch (InvalidInputException ee) {
-//
-//			}
-//		} catch (ParseException e) {
-//
-//		} 
-//		
-	    // everything above is to be removed
-		
-		
-		
 		// UI elements
 		errorMessage = null;
 		errorLabel = new JLabel();
@@ -172,7 +109,8 @@ public class AppointmentManagementPage extends JFrame {
 				);
 
 		// @formatter:on
-		setJMenuBar(new FlexiBookMenuBar(this, "Appointment Management"));
+    setJMenuBar(new FlexiBookMenuBar(this, "Appointment Management"));
+    refreshData();
 		pack();
 		setVisible(true);
 	}
@@ -180,8 +118,8 @@ public class AppointmentManagementPage extends JFrame {
 	private void refreshData() {
 		errorLabel.setText(errorMessage);
 		
-		List<TOAppointment> startingAppt = FlexiBookController.getAppointmentsStarting();
-		startingPanel.removeAll();
+    List<TOAppointment> startingAppt = FlexiBookController.getAppointmentsBooked();
+    startingPanel.removeAll();
 		GroupLayout startingLayout = new GroupLayout(startingPanel);
 		startingLayout.setAutoCreateGaps(true);
 		startingLayout.setAutoCreateContainerGaps(true);
@@ -205,7 +143,7 @@ public class AppointmentManagementPage extends JFrame {
 				
 				aStart.addActionListener(new java.awt.event.ActionListener() {
 					public void actionPerformed(java.awt.event.ActionEvent event) {
-						startAppointment(event, a);
+            startAppointment(event, a);
 					}
 				});
 				aNoShow.addActionListener(new java.awt.event.ActionListener() {

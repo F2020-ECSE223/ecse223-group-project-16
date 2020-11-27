@@ -242,7 +242,7 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 	
 	private void refreshAppointmentCalendar() {
 		List<TOBusinessHour> allBusinessHours;
-		List<TOAppointment> allCurrentUserAppointments;
+		List<TOAppointment> revealedAppointments;
 		List<TOAppointment> allAppointments;
 
 		TOUser currentUser = FlexiBookController.getCurrentUser();
@@ -260,12 +260,12 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 			}
 			
 			if (FlexiBookController.getCurrentUser().getUsername().equals("owner")) {
-				allCurrentUserAppointments = FlexiBookController.getAppointments();
+				revealedAppointments = FlexiBookController.getAppointments();
 			}
 			else {
-				allCurrentUserAppointments = FlexiBookController.getAppointments(currentUser.getUsername());
+				revealedAppointments = FlexiBookController.getAppointments(currentUser.getUsername());
 			}
-			//allCurrentUserAppointments = FlexiBookController.getAppointments(currentUser.getUsername());
+			
 			allAppointments = FlexiBookController.getAppointments();
 		} catch (InvalidInputException e) {
 			errorMessage = e.getMessage();
@@ -283,11 +283,11 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 		if (currentPeriodical == Periodical.Daily) {
 			appointmentCalendarVisualizer = new DailyAppointmentCalendarVisualizer(selectedDate,
 					Utils.filterBusinessHoursByDate(allBusinessHours, selectedDate),
-					Utils.filterAppointmentsByDate(allCurrentUserAppointments, selectedDate),
+					Utils.filterAppointmentsByDate(revealedAppointments, selectedDate),
 					Utils.filterAppointmentsByDate(allAppointments, selectedDate));
 			appointmentCalendarVisualizerWrapper = new AppointmentCalendarVisualizerWrapper((DailyAppointmentCalendarVisualizer) appointmentCalendarVisualizer);
 		} else {
-			appointmentCalendarVisualizer = new WeeklyAppointmentCalendarVisualizer(selectedDate, allBusinessHours, allCurrentUserAppointments, allAppointments); // this is lazy, client should not expect viz to filter events in the date range that makes sense
+			appointmentCalendarVisualizer = new WeeklyAppointmentCalendarVisualizer(selectedDate, allBusinessHours, revealedAppointments, allAppointments); // this is lazy, client should not expect viz to filter events in the date range that makes sense
 			appointmentCalendarVisualizerWrapper = new AppointmentCalendarVisualizerWrapper((WeeklyAppointmentCalendarVisualizer) appointmentCalendarVisualizer);
 		}
 		

@@ -215,6 +215,43 @@ public class FlexiBookController {
 	}
 	
 	/**
+	 * @author louca, julie
+	 * 
+	 * Register a no-show for an appointment for the given customer and bookable service at the given start date and time
+	 * 
+	 * @param customerUsername of the customer for whom to register a no show
+	 * @param bookableServiceName of the bookable service of the appointment for which to register the no-show
+	 * @param startDate of the appointment for which to register the no-show
+	 * @param startTime of the appointment for which to register the no-show
+	 * 
+	 * @throws InvalidInputException if a customer tries to register a no-show, or the appointment is already in progress
+	 */
+	public static void registerNoShow(String customerUsername, String bookableServiceName, Date startDate, Time startTime) throws InvalidInputException {
+		if (!FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
+			throw new InvalidInputException("A customer cannot register a no-show");
+		}
+		
+		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDate, startTime);
+		
+		try {
+			if (!appointment.noShow(SystemTime.getDate(), SystemTime.getTime())) {
+				throw new InvalidInputException("Cannot register a no-show before the appointment date and time");
+			}
+		} catch (RuntimeException e) {
+			if (e.getMessage().equals("Cannot register a no-show for an appointment while it is in progress")) {
+				throw new InvalidInputException(e.getMessage());
+			}
+			throw e;
+		}
+		
+		try {
+			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());
+		} catch(RuntimeException e) {
+			throw new InvalidInputException(e.getMessage());
+		}
+	}
+	
+	/**
 	 * Attempts to define a service combo with the provided data.
 	 * 
 	 * @author theodore
@@ -821,6 +858,47 @@ public class FlexiBookController {
 	}
 
 	/**
+	 * @author louca, sarah
+	 * 
+	 * Start an appointment for the given user and service at the given start date and time  
+	 * 
+	 * @param customerUsername of the customer whose appointment to start
+	 * @param bookableServiceName of the bookable service of the appointment to start
+	 * @param startDate of the appointment to start
+	 * @param startTime of the appointment to start
+	 * 
+	 * @throws InvalidInputException if a customer tries to start the appointment, or the appointment was already started
+	 */
+	public static void startAppointment(String customerUsername, String bookableServiceName, Date startDate, Time startTime) throws InvalidInputException {
+		if (!FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
+			throw new InvalidInputException("A customer cannot start an appointment");
+		}
+		
+		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDate, startTime);
+		
+		if (appointment == null) {
+			throw new InvalidInputException("Appointment not found");
+		}
+		
+		try {
+			if (!appointment.start(SystemTime.getDate(), SystemTime.getTime())) {
+				throw new InvalidInputException("Cannot start the appointment before the appointment date and time");
+			}
+		} catch (RuntimeException e) {
+			if (e.getMessage().equals("Cannot start an appointment after it was already started")) {
+				throw new InvalidInputException(e.getMessage());
+			}
+			throw e;
+		}
+		
+		try {
+			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());
+		} catch(RuntimeException e) {
+			throw new InvalidInputException(e.getMessage());
+		}
+	}
+	
+	/**
 	 * @author heqianw
 	 * @category Feature set 6
 	 * 
@@ -885,6 +963,46 @@ public class FlexiBookController {
 		}
 		
 		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDateString, startTimeString);
+		
+		if (appointment == null) {
+			throw new InvalidInputException("Appointment not found");
+		}
+		
+		try {
+			appointment.end();
+		} catch (RuntimeException e) {
+			if (e.getMessage().equals("Cannot end an appointment before it is started")) {
+				throw new InvalidInputException(e.getMessage());
+			}
+			throw e;
+		}
+		
+		try {
+			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());
+		} catch(RuntimeException e) {
+			throw new InvalidInputException(e.getMessage());
+		}
+		
+	}
+	
+	/**
+	 * @author louca, sarah
+	 * 
+	 * End an appointment for the given user and bookable service at the given start date and time
+	 * 
+	 * @param customerUsername of the customer whose appointment to end
+	 * @param bookableServiceName of the bookable service of the appointment to end
+	 * @param startDate of the appointment to end
+	 * @param startTime of the service of the appointment to end
+	 * 
+	 * @throws InvalidInputException if a customer tries to end the appointment, or the appointment has not yet started
+	 */
+	public static void endAppointment(String customerUsername, String bookableServiceName, Date startDate, Time startTime) throws InvalidInputException {
+		if (!FlexiBookApplication.getCurrentUser().getUsername().equals("owner")) {
+			throw new InvalidInputException("A customer cannot end an appointment");
+		}
+		
+		Appointment appointment = getAppointment(customerUsername, bookableServiceName, startDate, startTime);
 		
 		if (appointment == null) {
 			throw new InvalidInputException("Appointment not found");
@@ -1025,6 +1143,21 @@ public class FlexiBookController {
 			e.printStackTrace();
 		}
 		
+		for (Appointment a : customer.getAppointments()) {
+			if (a.getBookableService().getName().equals(bookableServiceName) 
+					&& a.getTimeSlot().getStartDate().equals(startDate)
+					&& a.getTimeSlot().getStartTime().equals(startTime)) {
+				return a;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * @author theodore
+	 */
+	private static Appointment getAppointment(String customerUsername, String bookableServiceName, Date startDate, Time startTime) {
+		Customer customer = getCustomerByUsername(customerUsername);
 		for (Appointment a : customer.getAppointments()) {
 			if (a.getBookableService().getName().equals(bookableServiceName) 
 					&& a.getTimeSlot().getStartDate().equals(startDate)
@@ -2168,7 +2301,79 @@ public class FlexiBookController {
 		        } else if (a1.getStartDate().before(a2.getStartDate())) {
 		        	return -1;
 		        } else {
-		        	return 0;
+		        	return 1;
+		        }
+			}
+		});
+		return appointments;
+	}
+	/**
+	 * @author theodore
+	 * 
+	 * @return list of appointments not in progress but that could have started
+	 */
+	public static List<TOAppointment> getAppointmentsStarting() {
+		List<TOAppointment> appointments = new ArrayList<TOAppointment>();
+		
+		for (Appointment a : FlexiBookApplication.getFlexiBook().getAppointments()) {
+			if (a.getAppointmentStatus() == Appointment.AppointmentStatus.Booked) {
+				TimeSlot t = a.getTimeSlot();
+				if (!t.getStartTime().after(SystemTime.getTime()) && !t.getEndTime().before(SystemTime.getTime()) && t.getStartDate().equals(SystemTime.getDate())) {
+					appointments.add(new TOAppointment(t.getStartDate(), t.getStartTime(), t.getEndDate(), t.getEndTime(), a.getCustomer().getUsername(), a.getBookableService().getName()));
+				}
+			}
+		}
+		
+		Collections.sort(appointments, new Comparator<TOAppointment>() {
+			@Override
+			public int compare(TOAppointment a1, TOAppointment a2) {
+				if (a1.getStartDate().equals(a2.getStartDate())) {
+		        	if (a1.getStartTime().equals(a2.getStartTime())) {
+		        		return 0; // a1 == a2
+		        	} else if (a1.getStartTime().before(a2.getStartTime())) {
+		        		return -1; // a1 <= a2 
+		        	} else {
+		        		return 1; // a1 >= a2
+		        	}
+		        } else if (a1.getStartDate().before(a2.getStartDate())) {
+		        	return -1;
+		        } else {
+		        	return 1;
+		        }
+			}
+		});
+		return appointments;
+	}
+	/**
+	 * @author theodore
+	 * 
+	 * @return list of appointments currently in progress
+	 */
+	public static List<TOAppointment> getAppointmentsInProgress() {
+		List<TOAppointment> appointments = new ArrayList<TOAppointment>();
+		
+		for (Appointment a : FlexiBookApplication.getFlexiBook().getAppointments()) {
+			if (a.getAppointmentStatus() == Appointment.AppointmentStatus.InProgress) {
+				TimeSlot t = a.getTimeSlot();
+				appointments.add(new TOAppointment(t.getStartDate(), t.getStartTime(), t.getEndDate(), t.getEndTime(), a.getCustomer().getUsername(), a.getBookableService().getName()));
+			}
+		}
+		
+		Collections.sort(appointments, new Comparator<TOAppointment>() {
+			@Override
+			public int compare(TOAppointment a1, TOAppointment a2) {
+				if (a1.getStartDate().equals(a2.getStartDate())) {
+		        	if (a1.getStartTime().equals(a2.getStartTime())) {
+		        		return 0; // a1 == a2
+		        	} else if (a1.getStartTime().before(a2.getStartTime())) {
+		        		return -1; // a1 <= a2 
+		        	} else {
+		        		return 1; // a1 >= a2
+		        	}
+		        } else if (a1.getStartDate().before(a2.getStartDate())) {
+		        	return -1;
+		        } else {
+		        	return 1;
 		        }
 			}
 		});

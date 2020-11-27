@@ -121,7 +121,6 @@ public class BusinessInfoPage extends JFrame {
     editContactInfoButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
         	if (editContactInfoButton.getText().equals("Save")) {
-        		System.out.println("save contact");
         		saveContactInfoActionPerformed(evt);
         	} else {
                 editContactInfoActionPerformed(evt);
@@ -434,11 +433,9 @@ public class BusinessInfoPage extends JFrame {
 		  }
 	  }
 	  if (errorMessage == null) {
-		  System.out.println("null");
 		  refreshData();
 		  pack();
 	  } else {
-		  System.out.println(errorMessage);
 		  errorMessageLabel.setText(errorMessage);
 	  }
   }

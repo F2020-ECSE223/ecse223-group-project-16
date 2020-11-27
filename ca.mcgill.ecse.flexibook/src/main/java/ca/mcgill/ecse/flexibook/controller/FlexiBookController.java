@@ -479,7 +479,8 @@ public class FlexiBookController {
 		Service service = (Service) optionalService.get();
 		
 
-		if(startDate.before(SystemTime.getDate()) || (startDate.equals(SystemTime.getDate()) && startTime.before(SystemTime.getTime()))) {
+    if(startDate.before(SystemTime.getDate()) || (startDate.equals(SystemTime.getDate()) && 
+      (startTime.getTime() + startDate.getTime()) < (SystemTime.getTime().getTime()))) {
 			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", serviceName, dateString, startTimeString));
 		}
 		
@@ -2358,6 +2359,38 @@ public class FlexiBookController {
 			}
 		});
 		return appointments;
+  }
+  
+  public static List<TOAppointment> getAppointmentsBooked() {
+		List<TOAppointment> appointments = new ArrayList<TOAppointment>();
+
+		
+		for (Appointment a : FlexiBookApplication.getFlexiBook().getAppointments()) {
+      TimeSlot t = a.getTimeSlot();
+      if(a.getAppointmentStatus() == Appointment.AppointmentStatus.Booked){
+        appointments.add(new TOAppointment(t.getStartDate(), t.getStartTime(), t.getEndDate(), t.getEndTime(), a.getCustomer().getUsername(), a.getBookableService().getName()));
+      }
+		}
+		
+		Collections.sort(appointments, new Comparator<TOAppointment>() {
+			@Override
+			public int compare(TOAppointment a1, TOAppointment a2) {
+				if (a1.getStartDate().equals(a2.getStartDate())) {
+		        	if (a1.getStartTime().equals(a2.getStartTime())) {
+		        		return 0; // a1 == a2
+		        	} else if (a1.getStartTime().before(a2.getStartTime())) {
+		        		return -1; // a1 <= a2 
+		        	} else {
+		        		return 1; // a1 >= a2
+		        	}
+		        } else if (a1.getStartDate().before(a2.getStartDate())) {
+		        	return -1;
+		        } else {
+		        	return 0;
+		        }
+			}
+    });
+    return appointments;
 	}
 	/**
 	 * @author theodore

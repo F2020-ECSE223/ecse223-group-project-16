@@ -60,6 +60,8 @@ public class BusinessInfoPage extends JFrame {
   	// Error message
   private JLabel errorMessageLabel;
   private String errorMessage;
+  private boolean flagC;
+  private boolean flagBH;
   
   
   public BusinessInfoPage() {
@@ -74,7 +76,6 @@ public class BusinessInfoPage extends JFrame {
 	errorMessageLabel.setForeground(Color.RED);
     // Titles
     businessNameTextField = new JTextField("CLICK HERE TO SET BUSINESS NAME");
-    businessNameTextField.setHorizontalAlignment(JTextField.CENTER);
     addressLabel = new JLabel("Address");
     phoneNumberLabel = new JLabel("Phone Number");
     emailLabel = new JLabel("Email");
@@ -95,6 +96,7 @@ public class BusinessInfoPage extends JFrame {
     for (int i=0; i<7; i++) {
 	    String day  = DateFormatSymbols.getInstance().getWeekdays()[i + 1]; 
 	    dayTextFields.add(new JTextField());
+	    dayTextFields.get(i).setEditable(false);
 	}
     // Setting to non-editable textfields
     addressTextField.setEditable(false);
@@ -103,6 +105,7 @@ public class BusinessInfoPage extends JFrame {
     for (JTextField tf : dayTextFields) {
     	tf.setEditable(false);
     }
+    // Window settings
     setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     setTitle("Business Info Tab");
 	setMinimumSize(new Dimension(600, 500));
@@ -277,15 +280,12 @@ public class BusinessInfoPage extends JFrame {
   }
 
   private void refreshData() {
-	  // Setting to non-editable textfields
-      addressTextField.setEditable(false);
-      phoneNumberTextField.setEditable(false);
-      emailTextField.setEditable(false);
+      addressTextField.setEditable(flagC);
+      phoneNumberTextField.setEditable(flagC);
+      emailTextField.setEditable(flagC);
       for (JTextField tf : dayTextFields) {
-    	  tf.setEditable(false);
+    	  tf.setEditable(flagBH);
       }
-	  editBusinessHoursButton.setText("Edit");
-	  editContactInfoButton.setText("Edit");
 	  errorMessageLabel.setText(errorMessage);
 	  if (FlexiBookController.viewBusinessInfo() != null) {
 		  errorMessageLabel.setText(errorMessage);
@@ -297,7 +297,9 @@ public class BusinessInfoPage extends JFrame {
 	    	  String pattern = "HH:mm";
 	            if (bh.getDayOfWeek().toString().equals("Sunday")) {
 	            	dayTextFields.get(0).setText(Utils.formatTime(bh.getStartTime(), pattern) + '-' + Utils.formatTime(bh.getEndTime(), pattern));
-	                if (dayTextFields.get(0) == null) {
+                	System.out.println("test added");
+	                if (dayTextFields.get(0).getText() == null) {
+	                	System.out.println("sunday null");
 	                	dayTextFields.get(0).setText("ADD HOURS");
 	                }
 	            }
@@ -352,18 +354,24 @@ public class BusinessInfoPage extends JFrame {
   }
   String[] prevHours = new String[7];
   private void editBusinessHoursActionPerformed(java.awt.event.ActionEvent evt) {
-	  if (FlexiBookController.viewBusinessInfo() == null) {
-		  errorMessage = "Please assign your business a name, address, phone number, and email";
-		  errorMessageLabel.setText(errorMessage);
+	  if (!FlexiBookController.isCurrentUserOwner()) {
+		  errorMessage = "No permission to change business information";
+		  flagBH = false;
 	  } else {
-		  for (int i=0; i<7; i++) {
-			  prevHours[i] = dayTextFields.get(i).getText();
+		  if (FlexiBookController.viewBusinessInfo() == null) {
+			  errorMessage = "Please assign your business a name, address, phone number, and email";
+			  errorMessageLabel.setText(errorMessage);
+			  flagBH = true;
+		  } else {
+			  for (int i=0; i<7; i++) {
+				  prevHours[i] = dayTextFields.get(i).getText();
+			  }
+		      editBusinessHoursButton.setText("Save");
+	          flagBH = true;
 		  }
-	    for (JTextField tf : dayTextFields) {
-	    	tf.setEditable(true);
-	    }
-	  editBusinessHoursButton.setText("Save");
 	  }
+	  refreshData();
+	  pack();
   }
   String[] currentHours= new String[7];
   private void saveBusinessHoursActionPerformed(java.awt.event.ActionEvent evt) {
@@ -375,6 +383,7 @@ public class BusinessInfoPage extends JFrame {
 		  if (!prevHours[i].equals(currentHours[i])) {
 			  if (notValidBusinessHour(currentHours[i])) {
 				  errorMessage = "Business hours must be in 24 hour time. (i.e., 07:00-18:30)";
+				  flagBH = true;
 			  }
 			  else if (prevHours[i] == "ADD HOURS") {
 				  try {
@@ -382,8 +391,11 @@ public class BusinessInfoPage extends JFrame {
 					  String startTime = currentHours[i].substring(0,5);
 					  String endTime = currentHours[i].substring(6);
 					  FlexiBookController.addNewBusinessHour(day, startTime, endTime);
+					  editBusinessHoursButton.setText("Edit");
+					  flagBH = false;
 				  } catch (InvalidInputException e) {
 					  errorMessage = e.getMessage();
+					  flagBH = true;
 				  }
 			  } else {
 				  try {
@@ -393,25 +405,29 @@ public class BusinessInfoPage extends JFrame {
 					  String newStartTime = currentHours[i].substring(0,5);
 					  String newEndTime = currentHours[i].substring(6);
 					  FlexiBookController.updateBusinessHour(prevDay, prevStartTime, newDay, newStartTime, newEndTime);
+					  editBusinessHoursButton.setText("Edit");
+					  flagBH = false;
 				  } catch (InvalidInputException e) {
 					  errorMessage = e.getMessage();
+					  flagBH = true;
 				  }
 			  } 
 		  }
 	  }
-	  if (errorMessage == null) {
-		  refreshData();
-		  pack();
-	  } else {
-		  errorMessageLabel.setText(errorMessage);
-	  }
+	  refreshData();
+	  pack();
   }
   private void editContactInfoActionPerformed(java.awt.event.ActionEvent evt) {
-	  errorMessage = null;
-	  editContactInfoButton.setText("Save");
-	  addressTextField.setEditable(true);
-	  phoneNumberTextField.setEditable(true);
-	  emailTextField.setEditable(true);
+	  if (!FlexiBookController.isCurrentUserOwner()) {
+		  errorMessage = "No permission to change business information";
+		  flagC = false;
+	  } else {
+		  errorMessage = null;
+		  editContactInfoButton.setText("Save");
+		  flagC = true;
+	  }
+	  refreshData();
+	  pack();
   }
   private void saveContactInfoActionPerformed(java.awt.event.ActionEvent evt) {
 	  errorMessage = null;
@@ -422,22 +438,24 @@ public class BusinessInfoPage extends JFrame {
 	  if (FlexiBookController.viewBusinessInfo() == null) {
 		  try {
 			  FlexiBookController.setUpBusinessInfo(name, address, phoneNumber, email);
+			  editContactInfoButton.setText("Edit");
+			  flagC = false;
 		  } catch (InvalidInputException e) {
 			  errorMessage = e.getMessage();
+			  flagC = true;
 		  }
 	  } else {
 		  try {
 			  FlexiBookController.updateBusinessInfo(name, address, phoneNumber, email);
+			  editContactInfoButton.setText("Edit");
+			  flagC = false;
 		  } catch (InvalidInputException e) {
 			  errorMessage = e.getMessage();
+			  flagC = true;
 		  }
 	  }
-	  if (errorMessage == null) {
-		  refreshData();
-		  pack();
-	  } else {
-		  errorMessageLabel.setText(errorMessage);
-	  }
+	  refreshData();
+	  pack();
   }
 	/**
 	 * @author Julie

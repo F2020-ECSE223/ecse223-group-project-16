@@ -1,11 +1,16 @@
 package ca.mcgill.ecse.flexibook.view;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.LinkedHashMap;
@@ -22,7 +27,7 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 	private static final long serialVersionUID = -8772497283688477006L;
 	
 	// constants
-	private static int REFRESH_DELAY = 15 * 1000; // ms
+	private static int REFRESH_DELAY = 5 * 1000; // ms
 	
 	// UI elements
 	private Map<Rectangle2D, TOAppointment> appointmentsByRectangle = new LinkedHashMap<Rectangle2D, TOAppointment>();
@@ -31,11 +36,17 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 	private static final int MINIMUM_ROW_HEIGHT = 40;
 	private static final int PREFERRED_COLUMN_WIDTH = 100;
 	private static final int PREFERRED_ROW_HEIGHT = 50;
-	private static final int LABEL_HEIGHT = 16;
+	private static final int LABEL_HEIGHT = 14;
 	private static final int APPOINTMENT_INFO_LABEL_PADDING = 5;
-	private static final int APPOINTMENT_ROUNDING_ARC_RADIUS = 10;
+	private static final int APPOINTMENT_ROUNDING_ARC_RADIUS = 7;
 	private static final int APPOINTMENT_MARGIN_BOTTOM = 1;
-	private static final Color APPOINTMENT_COLOR = new Color(3, 155, 229);
+	private static final int APPOINTMENT_MARGIN_LEFT = 1;
+	private static final int APPOINTMENT_BORDER_STROKE = 3;
+	private static final Color BUSINESS_HOUR_COLOR  = Color.WHITE;
+	private static final Color REVEALED_APPOINTMENT_FILL_COLOR = new Color(3, 155, 229);
+	private static final Color REVEALED_APPOINTMENT_BORDER_COLOR = REVEALED_APPOINTMENT_FILL_COLOR;
+	private static final Color CONCEALED_APPOINTMENT_FILL_COLOR = Color.WHITE;
+	private static final Color CONCEALED_APPOINTMENT_BORDER_COLOR = REVEALED_APPOINTMENT_FILL_COLOR;
 	
 	public DailyAppointmentCalendarVisualizer(Date date, List<TOBusinessHour> businessHours, List<TOAppointment> revealedAppointments, List<TOAppointment> concealedAppointments) {
 		super(date, businessHours, revealedAppointments, concealedAppointments);
@@ -75,6 +86,9 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 		
 		// listeners
 		addMouseListener(new MouseAdapter() {
+			/**
+			 * @see https://www.baeldung.com/java-observer-pattern
+			 */
 			@Override
 			public void mousePressed(java.awt.event.MouseEvent e) {
 				int x = e.getX();
@@ -83,21 +97,25 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 				for (Map.Entry<Rectangle2D, TOAppointment> entry : appointmentsByRectangle.entrySet()) {
 					if (entry.getKey().contains(x, y)) {
 						selectedRectangle = entry.getKey();
-						// event consumer is responsible for determining whether user should have read access on this resource
-						support.firePropertyChange("selectedAppointment", selectedAppointment, entry.getValue()); // observe as seen here: https://www.baeldung.com/java-observer-pattern
+						// fire new appointment selected event
+						support.firePropertyChange("selectedAppointment", selectedAppointment, entry.getValue());
 						selectedAppointment = entry.getValue();
 						repaint();
 						return;
 					}
 				}
-				support.firePropertyChange("selectedAppointment", selectedAppointment, null); // observe as seen here: https://www.baeldung.com/java-observer-pattern
+				
+				// fire appointment unselected event
+				support.firePropertyChange("selectedAppointment", selectedAppointment, null);
+				
+				// fire no event
 				selectedRectangle = null;
 				selectedAppointment = null;
 				repaint();
 			}
 		});
 		
-		// redraw at regular intervals
+		// repaint at regular intervals to account for moving "now" line, and for business hour / time slot changes made in another open window of the application
 		Timer timer = new Timer(REFRESH_DELAY, new java.awt.event.ActionListener() {
 	        @Override
 	        public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -124,13 +142,15 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 	 * 7. Current time pass – draw a horizonal line marking the current time if the current date is this date
 	 */
 	private void doDrawing(Graphics g) {
+		Graphics2D g2d = (Graphics2D) g.create();
+
 		// First pass
-		g.setColor(Color.LIGHT_GRAY); 
+		g2d.setColor(Color.LIGHT_GRAY); 
 		
-		g.fillRect(0,  0, getWidth(), getHeight());
+		g2d.fillRect(0,  0, getWidth(), getHeight());
 		
 		// Second pass
-		g.setColor(Color.WHITE);
+		g2d.setColor(BUSINESS_HOUR_COLOR);
 		
 		for (TOBusinessHour bH : businessHours) {
 			Time startTime = bH.getStartTime();
@@ -138,27 +158,26 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 			int y = scaleTime(startTime);
 			int height = scaleTime(endTime) - y;
 			
-			g.fillRect(0, y, getColumnWidth() - 1, height);
+			g2d.fillRect(0, y, getColumnWidth() - 1, height);
 		}
 		
 		// Third pass
-		g.setColor(Color.GRAY); 
+		g2d.setColor(Color.GRAY); 
 
 		for (int i=0; i<24; i++) {
 			int height = i * getRowHeight();
-			g.drawLine(0, height, getColumnWidth(), height); // horizontal line accross the bounds at height i * ROW_HEIGHT
+			g2d.drawLine(0, height, getColumnWidth(), height); // horizontal line accross the bounds at height i * ROW_HEIGHT
 		}
 		
 		// Fourth pass
-		g.drawLine(getColumnWidth() - 1, 0, getColumnWidth() - 1, getRowHeight() * 24);
+		g2d.drawLine(getColumnWidth() - 1, 0, getColumnWidth() - 1, getRowHeight() * 24);
 		
 		// Fifth pass
-		g.setColor(APPOINTMENT_COLOR); // accent
-		
 		selectedRectangle = null;
 		appointmentsByRectangle.clear();
+		
 		for (TOAppointment a : revealedAppointments) {
-			Rectangle2D rectangle = drawAppointment(g, a, false);
+			Rectangle2D rectangle = drawAppointment(g2d, a, false);
 			appointmentsByRectangle.put(rectangle, a);
 			if (a == selectedAppointment) {
 				selectedRectangle = rectangle;
@@ -166,7 +185,7 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 		}
 		
 		for (TOAppointment a : concealedAppointments) {
-			Rectangle2D rectangle = drawAppointment(g, a, true);
+			Rectangle2D rectangle = drawAppointment(g2d, a, true);
 			appointmentsByRectangle.put(rectangle, a);
 			if (a == selectedAppointment) {
 				selectedRectangle = rectangle;
@@ -174,25 +193,32 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 		}
 		
 		// Sixth pass
-		g.setColor(Color.BLUE);
-		
+		g2d.setColor(Color.BLUE);
+		Stroke oldStroke = g2d.getStroke();
+		g2d.setStroke(new BasicStroke(APPOINTMENT_BORDER_STROKE));
 		if (selectedRectangle != null) {
-			g.drawRoundRect((int) selectedRectangle.getX(), (int) selectedRectangle.getY(), (int) selectedRectangle.getWidth(), (int) selectedRectangle.getHeight(), APPOINTMENT_ROUNDING_ARC_RADIUS, APPOINTMENT_ROUNDING_ARC_RADIUS);
+			g2d.drawRoundRect((int) selectedRectangle.getX(), (int) selectedRectangle.getY(), (int) selectedRectangle.getWidth(), (int) selectedRectangle.getHeight(), APPOINTMENT_ROUNDING_ARC_RADIUS, APPOINTMENT_ROUNDING_ARC_RADIUS);
 		}
+		g2d.setStroke(oldStroke);
 		
 		// Seventh pass
-		g.setColor(Color.RED);
+		g2d.setColor(Color.RED);
 		
 		if (SystemTime.getDate().equals(date)) {
 			int height = scaleTime(SystemTime.getTime());
-			g.drawLine(0, height, getColumnWidth(), height);
+			g2d.drawLine(0, height, getColumnWidth() - 1, height);
 		}
 	}
 	
 	// with the label
-	private Rectangle2D drawAppointment(Graphics g, TOAppointment appointment, boolean concealed) {
+	private Rectangle2D drawAppointment(Graphics2D g, TOAppointment appointment, boolean concealed) {
 		Time startTime = appointment.getStartTime();
 		Time endTime = appointment.getEndTime();
+		
+		Color oldColor = g.getColor();
+		Shape oldClip = g.getClip();
+		Stroke oldStroke = g.getStroke();
+
 		
 		int x = 0;
 		int y = scaleTime(startTime);
@@ -200,29 +226,48 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 		int height = scaleTime(endTime) - y - APPOINTMENT_MARGIN_BOTTOM; // visually divide consecutive appts
 		
 		int marginRight = (int) (getColumnWidth() * 0.07);
-		Rectangle2D rectangle = new Rectangle2D.Double(x, y, width - marginRight, height);
-		g.fillRoundRect(x, y, width - marginRight, height, APPOINTMENT_ROUNDING_ARC_RADIUS, APPOINTMENT_ROUNDING_ARC_RADIUS);
+		Rectangle2D rectangle = new Rectangle2D.Double(x + APPOINTMENT_MARGIN_LEFT, y, width - APPOINTMENT_MARGIN_LEFT - marginRight, height);
 		
-		Color oldColor = g.getColor();
+		// pick color of appointment rectangle based on whether it is concealed or revealed
+		Color fillColor = REVEALED_APPOINTMENT_FILL_COLOR;
+		Color borderColor = REVEALED_APPOINTMENT_BORDER_COLOR;
+		if (concealed) {
+			fillColor = CONCEALED_APPOINTMENT_FILL_COLOR;
+			borderColor = CONCEALED_APPOINTMENT_BORDER_COLOR;
+		}
+		g.setColor(borderColor);
+		g.setStroke(new BasicStroke(APPOINTMENT_BORDER_STROKE));
+		g.drawRoundRect(x + APPOINTMENT_MARGIN_LEFT, y, width - APPOINTMENT_MARGIN_LEFT - marginRight, height, APPOINTMENT_ROUNDING_ARC_RADIUS, APPOINTMENT_ROUNDING_ARC_RADIUS);
+		g.setStroke(oldStroke);
+		g.setColor(fillColor);
+		g.fillRoundRect(x + APPOINTMENT_MARGIN_LEFT, y, width - APPOINTMENT_MARGIN_LEFT - marginRight, height, APPOINTMENT_ROUNDING_ARC_RADIUS, APPOINTMENT_ROUNDING_ARC_RADIUS);
+		
 		g.setColor(Color.BLACK);
-		Shape oldClip = g.getClip();
-		g.setClip(new Rectangle2D.Double(x + APPOINTMENT_INFO_LABEL_PADDING, y + APPOINTMENT_INFO_LABEL_PADDING, getColumnWidth() - APPOINTMENT_INFO_LABEL_PADDING * 2 - marginRight, height - APPOINTMENT_INFO_LABEL_PADDING * 2));
-		if (height >= LABEL_HEIGHT) {
+		if (height >= LABEL_HEIGHT + APPOINTMENT_INFO_LABEL_PADDING * 2) { // enough height for the label with top and bottom padding
+			g.setClip(new Rectangle2D.Double(x + APPOINTMENT_INFO_LABEL_PADDING, y + APPOINTMENT_INFO_LABEL_PADDING, getColumnWidth() - APPOINTMENT_INFO_LABEL_PADDING * 2 - marginRight, height - APPOINTMENT_INFO_LABEL_PADDING * 2));
 			if (concealed) {
 				g.drawString("Appointment", APPOINTMENT_INFO_LABEL_PADDING, y + LABEL_HEIGHT);
 			} else {
-				if (height >= LABEL_HEIGHT * 2 + APPOINTMENT_INFO_LABEL_PADDING) {
+				if (height >= LABEL_HEIGHT * 2 + APPOINTMENT_INFO_LABEL_PADDING * 2) { // enough height to stack the text
 					g.drawString(appointment.getCustomerUsername(), APPOINTMENT_INFO_LABEL_PADDING, y + LABEL_HEIGHT);
 					g.drawString(appointment.getBookableServiceName(), APPOINTMENT_INFO_LABEL_PADDING, y + LABEL_HEIGHT * 2);
-				} else {
+				} else { // only enough room to format the text on a single line
 					g.drawString(appointment.getCustomerUsername() + " - " + appointment.getBookableServiceName(), APPOINTMENT_INFO_LABEL_PADDING, y + LABEL_HEIGHT);
 				}
+			}
+		} else { // possibly enough height for the label formatted as a single line without any verical padding, possibly not even enough height for that
+			g.setClip(new Rectangle2D.Double(x + APPOINTMENT_INFO_LABEL_PADDING, y, getColumnWidth() - APPOINTMENT_INFO_LABEL_PADDING * 2 - marginRight, height)); // draw as much as possible vertically and clip what exceeds the appointment rectangle
+			if (concealed) {
+				g.drawString("Appointment", APPOINTMENT_INFO_LABEL_PADDING, y + LABEL_HEIGHT);
+			} else {
+				g.drawString(appointment.getCustomerUsername() + " - " + appointment.getBookableServiceName(), APPOINTMENT_INFO_LABEL_PADDING, y + LABEL_HEIGHT);
 			}
 		}
 		
 		// clean up
 		g.setClip(oldClip);
 		g.setColor(oldColor);
+		g.setStroke(oldStroke);
 		return rectangle;
 	}
 	

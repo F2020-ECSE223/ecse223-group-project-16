@@ -121,7 +121,7 @@ public class AppointmentManagementPage extends JFrame {
 		noneInProgressLabel = new JLabel("There are no appointments in progress.");
 		
 		// global settings
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Appointment Management");
 
 		// @formatter:off
@@ -172,7 +172,7 @@ public class AppointmentManagementPage extends JFrame {
 				);
 
 		// @formatter:on
-		setJMenuBar(new FlexiBookMenuBar(this, "Manage Appointments"));
+		setJMenuBar(new FlexiBookMenuBar(this, "Appointment Management"));
 		pack();
 		setVisible(true);
 	}

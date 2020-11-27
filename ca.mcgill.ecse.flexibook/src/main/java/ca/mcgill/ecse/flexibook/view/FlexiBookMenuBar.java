@@ -45,7 +45,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 	private final boolean isNavigable;
 	private final boolean currentUserIsOwner;
 	// constants
-	private static final String[] pageNames = {"Menu", "Business Info", "View Calendar", "Appointments", "Services"};
+	private static final String[] pageNames = {"Menu", "Business Info", "View Calendar", "Appointments", "Appointment Management", "Services"};
 	
 	public FlexiBookMenuBar(JFrame parentFrame, String currentPageName) {
 		this(parentFrame, currentPageName, true);

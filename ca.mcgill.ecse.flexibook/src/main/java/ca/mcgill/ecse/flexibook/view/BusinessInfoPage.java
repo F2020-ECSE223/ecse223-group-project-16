@@ -105,7 +105,7 @@ public class BusinessInfoPage extends JFrame {
         tf.setEditable(false);
     }
     // Window settings
-    setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+    setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     setTitle("Business Info");
 	setMinimumSize(new Dimension(600, 500));
     

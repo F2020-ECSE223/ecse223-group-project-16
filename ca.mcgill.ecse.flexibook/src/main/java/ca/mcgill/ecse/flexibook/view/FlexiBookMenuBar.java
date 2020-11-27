@@ -133,6 +133,12 @@ public class FlexiBookMenuBar extends JMenuBar {
 				parentFrame.dispose();
 			}
 		});
+
+		goToAppointmentManagementMenuItem.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				Utils.switchToFrame(parentFrame, new AppointmentManagementPage());
+			}
+		});
 		// account menu
 		// account menu items
 		logoutMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -145,12 +151,6 @@ public class FlexiBookMenuBar extends JMenuBar {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				parentFrame.setEnabled(false);
 				Utils.goToFrame(parentFrame, new AccountSettingsPage(), true);
-			}
-		});
-		goToAppointmentManagementMenuItem.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				parentFrame.setEnabled(false);
-				Utils.goToFrame(parentFrame, new AppointmentManagementPage(), true);
 			}
 		});
 		add(navigationMenu);

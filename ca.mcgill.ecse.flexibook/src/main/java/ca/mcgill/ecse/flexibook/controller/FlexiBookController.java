@@ -1876,15 +1876,12 @@ public class FlexiBookController {
 			throw new InvalidInputException("No permission to update business information");
 		}
 		validateBusinessInfo(name, address, phoneNumber, email);
-<<<<<<< HEAD
 		FlexiBookApplication.getFlexiBook().getBusiness().setName(name);
 		FlexiBookApplication.getFlexiBook().getBusiness().setAddress(address);
 		FlexiBookApplication.getFlexiBook().getBusiness().setPhoneNumber(phoneNumber);
-=======
 		FlexiBookApplication.getFlexiBook().getBusiness().setName(name);	
 		FlexiBookApplication.getFlexiBook().getBusiness().setAddress(address);	
 		FlexiBookApplication.getFlexiBook().getBusiness().setPhoneNumber(phoneNumber);	
->>>>>>> master
 		FlexiBookApplication.getFlexiBook().getBusiness().setEmail(email);
 		try{
 			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());

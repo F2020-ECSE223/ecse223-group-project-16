@@ -108,6 +108,9 @@ public class BusinessInfoPage extends JFrame {
     setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     setTitle("Business Info Tab");
     setMinimumSize(new Dimension(600, 500));
+    setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    setTitle("Business Info");
+	setMinimumSize(new Dimension(600, 500));
     
     // LISTENERS
     editBusinessHoursButton.addActionListener(new java.awt.event.ActionListener() {

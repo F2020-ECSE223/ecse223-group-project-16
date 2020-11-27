@@ -479,7 +479,8 @@ public class FlexiBookController {
 		Service service = (Service) optionalService.get();
 		
 
-		if(startDate.before(SystemTime.getDate()) || (startDate.equals(SystemTime.getDate()) && startTime.before(SystemTime.getTime()))) {
+    if(startDate.before(SystemTime.getDate()) || (startDate.equals(SystemTime.getDate()) && 
+      (startTime.getTime() + startDate.getTime()) < (SystemTime.getTime().getTime()))) {
 			throw new InvalidInputException(String.format("There are no available slots for %s on %s at %s", serviceName, dateString, startTimeString));
 		}
 		

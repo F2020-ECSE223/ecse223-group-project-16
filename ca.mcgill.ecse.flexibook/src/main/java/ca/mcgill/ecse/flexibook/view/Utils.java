@@ -17,6 +17,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.text.DefaultCaret;
 
+import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.TOAppointment;
 import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;
 
@@ -33,9 +34,9 @@ public class Utils {
 		sourceFrame.dispose();
 	}
 
-	static void goToFrame(JFrame sourceFrame, JFrame targetFrame, boolean disableSource) {
+	static void goToFrame(JFrame sourceFrame, JFrame targetFrame) {
 		openFrame(sourceFrame, targetFrame);
-		sourceFrame.setEnabled(!disableSource);
+		FlexiBookApplication.addDetachedPage(targetFrame);
 	}
 
 	/**

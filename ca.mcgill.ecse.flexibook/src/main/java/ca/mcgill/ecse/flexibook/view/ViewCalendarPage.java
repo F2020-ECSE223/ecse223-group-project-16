@@ -23,6 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
+import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOAppointment;
@@ -114,9 +115,8 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 		currentPeriodical = Periodical.Daily;
 
 		// global settings
-		setMinimumSize(new Dimension(200, 300));
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		setTitle("View Appointment Calendar");
+		setTitle("View Calendar");
 		getRootPane().setDefaultButton(viewButton); // Wire enter key to view button
 
 		// listeners
@@ -216,10 +216,10 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 				.addComponent(scrollPane)
 				.addComponent(detailPanel)
 				);
-
-		setPreferredSize(new Dimension(getPreferredSize().width + 20, getPreferredSize().height));
 		// @formatter:on
-		
+		setPreferredSize(new Dimension(getPreferredSize().width + 20, getPreferredSize().height));
+		setMinimumSize(new Dimension(getPreferredSize().width, 300));
+		setJMenuBar(new FlexiBookMenuBar(this, "View Calendar", false));
 		pack();
 	}
 	

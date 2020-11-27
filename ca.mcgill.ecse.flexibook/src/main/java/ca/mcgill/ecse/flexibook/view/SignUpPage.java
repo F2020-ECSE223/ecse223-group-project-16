@@ -83,7 +83,7 @@ public class SignUpPage extends JFrame {
 
 		// global settings
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		setTitle("Create your FlexiBook Account");
+		setTitle("Sign Up");
 		getRootPane().setDefaultButton(signUpButton); // Wire enter key to sign up button
 		setResizable(false);
 

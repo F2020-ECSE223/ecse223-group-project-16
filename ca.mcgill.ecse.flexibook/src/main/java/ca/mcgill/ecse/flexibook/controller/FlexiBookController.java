@@ -1189,10 +1189,26 @@ public class FlexiBookController {
 		
 		if (username.equals("owner")) {
 			if (!flexiBook.hasOwner()) {
-				 new Owner("owner", "owner", flexiBook); 
+				if (password.equals("owner")) {
+					new Owner("owner", "owner", flexiBook);
+					
+					try{
+						FlexiBookPersistence.save(flexiBook);
+					}
+					catch(RuntimeException e){
+						throw new InvalidInputException(e.getMessage());
+					}
+					
+					FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
+					return FlexiBookApplication.getCurrentUser();
+				}
 			}
-			FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
-			return FlexiBookApplication.getCurrentUser();
+			else {
+				if (password.equals(flexiBook.getOwner().getPassword())) {
+					FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
+					return FlexiBookApplication.getCurrentUser();
+				}
+			}
 		}
 		else {
 			for (User user : flexiBook.getCustomers() ) {
@@ -1201,7 +1217,6 @@ public class FlexiBookController {
 					return FlexiBookApplication.getCurrentUser();
 				}
 			}
-			
 		}
 		
 		throw new InvalidInputException ("Username/password not found");
@@ -1861,9 +1876,9 @@ public class FlexiBookController {
 			throw new InvalidInputException("No permission to update business information");
 		}
 		validateBusinessInfo(name, address, phoneNumber, email);
-		FlexiBookApplication.getFlexiBook().getBusiness().setName(name);
-		FlexiBookApplication.getFlexiBook().getBusiness().setAddress(address);
-		FlexiBookApplication.getFlexiBook().getBusiness().setPhoneNumber(phoneNumber);
+		FlexiBookApplication.getFlexiBook().getBusiness().setName(name);	
+		FlexiBookApplication.getFlexiBook().getBusiness().setAddress(address);	
+		FlexiBookApplication.getFlexiBook().getBusiness().setPhoneNumber(phoneNumber);	
 		FlexiBookApplication.getFlexiBook().getBusiness().setEmail(email);
 		try{
 			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());

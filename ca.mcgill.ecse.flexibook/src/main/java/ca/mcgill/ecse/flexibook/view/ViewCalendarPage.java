@@ -109,8 +109,6 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 		endTimeLabel = new JLabel();
 	
 		detailPanel = new JPanel();
-		detailPanel.setLayout(new BoxLayout(detailPanel, BoxLayout.PAGE_AXIS));
-		detailPanel.setVisible(false);
 		
 		// data elements
 		currentPeriodical = Periodical.Daily;
@@ -158,6 +156,13 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 		periodicalPanel.setLayout(new BoxLayout(periodicalPanel, BoxLayout.Y_AXIS));
 		periodicalPanel.add(dayRadioButton);
 		periodicalPanel.add(weekRadioButton);
+		
+		detailPanel.setLayout(new BoxLayout(detailPanel, BoxLayout.Y_AXIS));
+		detailPanel.setVisible(false);
+		detailPanel.add(usernameLabel);
+		detailPanel.add(serviceLabel);
+		detailPanel.add(startTimeLabel);
+		detailPanel.add(endTimeLabel);
 
 		GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
@@ -384,34 +389,24 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		/* final String userConst = "Customer: ";
-		final String serviceConst = "Service: ";
-		final String startConst = "Customer: ";
-		final String userConst = "Customer: "; */
-		
 		TOAppointment appointment = (TOAppointment) evt.getNewValue();
 
 		String currentUser = FlexiBookController.getCurrentUser().getUsername();
 
-		// initialize JLabel strings
-		usernameLabel.setText("Customer: ");
-		serviceLabel.setText("Service: ");
-		startTimeLabel.setText("Start: ");
-		endTimeLabel.setText("End: ");
+		// initialize JLabel strings 
+		usernameLabel.setText("");
+		serviceLabel.setText("");
+		startTimeLabel.setText("");
+		endTimeLabel.setText(""); 
 
 		if (appointment != null) {
 			if (currentUser.equals(appointment.getCustomerUsername()) || currentUser.equals("owner")) {
-				detailPanel.add(usernameLabel);
-				detailPanel.add(serviceLabel);
-				
-				usernameLabel.setText(usernameLabel.getText() + appointment.getCustomerUsername());
-				serviceLabel.setText(serviceLabel.getText() + appointment.getBookableServiceName());
+				usernameLabel.setText("Customer: " + appointment.getCustomerUsername());
+				serviceLabel.setText("Service: " + appointment.getBookableServiceName());
 		    }
 			
-			detailPanel.add(startTimeLabel);
-			detailPanel.add(endTimeLabel);
-			startTimeLabel.setText(startTimeLabel.getText() + appointment.getStartTime().toString());
-			endTimeLabel.setText(endTimeLabel.getText() + appointment.getEndTime().toString());
+			startTimeLabel.setText("Start: " + appointment.getStartTime().toString());
+			endTimeLabel.setText("End: " + appointment.getEndTime().toString());
 			
 			detailPanel.setVisible(true);
 		}

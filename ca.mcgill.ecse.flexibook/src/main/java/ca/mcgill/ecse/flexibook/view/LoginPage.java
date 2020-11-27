@@ -143,7 +143,6 @@ public class LoginPage extends JFrame {
           )
        )
     );
-    
     pack();
   }
   
@@ -168,8 +167,13 @@ public class LoginPage extends JFrame {
 		
 		// call the controller
 		try {
-			FlexiBookController.login(username, password);
-			Utils.switchToFrame(this, new ViewCalendarPage());
+      FlexiBookController.login(username, password);
+      if(username.equals("owner")){
+        Utils.switchToFrame(this, new OwnerMenuPage());
+      } else {
+        Utils.switchToFrame(this, new CustomerMenuPage());
+      }
+			
 		} catch (InvalidInputException e) {
 			errorMessage = e.getMessage();
 		} finally {

@@ -24,7 +24,6 @@ public class LandingPage extends JFrame {
 	private static final boolean DEBUG_MODE = false;
 	private static final boolean DEBUG_USER_IS_OWNER = false;
 
-
 	// UI elements
 	private JLabel welcomeLabel;
 	private JButton goToSignUpButton;

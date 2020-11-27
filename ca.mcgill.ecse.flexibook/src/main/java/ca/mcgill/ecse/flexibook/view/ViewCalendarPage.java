@@ -61,6 +61,11 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 	private AppointmentCalendarVisualizer appointmentCalendarVisualizer;
 	private AppointmentCalendarVisualizerWrapper appointmentCalendarVisualizerWrapper;
 	private JScrollPane scrollPane;
+	private JPanel detailPanel;
+	private JLabel usernameLabel;
+	private JLabel serviceLabel;
+	private JLabel startTimeLabel;
+	private JLabel endTimeLabel;
 
 	// data elements
 	private String errorMessage;
@@ -97,6 +102,13 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 		viewButton = new JButton("Show");
 
 		scrollPane = new JScrollPane();
+		
+		usernameLabel = new JLabel();
+		serviceLabel = new JLabel();
+		startTimeLabel = new JLabel();
+		endTimeLabel = new JLabel();
+	
+		detailPanel = new JPanel();
 		
 		// data elements
 		currentPeriodical = Periodical.Daily;
@@ -144,6 +156,13 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 		periodicalPanel.setLayout(new BoxLayout(periodicalPanel, BoxLayout.Y_AXIS));
 		periodicalPanel.add(dayRadioButton);
 		periodicalPanel.add(weekRadioButton);
+		
+		detailPanel.setLayout(new BoxLayout(detailPanel, BoxLayout.Y_AXIS));
+		detailPanel.setVisible(false);
+		detailPanel.add(usernameLabel);
+		detailPanel.add(serviceLabel);
+		detailPanel.add(startTimeLabel);
+		detailPanel.add(endTimeLabel);
 
 		GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
@@ -170,6 +189,7 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 						)
 				.addComponent(errorMessageLabel)
 				.addComponent(scrollPane)
+				.addComponent(detailPanel)
 				);
 
 		layout.setVerticalGroup(
@@ -194,6 +214,7 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 						)
 				.addComponent(errorMessageLabel)
 				.addComponent(scrollPane)
+				.addComponent(detailPanel)
 				);
 
 		setPreferredSize(new Dimension(getPreferredSize().width + 20, getPreferredSize().height));
@@ -368,7 +389,30 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		// this will get called whenever the selection changes, either for a daily or weekly appt calendar
-		System.out.println("Selection changed");
+		TOAppointment appointment = (TOAppointment) evt.getNewValue();
+
+		String currentUser = FlexiBookController.getCurrentUser().getUsername();
+
+		// initialize JLabel strings 
+		usernameLabel.setText("");
+		serviceLabel.setText("");
+		startTimeLabel.setText("");
+		endTimeLabel.setText(""); 
+
+		if (appointment != null) {
+			if (currentUser.equals(appointment.getCustomerUsername()) || currentUser.equals("owner")) {
+				usernameLabel.setText("Customer: " + appointment.getCustomerUsername());
+				serviceLabel.setText("Service: " + appointment.getBookableServiceName());
+		    }
+			
+			startTimeLabel.setText("Start: " + appointment.getStartTime().toString());
+			endTimeLabel.setText("End: " + appointment.getEndTime().toString());
+			
+			detailPanel.setVisible(true);
+		}
+		else {
+			detailPanel.setVisible(false);
+		}
+		
 	}
 }

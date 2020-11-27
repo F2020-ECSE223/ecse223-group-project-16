@@ -3,6 +3,7 @@ package ca.mcgill.ecse.flexibook.view;
 import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,8 +16,13 @@ import ca.mcgill.ecse.flexibook.controller.TOAppointment;
 import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;
 
 public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisualizer implements PropertyChangeListener {
+	private static final long serialVersionUID = 8192496352932609798L;
+
 	// managed views
 	private List<DailyAppointmentCalendarVisualizer> dailyAppointmentCalendarVisualizers;
+	
+	// data elements
+	private TOAppointment selectedAppointment;
 
 	public WeeklyAppointmentCalendarVisualizer(Date startDate, List<TOBusinessHour> businessHours,
 			List<TOAppointment> revealedAppointments, List<TOAppointment> concealedAppointments) {
@@ -25,7 +31,7 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 		initComponents();
 	}
 	
-	private void initComponents() {
+	private void initComponents() {		
 		dailyAppointmentCalendarVisualizers = new ArrayList<DailyAppointmentCalendarVisualizer>();
 		LocalDate tomorrow = date.toLocalDate(); // i.e. start date
 		for (int i = 0; i < 7; i++) {
@@ -37,7 +43,7 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 			dailyAppointmentCalendarVisualizers.add(dailyAppointmentCalendarVisualizer);
 			
 			// listen
-			dailyAppointmentCalendarVisualizer.addPropertyChangeListener(this);
+			dailyAppointmentCalendarVisualizer.addSelectionChangeListener(this);
 			
 			tomorrow = tomorrow.plusDays(1);
 		}
@@ -53,12 +59,14 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 	public void propertyChange(PropertyChangeEvent evt) {
 		TOAppointment appointment = (TOAppointment) evt.getNewValue();
 		
+		// unselect previously selected appointment if there is any in a different daily appointment calendar visualizer
 		for (DailyAppointmentCalendarVisualizer v : dailyAppointmentCalendarVisualizers) {
 			if (appointment == null || !v.getDate().equals(appointment.getStartDate())) {
 				v.unsetSelectedAppointment();
 			}
 		}
 		
-		// TODO show detailed appointment info
+		support.firePropertyChange(evt.getPropertyName(), selectedAppointment, evt.getNewValue()); // added support.firePropertyChange
+		selectedAppointment = appointment;
 	}
 }

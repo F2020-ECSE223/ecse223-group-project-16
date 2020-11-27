@@ -23,8 +23,9 @@ public abstract class AppointmentCalendarVisualizer extends JPanel {
 	protected List<TOAppointment> concealedAppointments;
 	protected List<TOBusinessHour> businessHours;
 	
-	// observer support
+	// observers
 	protected PropertyChangeSupport support;
+		
 	
 	public AppointmentCalendarVisualizer(Date date, List<TOBusinessHour> businessHours, List<TOAppointment> revealedAppointments, List<TOAppointment> concealedAppointments) {
 		this.date = date;
@@ -34,16 +35,16 @@ public abstract class AppointmentCalendarVisualizer extends JPanel {
 		
 		support = new PropertyChangeSupport(this);
 	}
-	
+
 	public Date getDate() {
 		return date;
 	}
 	
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        support.addPropertyChangeListener(pcl);
-    }
- 
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        support.removePropertyChangeListener(pcl);
-    }
+	public void addSelectionChangeListener(PropertyChangeListener pcl) {
+		support.addPropertyChangeListener(pcl);
+	}
+	
+	public void removeSelectionChangeListener(PropertyChangeListener pcl) {
+		support.removePropertyChangeListener(pcl);
+	}
 }

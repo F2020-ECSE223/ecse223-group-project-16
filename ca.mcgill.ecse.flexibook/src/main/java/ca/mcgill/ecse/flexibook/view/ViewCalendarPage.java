@@ -2,6 +2,8 @@ package ca.mcgill.ecse.flexibook.view;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.sql.Date;
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -30,7 +32,7 @@ import ca.mcgill.ecse.flexibook.controller.TOUser;
 import ca.mcgill.ecse.flexibook.util.FlexiBookUtil;
 import ca.mcgill.ecse.flexibook.util.SystemTime;
 
-public class ViewCalendarPage extends JFrame {
+public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 	public enum Periodical {
 		Daily, Weekly
 	};
@@ -59,6 +61,11 @@ public class ViewCalendarPage extends JFrame {
 	private AppointmentCalendarVisualizer appointmentCalendarVisualizer;
 	private AppointmentCalendarVisualizerWrapper appointmentCalendarVisualizerWrapper;
 	private JScrollPane scrollPane;
+	private JPanel detailPanel;
+	private JLabel usernameLabel;
+	private JLabel serviceLabel;
+	private JLabel startTimeLabel;
+	private JLabel endTimeLabel;
 
 	// data elements
 	private String errorMessage;
@@ -95,6 +102,13 @@ public class ViewCalendarPage extends JFrame {
 		viewButton = new JButton("Show");
 
 		scrollPane = new JScrollPane();
+		
+		usernameLabel = new JLabel();
+		serviceLabel = new JLabel();
+		startTimeLabel = new JLabel();
+		endTimeLabel = new JLabel();
+	
+		detailPanel = new JPanel();
 		
 		// data elements
 		currentPeriodical = Periodical.Daily;
@@ -136,11 +150,19 @@ public class ViewCalendarPage extends JFrame {
 				viewButtonActionPerformed(evt);
 			}
 		});
+		
 
 		// layout
 		periodicalPanel.setLayout(new BoxLayout(periodicalPanel, BoxLayout.Y_AXIS));
 		periodicalPanel.add(dayRadioButton);
 		periodicalPanel.add(weekRadioButton);
+		
+		detailPanel.setLayout(new BoxLayout(detailPanel, BoxLayout.Y_AXIS));
+		detailPanel.setVisible(false);
+		detailPanel.add(usernameLabel);
+		detailPanel.add(serviceLabel);
+		detailPanel.add(startTimeLabel);
+		detailPanel.add(endTimeLabel);
 
 		GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
@@ -167,6 +189,7 @@ public class ViewCalendarPage extends JFrame {
 						)
 				.addComponent(errorMessageLabel)
 				.addComponent(scrollPane)
+				.addComponent(detailPanel)
 				);
 
 		layout.setVerticalGroup(
@@ -191,6 +214,7 @@ public class ViewCalendarPage extends JFrame {
 						)
 				.addComponent(errorMessageLabel)
 				.addComponent(scrollPane)
+				.addComponent(detailPanel)
 				);
 
 		setPreferredSize(new Dimension(getPreferredSize().width + 20, getPreferredSize().height));
@@ -198,7 +222,7 @@ public class ViewCalendarPage extends JFrame {
 		
 		pack();
 	}
-
+	
 	private void refreshData() {
 		if (!scrollPaneWasSetup) { // setup once
 			scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -210,6 +234,7 @@ public class ViewCalendarPage extends JFrame {
 		errorMessageLabel.setText(errorMessage);
 		if (errorMessage == null || errorMessage.trim().length() == 0) {
 			if (appointmentCalendarVisualizerWrapper != null) {
+				appointmentCalendarVisualizer.addSelectionChangeListener(this);
 				scrollPane.setViewportView(appointmentCalendarVisualizerWrapper);
 			}
 		}
@@ -360,5 +385,34 @@ public class ViewCalendarPage extends JFrame {
 		} else {
 			currentPeriodical = Periodical.Weekly;
 		}
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		TOAppointment appointment = (TOAppointment) evt.getNewValue();
+
+		String currentUser = FlexiBookController.getCurrentUser().getUsername();
+
+		// initialize JLabel strings 
+		usernameLabel.setText("");
+		serviceLabel.setText("");
+		startTimeLabel.setText("");
+		endTimeLabel.setText(""); 
+
+		if (appointment != null) {
+			if (currentUser.equals(appointment.getCustomerUsername()) || currentUser.equals("owner")) {
+				usernameLabel.setText("Customer: " + appointment.getCustomerUsername());
+				serviceLabel.setText("Service: " + appointment.getBookableServiceName());
+		    }
+			
+			startTimeLabel.setText("Start: " + appointment.getStartTime().toString());
+			endTimeLabel.setText("End: " + appointment.getEndTime().toString());
+			
+			detailPanel.setVisible(true);
+		}
+		else {
+			detailPanel.setVisible(false);
+		}
+		
 	}
 }

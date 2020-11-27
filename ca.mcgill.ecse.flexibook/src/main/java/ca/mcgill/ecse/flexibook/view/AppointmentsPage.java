@@ -112,8 +112,8 @@ public class AppointmentsPage extends JFrame {
       }
     });
 
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    setTitle("Appointment Tab");
+	setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    setTitle("Appointments");
 
     GroupLayout layout = new GroupLayout(getContentPane());
 
@@ -188,6 +188,8 @@ public class AppointmentsPage extends JFrame {
           .addComponent(cancelAppointmentButton)
         )
     );
+    
+    setJMenuBar(new FlexiBookMenuBar(this, "Appointments"));
     pack();
   }
 

@@ -245,6 +245,7 @@ public class ServicesPage extends JFrame {
     		    )
 	     .addComponent(errorMessage)
     			);
+    setJMenuBar(new FlexiBookMenuBar(this, "Services"));
     pack();
   }
   

@@ -1,5 +1,6 @@
 package ca.mcgill.ecse.flexibook.view;
 
+import java.util.EventObject;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOUser;
@@ -22,12 +24,14 @@ public class FlexiBookMenuBar extends JMenuBar {
 
 	// UI elements
 	// navigation
+	private JMenu brandMenuItem;
 	private JMenu navigationMenu;
-	private JMenuItem goToHomeMenuItem;
-	private JMenuItem goToServicesMenuItem;
+	private JMenuItem goToMenuMenuItem;
 	private JMenuItem goToBusinessInfoMenuItem;
-	private JMenuItem goToAppointmentsMenuItem;
 	private JMenuItem goToViewCalendarMenuItem;
+	private JMenuItem goToAppointmentsMenuItem;
+	private JMenuItem goToAppointmentManagementMenuItem;
+	private JMenuItem goToServicesMenuItem;
 	private JMenuItem refreshMenuItem;
 	// account
 	private JMenu accountMenu;
@@ -35,46 +39,68 @@ public class FlexiBookMenuBar extends JMenuBar {
 	private JMenuItem goToAccountSettingsMenuItem;
 
 	// data elements
-	private JFrame parentFrame;
+	private final JFrame parentFrame;
 	private String activePageName;
-	private Map<String, JMenuItem> navigationMenuItemsByPageName = new LinkedHashMap<String, JMenuItem>();
-
-	public FlexiBookMenuBar(JFrame parent) {
+	private final Map<String, JMenuItem> navigationMenuItemsByPageName = new LinkedHashMap<String, JMenuItem>();
+	private final boolean isNavigable;
+	private final boolean currentUserIsOwner;
+	// constants
+	private static final String[] pageNames = {"Menu", "Business Info", "View Calendar", "Appointments", "Services"};
+	
+	public FlexiBookMenuBar(JFrame parentFrame, String currentPageName) {
+		this(parentFrame, currentPageName, true);
+	}
+	
+	public FlexiBookMenuBar(JFrame parentFrame, String currentPageName, boolean isNavigable) {
+		if (!isValidPageName(currentPageName) && !currentPageName.equals("Account Settings")) {
+			throw new IllegalArgumentException("Page with name '" + currentPageName + "' is not a valid page name");
+		}
+		this.parentFrame = parentFrame;
+		activePageName = currentPageName;
+		this.isNavigable = isNavigable;
+		currentUserIsOwner = FlexiBookController.isCurrentUserOwner();
 		initComponents();
 		refreshData();
 	}
-
-	public FlexiBookMenuBar(JFrame parentFrame, String currentPageName) {
-		this.parentFrame = parentFrame;
-		activePageName = currentPageName;
-		initComponents();
-		refreshData();
+	
+	private boolean isValidPageName(String pageName) {
+		for (int i=0; i<pageNames.length; i++) {
+			if (pageName.equals(pageNames[i])) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void initComponents() {
+
 		navigationMenu = new JMenu("FlexiBook");
-
 		// navigation menu
-		goToHomeMenuItem = new JMenuItem("Home");
+		goToMenuMenuItem = new JMenuItem("Menu");
+		navigationMenuItemsByPageName.put("Menu", goToMenuMenuItem);
 		goToBusinessInfoMenuItem = new JMenuItem("Business Info");
-		goToServicesMenuItem = new JMenuItem("Services");
-		goToAppointmentsMenuItem = new JMenuItem("Appointments");
-		goToViewCalendarMenuItem = new JMenuItem("View Calendar");
-//		helpMenuItem = new JMenuItem("Help", UIManager.getIcon("OptionPane.questionIcon"));
-		refreshMenuItem = new JMenuItem("Refresh");
-
-		navigationMenuItemsByPageName.put("Home", goToHomeMenuItem);
 		navigationMenuItemsByPageName.put("Business Info", goToBusinessInfoMenuItem);
+		goToViewCalendarMenuItem = new JMenuItem("View Calendar");
 		navigationMenuItemsByPageName.put("View Calendar", goToViewCalendarMenuItem);
-		navigationMenuItemsByPageName.put("Services", new JMenuItem("Services"));
-		navigationMenuItemsByPageName.put("Appointments", new JMenuItem("Appointments"));
+		if (currentUserIsOwner) {
+			goToAppointmentManagementMenuItem = new JMenuItem("Appointment Management");
+			navigationMenuItemsByPageName.put("Appointment Management", goToAppointmentManagementMenuItem);
+			goToServicesMenuItem = new JMenuItem("Services");
+			navigationMenuItemsByPageName.put("Services", goToServicesMenuItem);
+		} else {
+			goToAppointmentsMenuItem = new JMenuItem("Appointments");
+			navigationMenuItemsByPageName.put("Appointments", goToAppointmentsMenuItem);
+		}
+//			helpMenuItem = new JMenuItem("Help", UIManager.getIcon("OptionPane.questionIcon"));
+		refreshMenuItem = new JMenuItem("Refresh");
 
 		for (Map.Entry<String, JMenuItem> entry : navigationMenuItemsByPageName.entrySet()) {
 			navigationMenu.add(entry.getValue());
 		}
 		navigationMenu.addSeparator();
 		navigationMenu.add(refreshMenuItem);
-//		navigationMenu.add(helpMenuItem);
+//			navigationMenu.add(helpMenuItem);
+		brandMenuItem = new JMenu("FlexiBook");
 
 		// account menu
 		accountMenu = new JMenu();
@@ -98,9 +124,9 @@ public class FlexiBookMenuBar extends JMenuBar {
 		// listeners
 		// navigation menu
 		// navigation menu items
-		goToHomeMenuItem.addActionListener(new java.awt.event.ActionListener() {
+		goToMenuMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Utils.switchToFrame(parentFrame, new LandingPage());
+				Utils.switchToFrame(parentFrame, new MenuPage());
 			}
 		});
 		goToBusinessInfoMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -108,43 +134,68 @@ public class FlexiBookMenuBar extends JMenuBar {
 				Utils.switchToFrame(parentFrame, new BusinessInfoPage());
 			}
 		});
-		goToServicesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Utils.switchToFrame(parentFrame, new ServicesPage());
-			}
-		});
-		goToAppointmentsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Utils.switchToFrame(parentFrame, new AppointmentsPage());
-			}
-		});
 		goToViewCalendarMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				Utils.switchToFrame(parentFrame, new ViewCalendarPage());
+				Utils.goToFrame(parentFrame, new ViewCalendarPage());
 			}
 		});
+		if (currentUserIsOwner) {
+			goToAppointmentManagementMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent evt) {
+					Utils.switchToFrame(parentFrame, new AppointmentManagementPage());
+				}
+			});
+			goToServicesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent evt) {
+					Utils.switchToFrame(parentFrame, new ServicesPage());
+				}
+			});
+		} else { 
+			goToAppointmentsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent evt) {
+					Utils.switchToFrame(parentFrame, new AppointmentsPage());
+				}
+			});
+		}
 		refreshMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				clickMenuItemByName(activePageName);
-				parentFrame.dispose();
+				refreshMenuItemActionPerformed((java.util.EventObject) evt);
 			}
 		});
+
+		// brand menu
+		// brand menu item
+		brandMenuItem.addMenuListener(new javax.swing.event.MenuListener(){
+	        @Override
+	        public void menuSelected(javax.swing.event.MenuEvent evt){
+	        	refreshMenuItemActionPerformed((java.util.EventObject) evt);
+	        }
+
+	        @Override
+	        public void menuCanceled(javax.swing.event.MenuEvent e) {}
+
+	        @Override
+	        public void menuDeselected(javax.swing.event.MenuEvent e) {}
+	    });
+		
 		// account menu
 		// account menu items
 		logoutMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				logout();
-				Utils.switchToFrame(parentFrame, new LandingPage());
+				logoutMenuItemActionPerformed(evt);
 			}
 		});
 		goToAccountSettingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				parentFrame.setEnabled(false);
-				Utils.goToFrame(parentFrame, new AccountSettingsPage(), true);
+				Utils.switchToFrame(parentFrame, new AccountSettingsPage());
 			}
 		});
-
-		add(navigationMenu);
+		if (isNavigable) {
+			add(navigationMenu);
+		} else {
+			add(brandMenuItem);
+		}
 		add(Box.createHorizontalGlue()); // make account menu right-aligned
 		add(accountMenu);
 	}
@@ -156,6 +207,10 @@ public class FlexiBookMenuBar extends JMenuBar {
 	}
 
 	private void setActivePage(String targetPageName) {
+		if (targetPageName == null) {
+			throw new IllegalArgumentException("Target page name cannot be null");
+		}
+		
 		JMenuItem activePageMenuItem = navigationMenuItemsByPageName.get(activePageName);
 		if (activePageMenuItem != null) {
 			activePageMenuItem.setEnabled(true);
@@ -166,7 +221,7 @@ public class FlexiBookMenuBar extends JMenuBar {
 			if (targetPageName.equals("Account Settings")) {
 				targetPageMenuItem = goToAccountSettingsMenuItem;
 			} else {
-				throw new IllegalArgumentException("Page with name '" + targetPageName + "' is unknown.");
+				throw new IllegalArgumentException("Page with name '" + targetPageName + "' is unknown");
 			}
 		}
 
@@ -175,10 +230,10 @@ public class FlexiBookMenuBar extends JMenuBar {
 	}
 
 	private void clickMenuItemByName(String targetPageName) {
-		System.out.println(targetPageName);
 		if (targetPageName == null) {
 			throw new IllegalArgumentException("Target page name cannot be null");
 		}
+		
 		setActivePage(targetPageName);
 
 		JMenuItem targetPageMenuItem = navigationMenuItemsByPageName.get(targetPageName);
@@ -186,19 +241,28 @@ public class FlexiBookMenuBar extends JMenuBar {
 			if (targetPageName.equals("Account Settings")) {
 				targetPageMenuItem = goToAccountSettingsMenuItem;
 			} else {
-				throw new IllegalStateException("Page with name '" + targetPageName + "' is unknown.");
+				throw new IllegalStateException("Menu item with name '" + targetPageName + "' is unknown");
 			}
 		}
+		
 		targetPageMenuItem.setEnabled(true);
 		targetPageMenuItem.doClick();
 		targetPageMenuItem.setEnabled(false);
 	}
 
-	private void logout() {
+	private void logoutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 			FlexiBookController.logout();
 		} catch (InvalidInputException e) {
 			JOptionPane.showMessageDialog(parentFrame, e.getMessage(), "Unable to logout", JOptionPane.ERROR_MESSAGE);
 		}
+		Utils.switchToFrame(parentFrame, new LandingPage());
+		
+		FlexiBookApplication.disposeDetachedPages();
+	}
+	
+	private void refreshMenuItemActionPerformed(EventObject eventObject) {
+		clickMenuItemByName(activePageName);
+		parentFrame.dispose();
 	}
 }

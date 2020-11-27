@@ -92,7 +92,7 @@ public class LoginPage extends JFrame {
     
     // formatting
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    setTitle("Login Here");
+    setTitle("Login");
     getRootPane().setDefaultButton(loginButton); 
     setResizable(false);
 
@@ -168,11 +168,7 @@ public class LoginPage extends JFrame {
 		// call the controller
 		try {
       FlexiBookController.login(username, password);
-      if(username.equals("owner")){
-        Utils.switchToFrame(this, new OwnerMenuPage());
-      } else {
-        Utils.switchToFrame(this, new CustomerMenuPage());
-      }
+      Utils.switchToFrame(this, new MenuPage());
 			
 		} catch (InvalidInputException e) {
 			errorMessage = e.getMessage();

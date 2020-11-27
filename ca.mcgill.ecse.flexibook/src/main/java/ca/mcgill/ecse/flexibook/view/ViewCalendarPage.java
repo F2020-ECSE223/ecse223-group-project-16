@@ -23,6 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
+import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOAppointment;
@@ -114,9 +115,8 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 		currentPeriodical = Periodical.Daily;
 
 		// global settings
-		setMinimumSize(new Dimension(200, 300));
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		setTitle("View Appointment Calendar");
+		setTitle("View Calendar");
 		getRootPane().setDefaultButton(viewButton); // Wire enter key to view button
 
 		// listeners
@@ -216,10 +216,10 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 				.addComponent(scrollPane)
 				.addComponent(detailPanel)
 				);
-
-		setPreferredSize(new Dimension(getPreferredSize().width + 20, getPreferredSize().height));
 		// @formatter:on
-		
+		setPreferredSize(new Dimension(getPreferredSize().width + 20, getPreferredSize().height));
+		setMinimumSize(new Dimension(getPreferredSize().width, 300));
+		setJMenuBar(new FlexiBookMenuBar(this, "View Calendar", false));
 		pack();
 	}
 	
@@ -242,7 +242,7 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 	
 	private void refreshAppointmentCalendar() {
 		List<TOBusinessHour> allBusinessHours;
-		List<TOAppointment> allCurrentUserAppointments;
+		List<TOAppointment> revealedAppointments;
 		List<TOAppointment> allAppointments;
 
 		TOUser currentUser = FlexiBookController.getCurrentUser();
@@ -258,7 +258,14 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 			} else {
 				allBusinessHours = new ArrayList<TOBusinessHour>();
 			}
-			allCurrentUserAppointments = FlexiBookController.getAppointments(currentUser.getUsername());
+			
+			if (FlexiBookController.getCurrentUser().getUsername().equals("owner")) {
+				revealedAppointments = FlexiBookController.getAppointments();
+			}
+			else {
+				revealedAppointments = FlexiBookController.getAppointments(currentUser.getUsername());
+			}
+			
 			allAppointments = FlexiBookController.getAppointments();
 		} catch (InvalidInputException e) {
 			errorMessage = e.getMessage();
@@ -276,11 +283,11 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 		if (currentPeriodical == Periodical.Daily) {
 			appointmentCalendarVisualizer = new DailyAppointmentCalendarVisualizer(selectedDate,
 					Utils.filterBusinessHoursByDate(allBusinessHours, selectedDate),
-					Utils.filterAppointmentsByDate(allCurrentUserAppointments, selectedDate),
+					Utils.filterAppointmentsByDate(revealedAppointments, selectedDate),
 					Utils.filterAppointmentsByDate(allAppointments, selectedDate));
 			appointmentCalendarVisualizerWrapper = new AppointmentCalendarVisualizerWrapper((DailyAppointmentCalendarVisualizer) appointmentCalendarVisualizer);
 		} else {
-			appointmentCalendarVisualizer = new WeeklyAppointmentCalendarVisualizer(selectedDate, allBusinessHours, allCurrentUserAppointments, allAppointments); // this is lazy, client should not expect viz to filter events in the date range that makes sense
+			appointmentCalendarVisualizer = new WeeklyAppointmentCalendarVisualizer(selectedDate, allBusinessHours, revealedAppointments, allAppointments); // this is lazy, client should not expect viz to filter events in the date range that makes sense
 			appointmentCalendarVisualizerWrapper = new AppointmentCalendarVisualizerWrapper((WeeklyAppointmentCalendarVisualizer) appointmentCalendarVisualizer);
 		}
 		

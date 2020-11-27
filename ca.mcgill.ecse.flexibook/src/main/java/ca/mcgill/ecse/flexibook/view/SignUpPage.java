@@ -83,7 +83,7 @@ public class SignUpPage extends JFrame {
 
 		// global settings
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		setTitle("Create your FlexiBook Account");
+		setTitle("Sign Up");
 		getRootPane().setDefaultButton(signUpButton); // Wire enter key to sign up button
 		setResizable(false);
 
@@ -196,7 +196,7 @@ public class SignUpPage extends JFrame {
 			String username = usernameTextField.getText();
 			FlexiBookController.createCustomerAccount(username,
 					String.valueOf(passwordField.getPassword()));
-			JOptionPane.showMessageDialog(this, "Account successfully created!\nPlease process to login.", "FlexiBook", JOptionPane.PLAIN_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Account successfully created!\nPlease proceed to login.", "FlexiBook", JOptionPane.PLAIN_MESSAGE);
 			Utils.switchToFrame(this, new LoginPage(username));
 		} catch (InvalidInputException e) {
 			errorMessage = e.getMessage();

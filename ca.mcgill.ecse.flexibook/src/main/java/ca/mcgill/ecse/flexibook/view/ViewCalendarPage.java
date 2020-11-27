@@ -258,7 +258,14 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 			} else {
 				allBusinessHours = new ArrayList<TOBusinessHour>();
 			}
-			allCurrentUserAppointments = FlexiBookController.getAppointments(currentUser.getUsername());
+			
+			if (FlexiBookController.getCurrentUser().getUsername().equals("owner")) {
+				allCurrentUserAppointments = FlexiBookController.getAppointments();
+			}
+			else {
+				allCurrentUserAppointments = FlexiBookController.getAppointments(currentUser.getUsername());
+			}
+			//allCurrentUserAppointments = FlexiBookController.getAppointments(currentUser.getUsername());
 			allAppointments = FlexiBookController.getAppointments();
 		} catch (InvalidInputException e) {
 			errorMessage = e.getMessage();

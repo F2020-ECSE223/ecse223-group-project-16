@@ -257,10 +257,8 @@ public class FlexiBookMenuBar extends JMenuBar {
 			JOptionPane.showMessageDialog(parentFrame, e.getMessage(), "Unable to logout", JOptionPane.ERROR_MESSAGE);
 		}
 		Utils.switchToFrame(parentFrame, new LandingPage());
-		for (JFrame detachedPage : FlexiBookApplication.getDetachedPages()) {
-			detachedPage.dispose();
-		}
-		FlexiBookApplication.clearDetachedPages();
+		
+		FlexiBookApplication.disposeDetachedPages();
 	}
 	
 	private void refreshMenuItemActionPerformed(EventObject eventObject) {

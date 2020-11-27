@@ -311,10 +311,9 @@ public class AccountSettingsPage extends JFrame {
 				}
 
 				FlexiBookController.deleteCustomerAccount(FlexiBookController.getCurrentUser().getUsername());
-				for (JFrame detachedPage : FlexiBookApplication.getDetachedPages()) {
-					detachedPage.dispose();
-				}
-				FlexiBookApplication.clearDetachedPages();
+				
+				FlexiBookApplication.disposeDetachedPages();
+				
 				Utils.switchToFrame(this, new LandingPage());
 			}
 		} catch (InvalidInputException e) {

@@ -64,10 +64,6 @@ public class FlexiBookApplication {
     	currentUser = null;
     }
     
-    public static List<JFrame> getDetachedPages() {
-    	return detachedPages;
-    }
-    
     public static void addDetachedPage(JFrame detachedPage) {
     	detachedPages.add(detachedPage);
     }
@@ -75,8 +71,11 @@ public class FlexiBookApplication {
     public static void removeDetachedPage(JFrame detachedPage) {
     	detachedPages.remove(detachedPage);
     }
-    
-    public static void clearDetachedPages() {
+
+    public static void disposeDetachedPages() {
+    	for (JFrame detachedPage : detachedPages) {
+    		detachedPage.dispose();
+    	}
     	detachedPages.clear();
-    }   
+    }
 }

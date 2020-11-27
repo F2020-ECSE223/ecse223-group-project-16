@@ -3,6 +3,7 @@ package ca.mcgill.ecse.flexibook.view;
 import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,27 +16,19 @@ import ca.mcgill.ecse.flexibook.controller.TOAppointment;
 import ca.mcgill.ecse.flexibook.controller.TOBusinessHour;
 
 public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisualizer implements PropertyChangeListener {
+	private static final long serialVersionUID = 8192496352932609798L;
+
 	// managed views
 	private List<DailyAppointmentCalendarVisualizer> dailyAppointmentCalendarVisualizers;
-
-	// observers
-	private List<PropertyChangeListener> pcls;
 	
+	// data elements
+	private TOAppointment selectedAppointment;
+
 	public WeeklyAppointmentCalendarVisualizer(Date startDate, List<TOBusinessHour> businessHours,
 			List<TOAppointment> revealedAppointments, List<TOAppointment> concealedAppointments) {
 		super(startDate, businessHours, revealedAppointments, concealedAppointments);
-		
-		pcls = new ArrayList<PropertyChangeListener>();
 
 		initComponents();
-	}
-	
-	public void addSelectionChangeListener(PropertyChangeListener pcl) {
-		pcls.add(pcl);
-	}
-	
-	public void removeSelectionChangeListener(PropertyChangeListener pcl) {
-		pcls.remove(pcl);
 	}
 	
 	private void initComponents() {		
@@ -50,7 +43,7 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 			dailyAppointmentCalendarVisualizers.add(dailyAppointmentCalendarVisualizer);
 			
 			// listen
-			dailyAppointmentCalendarVisualizer.addPropertyChangeListener(this);
+			dailyAppointmentCalendarVisualizer.addSelectionChangeListener(this);
 			
 			tomorrow = tomorrow.plusDays(1);
 		}
@@ -73,9 +66,7 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 			}
 		}
 		
-		// notify own listeners about selection change
-		for (PropertyChangeListener pcl : pcls) {
-			pcl.propertyChange(evt);
-		}
+		firePropertyChange(evt.getPropertyName(), selectedAppointment, evt.getNewValue());
+		selectedAppointment = appointment;
 	}
 }

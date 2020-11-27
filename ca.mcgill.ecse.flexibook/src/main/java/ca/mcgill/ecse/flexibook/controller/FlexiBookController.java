@@ -1725,8 +1725,13 @@ public class FlexiBookController {
 			throw new InvalidInputException("Start time must be before end time");
 		}
 		for (BusinessHour bh : FlexiBookApplication.getFlexiBook().getBusiness().getBusinessHours()) {
-			if (day.equals(bh.getDayOfWeek().toString())) {
-				throw new InvalidInputException("The business hours cannot overlap");
+			try {
+				Time newTime = FlexiBookUtil.getTimeFromString(startTime);
+				if (day.equals(bh.getDayOfWeek().toString())  && newTime.before(bh.getEndTime())) {
+					throw new InvalidInputException("The business hours cannot overlap");
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
 			}
 		}
 		BusinessHour aNewBusinessHour = new BusinessHour(BusinessHour.DayOfWeek.valueOf(day), 

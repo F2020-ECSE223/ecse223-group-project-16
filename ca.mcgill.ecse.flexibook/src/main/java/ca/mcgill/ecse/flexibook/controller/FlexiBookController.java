@@ -1054,10 +1054,8 @@ public class FlexiBookController {
 	public static User login(String username, String password) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 		
-		if (username.equals("owner")) {
-			if (!flexiBook.hasOwner()) {
-				 new Owner("owner", "owner", flexiBook); 
-			}
+		if (username.equals("owner") && password.equals("owner") && !flexiBook.hasOwner()) {
+			new Owner("owner", "owner", flexiBook); 
 			FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
 			return FlexiBookApplication.getCurrentUser();
 		}
@@ -1067,6 +1065,11 @@ public class FlexiBookController {
 					FlexiBookApplication.setCurrentUser(user);
 					return FlexiBookApplication.getCurrentUser();
 				}
+			}
+			
+			if (username.equals("owner") && password.equals(flexiBook.getOwner().getPassword())) {
+				FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
+				return FlexiBookApplication.getCurrentUser();
 			}
 			
 		}
@@ -1500,6 +1503,18 @@ public class FlexiBookController {
 	/**
 	 * @author Julie
 	 */
+	private static boolean notValidAddress(String address) {
+		Pattern pattern = Pattern.compile("^\\d+\\s[A-z]+\\s[A-z]+");
+		Matcher matcher = pattern.matcher(address);
+		if (matcher.matches()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	/**
+	 * @author Julie
+	 */
 	private static boolean notValidEmail(String email) {
 		Pattern pattern = Pattern.compile("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
 		Matcher matcher = pattern.matcher(email);
@@ -1516,7 +1531,7 @@ public class FlexiBookController {
 		if (name == null || name.isEmpty()) {
 			throw new InvalidInputException("Invalid business name");
 		}
-		if (address.isEmpty() || address == null) {
+		if (notValidAddress(address)) {
 			throw new InvalidInputException("Invalid address");
 		}
 		if (notValidPhoneNumber(phoneNumber)) {
@@ -1728,10 +1743,9 @@ public class FlexiBookController {
 			throw new InvalidInputException("No permission to update business information");
 		}
 		validateBusinessInfo(name, address, phoneNumber, email);
-		FlexiBookApplication.getFlexiBook().getBusiness().setName(name);
-		FlexiBookApplication.getFlexiBook().getBusiness().setAddress(address);
-		FlexiBookApplication.getFlexiBook().getBusiness().setPhoneNumber(phoneNumber);
-		FlexiBookApplication.getFlexiBook().getBusiness().setEmail(email);
+		FlexiBookApplication.getFlexiBook().getBusiness().delete();
+	    Business aNewBusiness = new Business(name, address, phoneNumber, email, FlexiBookApplication.getFlexiBook());
+		FlexiBookApplication.getFlexiBook().setBusiness(aNewBusiness);
 		try{
 			FlexiBookPersistence.save(FlexiBookApplication.getFlexiBook());
 		}

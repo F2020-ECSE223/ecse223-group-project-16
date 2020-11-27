@@ -3,6 +3,12 @@
  */
 package ca.mcgill.ecse.flexibook.application;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JFrame;
+
+
 import ca.mcgill.ecse.flexibook.model.FlexiBook;
 import ca.mcgill.ecse.flexibook.model.User;
 import ca.mcgill.ecse.flexibook.persistence.FlexiBookPersistence;
@@ -13,6 +19,7 @@ public class FlexiBookApplication {
 	public static final boolean LOAD_PERSISTENCE = true;
 	private static FlexiBook flexiBook;
     private static User currentUser;
+    private static List<JFrame> detachedPages = new ArrayList<>();
 	
     public String getGreeting() {
         return "Hello world.";
@@ -57,4 +64,20 @@ public class FlexiBookApplication {
     public static void unsetCurrentUser() {
     	currentUser = null;
     }
+    
+    public static List<JFrame> getDetachedPages() {
+    	return detachedPages;
+    }
+    
+    public static void addDetachedPage(JFrame viewCalendarPage) {
+    	detachedPages.add(viewCalendarPage);
+    }
+    
+    public static void removeDetachedPage(JFrame viewCalendarPage) {
+    	detachedPages.remove(viewCalendarPage);
+    }
+    
+    public static void clearDetachedPages() {
+    	detachedPages.clear();
+    }   
 }

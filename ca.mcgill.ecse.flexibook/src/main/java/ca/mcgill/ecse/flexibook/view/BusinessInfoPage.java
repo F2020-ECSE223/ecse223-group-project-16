@@ -78,6 +78,14 @@ public class BusinessInfoPage extends JFrame {
     addressTextField = new JTextField();
     phoneNumberTextField = new JTextField();
     emailTextField = new JTextField();
+    
+    if (!FlexiBookController.isCurrentUserOwner()) {
+    	businessNameTextField.setEditable(false);
+    	addressTextField.setEditable(false);
+    	phoneNumberTextField.setEditable(false);
+    	emailTextField.setEditable(false);
+    }
+    
     dayLabels = new ArrayList<>();
     for (int i=0; i<7; i++) {
         String day  = DateFormatSymbols.getInstance().getWeekdays()[i + 1]; 

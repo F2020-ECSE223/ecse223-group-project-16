@@ -19,6 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
+import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
 import ca.mcgill.ecse.flexibook.controller.FlexiBookController;
 import ca.mcgill.ecse.flexibook.controller.InvalidInputException;
 import ca.mcgill.ecse.flexibook.controller.TOUser;
@@ -101,6 +102,7 @@ public class AccountSettingsPage extends JFrame {
 		// global settings
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setTitle("Account Settings");
+		setResizable(false);
 
 		// listeners
 		passwordVisibilityButton.addActionListener(new java.awt.event.ActionListener() {
@@ -309,7 +311,10 @@ public class AccountSettingsPage extends JFrame {
 				}
 
 				FlexiBookController.deleteCustomerAccount(FlexiBookController.getCurrentUser().getUsername());
-
+				for (JFrame detachedPage : FlexiBookApplication.getDetachedPages()) {
+					detachedPage.dispose();
+				}
+				FlexiBookApplication.clearDetachedPages();
 				Utils.switchToFrame(this, new LandingPage());
 			}
 		} catch (InvalidInputException e) {

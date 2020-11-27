@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
 import ca.mcgill.ecse.flexibook.application.FlexiBookApplication;
@@ -41,6 +42,7 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 	private static final long serialVersionUID = 1704467229218861611L;
 
 	// constants
+	private static int REFRESH_DELAY = 5 * 1000; // ms
 	private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd";
 
 	// UI elements
@@ -69,6 +71,7 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 	private JLabel endTimeLabel;
 
 	// data elements
+	private Date selectedDate;
 	private String errorMessage;
 	private Periodical currentPeriodical;
 	private boolean scrollPaneWasSetup = false;
@@ -150,6 +153,24 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 				viewButtonActionPerformed(evt);
 			}
 		});
+		
+		Timer timer = new Timer(REFRESH_DELAY, new java.awt.event.ActionListener() {
+	        @Override
+	        public void actionPerformed(java.awt.event.ActionEvent evt) {
+	        	try {
+		        	if (currentPeriodical == Periodical.Daily) {
+						appointmentCalendarVisualizer.setRevealedAppointments(Utils.filterAppointmentsByDate(getRevealedAppointments(), interpretDate()));
+						appointmentCalendarVisualizer.setConcealedAppointments(Utils.filterAppointmentsByDate(getConcealedAppointments(), interpretDate()));
+		        	} else {
+		        		appointmentCalendarVisualizer.setRevealedAppointments(getRevealedAppointments());
+		        		appointmentCalendarVisualizer.setConcealedAppointments(getConcealedAppointments());
+		        	}
+				} catch (InvalidInputException e) {
+					e.printStackTrace();
+				}
+	        }
+	    });
+	    timer.start();
 		
 
 		// layout
@@ -240,6 +261,32 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 		}
 	}
 	
+	private List<TOAppointment> getRevealedAppointments() throws InvalidInputException {
+		TOUser currentUser = FlexiBookController.getCurrentUser();
+		
+		if (FlexiBookController.getCurrentUser().getUsername().equals("owner")) {
+			return FlexiBookController.getAppointments();
+		} else {
+			return FlexiBookController.getAppointments(currentUser.getUsername());
+		}
+	}
+	
+	private List<TOAppointment> getConcealedAppointments() {
+		TOUser currentUser = FlexiBookController.getCurrentUser();
+
+		List<TOAppointment> concealedAppointments = new ArrayList<TOAppointment>();
+		if (currentUser.getUsername().equals("owner")) {
+			return concealedAppointments;
+		} else {
+			for (TOAppointment a : FlexiBookController.getAppointments()) {
+				if (!a.getCustomerUsername().equals(currentUser.getUsername())) {
+					concealedAppointments.add(a);
+				}
+			}
+			return concealedAppointments;
+		}
+	}
+	
 	private void refreshAppointmentCalendar() {
 		List<TOBusinessHour> allBusinessHours;
 		List<TOAppointment> revealedAppointments;
@@ -259,17 +306,8 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 				allBusinessHours = new ArrayList<TOBusinessHour>();
 			}
 			
-			concealedAppointments = new ArrayList<TOAppointment>();
-			if (FlexiBookController.getCurrentUser().getUsername().equals("owner")) {
-				revealedAppointments = FlexiBookController.getAppointments();
-			} else {
-				revealedAppointments = FlexiBookController.getAppointments(currentUser.getUsername());
-				for (TOAppointment a : FlexiBookController.getAppointments()) {
-					if (!a.getCustomerUsername().equals(currentUser.getUsername())) {
-						concealedAppointments.add(a);
-					}
-				}
-			}
+			concealedAppointments = getConcealedAppointments();
+			revealedAppointments = getRevealedAppointments();
 		} catch (InvalidInputException e) {
 			errorMessage = e.getMessage();
 			refreshData();

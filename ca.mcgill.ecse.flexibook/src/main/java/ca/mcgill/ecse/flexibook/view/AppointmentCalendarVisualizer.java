@@ -35,7 +35,15 @@ public abstract class AppointmentCalendarVisualizer extends JPanel {
 		
 		support = new PropertyChangeSupport(this);
 	}
-
+	
+	public void setRevealedAppointments(List<TOAppointment> revealedAppointments) {
+		this.revealedAppointments = revealedAppointments;
+	}
+	
+	public void setConcealedAppointments(List<TOAppointment> concealedAppointments) {
+		this.concealedAppointments = concealedAppointments;
+	}
+ 
 	public Date getDate() {
 		return date;
 	}

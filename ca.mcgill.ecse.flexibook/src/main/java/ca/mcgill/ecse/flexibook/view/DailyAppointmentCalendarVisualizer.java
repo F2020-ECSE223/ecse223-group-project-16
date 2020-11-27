@@ -61,6 +61,16 @@ public class DailyAppointmentCalendarVisualizer extends AppointmentCalendarVisua
 		return getWidth();
 	}
 	
+	public void setRevealedAppointments(List<TOAppointment> revealedAppointments) {
+		super.setRevealedAppointments(revealedAppointments);
+		repaint();
+	}
+	
+	public void setConcealedAppointments(List<TOAppointment> concealedAppointments) {
+		super.setConcealedAppointments(concealedAppointments);
+		repaint();
+	}
+	
 	public TOAppointment getSelectedAppointment() {
 		return selectedAppointment;
 	}

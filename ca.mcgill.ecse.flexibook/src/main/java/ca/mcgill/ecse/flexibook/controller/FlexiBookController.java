@@ -1187,10 +1187,28 @@ public class FlexiBookController {
 	public static User login(String username, String password) throws InvalidInputException {
 		FlexiBook flexiBook = FlexiBookApplication.getFlexiBook();
 		
-		if (username.equals("owner") && password.equals("owner") && !flexiBook.hasOwner()) {
-			new Owner("owner", "owner", flexiBook); 
-			FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
-			return FlexiBookApplication.getCurrentUser();
+		if (username.equals("owner")) {
+			if (!flexiBook.hasOwner()) {
+				if (password.equals("owner")) {
+					new Owner("owner", "owner", flexiBook);
+					
+					try{
+						FlexiBookPersistence.save(flexiBook);
+					}
+					catch(RuntimeException e){
+						throw new InvalidInputException(e.getMessage());
+					}
+					
+					FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
+					return FlexiBookApplication.getCurrentUser();
+				}
+			}
+			else {
+				if (password.equals(flexiBook.getOwner().getPassword())) {
+					FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
+					return FlexiBookApplication.getCurrentUser();
+				}
+			}
 		}
 		else {
 			for (User user : flexiBook.getCustomers() ) {
@@ -1199,12 +1217,6 @@ public class FlexiBookController {
 					return FlexiBookApplication.getCurrentUser();
 				}
 			}
-			
-			if (username.equals("owner") && password.equals(flexiBook.getOwner().getPassword())) {
-				FlexiBookApplication.setCurrentUser(flexiBook.getOwner());
-				return FlexiBookApplication.getCurrentUser();
-			}
-			
 		}
 		
 		throw new InvalidInputException ("Username/password not found");

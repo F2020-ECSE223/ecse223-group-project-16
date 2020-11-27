@@ -61,6 +61,11 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 	private AppointmentCalendarVisualizer appointmentCalendarVisualizer;
 	private AppointmentCalendarVisualizerWrapper appointmentCalendarVisualizerWrapper;
 	private JScrollPane scrollPane;
+	private JPanel detailPanel;
+	private JLabel usernameLabel;
+	private JLabel serviceLabel;
+	private JLabel startTimeLabel;
+	private JLabel endTimeLabel;
 
 	// data elements
 	private String errorMessage;
@@ -97,6 +102,15 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 		viewButton = new JButton("Show");
 
 		scrollPane = new JScrollPane();
+		
+		usernameLabel = new JLabel();
+		serviceLabel = new JLabel();
+		startTimeLabel = new JLabel();
+		endTimeLabel = new JLabel();
+	
+		detailPanel = new JPanel();
+		detailPanel.setLayout(new BoxLayout(detailPanel, BoxLayout.PAGE_AXIS));
+		detailPanel.setVisible(false);
 		
 		// data elements
 		currentPeriodical = Periodical.Daily;
@@ -170,6 +184,7 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 						)
 				.addComponent(errorMessageLabel)
 				.addComponent(scrollPane)
+				.addComponent(detailPanel)
 				);
 
 		layout.setVerticalGroup(
@@ -194,6 +209,7 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 						)
 				.addComponent(errorMessageLabel)
 				.addComponent(scrollPane)
+				.addComponent(detailPanel)
 				);
 
 		setPreferredSize(new Dimension(getPreferredSize().width + 20, getPreferredSize().height));
@@ -368,7 +384,40 @@ public class ViewCalendarPage extends JFrame implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		// this will get called whenever the selection changes, either for a daily or weekly appt calendar
-		System.out.println("Selection changed");
+		/* final String userConst = "Customer: ";
+		final String serviceConst = "Service: ";
+		final String startConst = "Customer: ";
+		final String userConst = "Customer: "; */
+		
+		TOAppointment appointment = (TOAppointment) evt.getNewValue();
+
+		String currentUser = FlexiBookController.getCurrentUser().getUsername();
+
+		// initialize JLabel strings
+		usernameLabel.setText("Customer: ");
+		serviceLabel.setText("Service: ");
+		startTimeLabel.setText("Start: ");
+		endTimeLabel.setText("End: ");
+
+		if (appointment != null) {
+			if (currentUser.equals(appointment.getCustomerUsername()) || currentUser.equals("owner")) {
+				detailPanel.add(usernameLabel);
+				detailPanel.add(serviceLabel);
+				
+				usernameLabel.setText(usernameLabel.getText() + appointment.getCustomerUsername());
+				serviceLabel.setText(serviceLabel.getText() + appointment.getBookableServiceName());
+		    }
+			
+			detailPanel.add(startTimeLabel);
+			detailPanel.add(endTimeLabel);
+			startTimeLabel.setText(startTimeLabel.getText() + appointment.getStartTime().toString());
+			endTimeLabel.setText(endTimeLabel.getText() + appointment.getEndTime().toString());
+			
+			detailPanel.setVisible(true);
+		}
+		else {
+			detailPanel.setVisible(false);
+		}
+		
 	}
 }

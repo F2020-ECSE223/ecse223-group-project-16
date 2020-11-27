@@ -66,7 +66,7 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 			}
 		}
 		
-		firePropertyChange(evt.getPropertyName(), selectedAppointment, evt.getNewValue());
+		support.firePropertyChange(evt.getPropertyName(), selectedAppointment, evt.getNewValue()); // added support.firePropertyChange
 		selectedAppointment = appointment;
 	}
 }

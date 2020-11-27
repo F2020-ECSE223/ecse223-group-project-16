@@ -8,7 +8,6 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
-
 import ca.mcgill.ecse.flexibook.model.FlexiBook;
 import ca.mcgill.ecse.flexibook.model.User;
 import ca.mcgill.ecse.flexibook.persistence.FlexiBookPersistence;
@@ -69,12 +68,12 @@ public class FlexiBookApplication {
     	return detachedPages;
     }
     
-    public static void addDetachedPage(JFrame viewCalendarPage) {
-    	detachedPages.add(viewCalendarPage);
+    public static void addDetachedPage(JFrame detachedPage) {
+    	detachedPages.add(detachedPage);
     }
     
-    public static void removeDetachedPage(JFrame viewCalendarPage) {
-    	detachedPages.remove(viewCalendarPage);
+    public static void removeDetachedPage(JFrame detachedPage) {
+    	detachedPages.remove(detachedPage);
     }
     
     public static void clearDetachedPages() {

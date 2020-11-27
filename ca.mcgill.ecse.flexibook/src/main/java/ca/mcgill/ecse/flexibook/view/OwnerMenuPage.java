@@ -14,6 +14,7 @@ public class OwnerMenuPage extends JFrame {
   private JButton goToAppointmentUpdate;
   private JButton goToViewCalendar;
   private JButton goToUserSettings;
+  private JButton goToAppointmentManagement;
 
   public OwnerMenuPage() {
     initComponents();
@@ -30,7 +31,7 @@ public class OwnerMenuPage extends JFrame {
     goToViewCalendar = new JButton();
     goToViewCalendar.setText("Go to View Calendar");
     goToUserSettings = new JButton("User Settings");
-    
+    goToAppointmentManagement = new JButton("Manage Appointments");
     
     JFrame that = this;
     goToLandingPage.addActionListener(new java.awt.event.ActionListener() {
@@ -63,6 +64,12 @@ public class OwnerMenuPage extends JFrame {
         Utils.switchToFrame(that, new AccountSettingsPage());
       }
     });
+    goToAppointmentManagement.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+          Utils.switchToFrame(that, new AppointmentManagementPage());
+        }
+      });
+
 
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     setTitle("FlexiBook Appointment Management System");
@@ -79,6 +86,7 @@ public class OwnerMenuPage extends JFrame {
         .addComponent(goToBusinessInfo)
         .addComponent(goToAppointmentUpdate)
         .addComponent(goToViewCalendar)
+        .addComponent(goToAppointmentManagement)
         .addComponent(goToUserSettings)
       )
     );
@@ -90,6 +98,7 @@ public class OwnerMenuPage extends JFrame {
         .addComponent(goToBusinessInfo)
         .addComponent(goToAppointmentUpdate)
         .addComponent(goToViewCalendar)
+        .addComponent(goToAppointmentManagement)
         .addComponent(goToUserSettings)
       )
     );

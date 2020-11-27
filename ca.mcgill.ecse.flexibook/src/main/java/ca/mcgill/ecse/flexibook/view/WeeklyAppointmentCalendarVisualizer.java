@@ -31,6 +31,31 @@ public class WeeklyAppointmentCalendarVisualizer extends AppointmentCalendarVisu
 		initComponents();
 	}
 	
+	public void setRevealedAppointments(List<TOAppointment> revealedAppointments) {
+		super.setRevealedAppointments(revealedAppointments);
+		
+		LocalDate tomorrow = date.toLocalDate(); // i.e. start date
+		for (int i = 0; i < 7; i++) {
+			Date today = Date.valueOf(tomorrow);
+			
+			dailyAppointmentCalendarVisualizers.get(i).setRevealedAppointments(Utils.filterAppointmentsByDate(revealedAppointments, today));
+		
+			tomorrow = tomorrow.plusDays(1);
+		}
+	}
+	
+	public void setConcealedAppointments(List<TOAppointment> concealedAppointments) {
+		super.setConcealedAppointments(concealedAppointments);
+		LocalDate tomorrow = date.toLocalDate(); // i.e. start date
+		for (int i = 0; i < 7; i++) {
+			Date today = Date.valueOf(tomorrow);
+			
+			dailyAppointmentCalendarVisualizers.get(i).setConcealedAppointments(Utils.filterAppointmentsByDate(concealedAppointments, today));
+		
+			tomorrow = tomorrow.plusDays(1);
+		}
+	}
+	
 	private void initComponents() {		
 		dailyAppointmentCalendarVisualizers = new ArrayList<DailyAppointmentCalendarVisualizer>();
 		LocalDate tomorrow = date.toLocalDate(); // i.e. start date

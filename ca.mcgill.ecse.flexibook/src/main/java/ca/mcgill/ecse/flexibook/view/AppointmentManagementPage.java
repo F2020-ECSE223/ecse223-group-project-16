@@ -109,8 +109,10 @@ public class AppointmentManagementPage extends JFrame {
 				);
 
 		// @formatter:on
+
+
     setJMenuBar(new FlexiBookMenuBar(this, "Appointment Management"));
-    refreshData();
+
 		pack();
 		setVisible(true);
 	}
